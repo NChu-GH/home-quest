@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Семейные Квесты - Финальная Сборка</title>
+    <title>Семейные Квесты - Финал</title>
     <style>
-        /* ОСНОВНОЙ СТИЛЬ */
+        /* 1. ГЛОБАЛЬНЫЙ СТИЛЬ */
         body { 
             background-color: #e0f7fa; 
             display: flex; flex-direction: column; align-items: center; 
@@ -15,7 +15,7 @@
 
         .main-wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100%; }
 
-        /* ВЕРХНЯЯ ПАНЕЛЬ */
+        /* 2. ВЕРХНЯЯ ПАНЕЛЬ (КРУПНАЯ) */
         .top-bar { display: flex; justify-content: space-between; align-items: stretch; margin-bottom: 10px; gap: 8px; z-index: 100; flex-shrink: 0; }
         
         .profile-card { 
@@ -35,10 +35,9 @@
         }
 
         .btn-group { display: flex; flex-direction: column; gap: 5px; flex: 0.8; }
-        
         .menu-btn, .chat-btn { 
             height: 100%; min-height: 45px; border-radius: 18px; cursor: pointer; 
-            font-weight: bold; font-family: inherit; font-size: 16px; border: 3px solid;
+            font-weight: bold; font-family: inherit; font-size: 16px; border: 4px solid;
             display: flex; justify-content: center; align-items: center;
         }
         .menu-btn { background: #ff9800; color: white; border-color: #e65100; }
@@ -49,53 +48,39 @@
             border-radius: 50%; padding: 2px 8px; font-size: 13px; border: 2px solid white; font-weight: bold; display: none;
         }
 
-        /* КАРТА И СЛОИ */
-        .map-viewport { flex: 1; width: 100%; position: relative; overflow: hidden; border: 6px solid #004d40; border-radius: 20px; background: #f0f0f0; touch-action: none; }
-        
+        /* 3. КАРТА И ЗУМ */
+        .map-viewport { flex: 1; width: 100%; position: relative; overflow: hidden; border: 8px solid #004d40; border-radius: 20px; background: #f0f0f0; touch-action: none; }
         #map-outer { position: absolute; transform-origin: 0 0; width: 1000px; height: 1000px; transition: transform 0.3s ease-out; }
         
         .layer { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; background-size: contain; background-repeat: no-repeat; }
         #base-layer { background-image: url('Kvartira.png'); }
 
-        .arrow { position: absolute; width: 50px; height: 50px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); z-index: 50; pointer-events: auto; }
-        @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -75%); } }
+        .arrow { position: absolute; width: 55px; height: 55px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); z-index: 50; pointer-events: auto; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); }
+        @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -80%); } }
 
-        /* КНОПКИ ЗУМА */
         .zoom-controls { position: absolute; bottom: 15px; right: 15px; display: flex; flex-direction: column; gap: 8px; z-index: 100; }
-        .z-btn { width: 48px; height: 48px; border-radius: 12px; border: 3px solid #004d40; background: white; font-size: 24px; font-weight: bold; color: #004d40; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .z-btn { width: 50px; height: 50px; border-radius: 15px; border: 4px solid #004d40; background: white; font-size: 26px; font-weight: bold; color: #004d40; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
-        /* ОРИГИНАЛЬНЫЕ УВЕДОМЛЕНИЯ (БИРЮЗОВАЯ РАМКА) */
+        /* 4. УВЕДОМЛЕНИЯ (БИРЮЗОВАЯ РАМКА 6PX) */
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 500; }
         .modal { 
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
             background: white; padding: 25px; border-radius: 35px; 
-            border: 6px solid #00796b; /* ТА САМАЯ РАМКА */
+            border: 6px solid #00796b; /* Рамка как просила */
             text-align: center; width: 85%; max-width: 420px; z-index: 1000; box-shadow: 0 0 50px rgba(0,0,0,0.4);
         }
-        
-        .btn-choice { 
-            width: 100%; padding: 15px; margin: 8px 0; border-radius: 15px; 
-            border: 3px solid #00796b; cursor: pointer; font-family: inherit; 
-            font-size: 18px; background: white; font-weight: bold;
-        }
+        .btn-choice { width: 100%; padding: 16px; margin: 8px 0; border-radius: 20px; border: 4px solid #00796b; cursor: pointer; font-family: inherit; font-size: 20px; background: white; font-weight: bold; }
 
-        /* ЧАТ */
+        /* 5. ЧАТ И МЕНЮ */
         .chat-box { max-height: 250px; overflow-y: auto; text-align: left; background: #f1f8e9; padding: 12px; border-radius: 15px; margin-bottom: 10px; display: flex; flex-direction: column-reverse; }
-        .chat-msg { margin-bottom: 8px; padding: 10px; border-radius: 12px; background: white; font-size: 15px; border: 1px solid #eee; }
-        .mention-msg { background: #fff176 !important; border: 3px solid #fbc02d !important; font-weight: bold; color: #d32f2f !important; }
+        .chat-msg { margin-bottom: 8px; padding: 10px; border-radius: 12px; background: white; font-size: 16px; border: 1px solid #eee; }
+        .mention-msg { background: #fff176 !important; border: 3px solid #fbc02d !important; font-weight: bold !important; color: #d32f2f !important; }
 
-        /* БОКОВОЕ МЕНЮ (ПОЛНОЕ СКРЫТИЕ) */
-        .sidebar { 
-            position: fixed; right: -500px; top: 0; width: 85%; max-width: 400px; height: 100%; 
-            background: white; border-left: 8px solid #ff9800; transition: 0.4s; 
-            padding: 30px; z-index: 1000; overflow-y: auto; box-sizing: border-box;
-        }
+        .sidebar { position: fixed; right: -550px; top: 0; width: 85%; max-width: 420px; height: 100%; background: white; border-left: 8px solid #ff9800; transition: 0.4s; padding: 30px; z-index: 1000; overflow-y: auto; box-sizing: border-box; }
         .sidebar.active { right: 0; }
-        
-        .member-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 2px solid #ffcc80; }
+        .member-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 2px solid #ffcc80; }
         .mini-ava { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #00796b; background-size: cover; background-position: center; display: inline-block; vertical-align: middle; text-align: center; line-height: 45px; font-size: 20px; }
-        
-        input { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #00796b; font-family: inherit; font-size: 16px; box-sizing: border-box; }
+        input { width: 100%; padding: 15px; border-radius: 15px; border: 3px solid #00796b; font-family: inherit; font-size: 18px; box-sizing: border-box; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -107,7 +92,7 @@
                 <div id="current-avatar" class="avatar-circle" onclick="openAvatarPicker()"></div>
                 <div style="flex:1; min-width: 0;">
                     <b id="current-user-name" style="font-size: 20px;">...</b>
-                    <div style="color: #00796b; font-weight: bold; font-size: 18px;">⭐️ <span id="score-val">0</span> <button onclick="renameCurrentPlayer()" style="border:none; background:none; font-size:18px; cursor:pointer;">✏️</button></div>
+                    <div style="color: #00796b; font-weight: bold; font-size: 18px;">⭐️ <span id="score-val">0</span></div>
                 </div>
             </div>
             <div class="btn-group">
@@ -119,7 +104,7 @@
         <div class="map-viewport" id="viewport">
             <div id="map-outer">
                 <div id="base-layer" class="layer"></div>
-                <!-- Мебель -->
+                <!-- Динамическая мебель -->
                 <div class="layer" style="background-image: url('lapomoyka.png');"></div>
                 <div class="layer" style="background-image: url('unitaz.png');"></div>
                 <div class="layer" style="background-image: url('wash_machine.png');"></div>
@@ -130,35 +115,34 @@
                 <div class="layer" style="background-image: url('clothes_cab.png');"></div>
                 <div class="layer" style="background-image: url('household_cab.png');"></div>
                 <div class="layer" style="background-image: url('sport_cab.png');"></div>
-                <!-- Контейнер для квестов -->
                 <div id="quest-container"></div>
             </div>
-            
             <div class="zoom-controls">
-                <button class="z-btn" onclick="changeZoom(0.2)">+</button>
-                <button class="z-btn" onclick="changeZoom(-0.2)">−</button>
+                <button class="z-btn" onclick="changeZoom(0.3)">+</button>
+                <button class="z-btn" onclick="changeZoom(-0.3)">−</button>
             </div>
         </div>
     </div>
 
     <div id="overlay" onclick="closeAll()" class="overlay"></div>
 
-    <!-- МОДАЛКИ -->
+    <!-- ОКНА -->
     <div id="createQuestModal" class="modal">
-        <h2>Новое задание 📝</h2>
-        <input type="text" id="new-quest-text" placeholder="Что нужно сделать?" style="margin-bottom:15px;">
+        <h2 id="modal-title" style="color:#00796b;">Новое задание 📝</h2>
+        <p id="furniture-hint" style="font-style: italic; color: #666; margin-bottom: 10px;"></p>
+        <input type="text" id="new-quest-text" placeholder="Что нужно сделать?">
         <button class="btn-choice" style="background:#4caf50; color:white;" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button>
-        <button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button>
+        <button class="btn-choice" onclick="cancelQuest()" style="color:#888; border-color:#ccc;">ОТМЕНА</button>
     </div>
 
     <div id="taskModal" class="modal">
-        <h2 id="taskText" style="color:#00796b;">Задание</h2>
+        <h2 id="taskText" style="color:#00796b;">...</h2>
         <button class="btn-choice" style="background:#00796b; color:white;" onclick="completeTask()">ГОТОВО! ✅</button>
         <button class="btn-choice" onclick="closeAll()" style="color:gray; border-color:gray;">ЗАКРЫТЬ</button>
     </div>
 
     <div id="chatModal" class="modal">
-        <h2 style="color:#2e7d32;">Семейный чат 💬</h2>
+        <h2 style="color:#2e7d32;">Чат 💬</h2>
         <div id="chat-box"></div>
         <div style="display:flex; gap:8px; margin-top:10px;">
             <input type="text" id="chat-input" placeholder="Напиши...">
@@ -168,10 +152,10 @@
     </div>
 
     <div id="avatarModal" class="modal">
-        <h3>Аватар героя 🎭</h3>
+        <h2 style="color:#00796b;">Аватар героя 🎭</h2>
         <button class="btn-choice" onclick="document.getElementById('photo-input').click()">📸 ЗАГРУЗИТЬ ФОТО</button>
         <input type="file" id="photo-input" style="display:none;" accept="image/*" onchange="handlePhoto(this)">
-        <div id="emoji-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:20px 0;"></div>
+        <div id="emoji-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:15px 0;"></div>
         <button class="btn-choice" onclick="closeAll()">ОТМЕНА</button>
     </div>
 
@@ -181,15 +165,28 @@
         <button class="btn-choice" style="background:#4caf50; color:white; border:none;" onclick="addNewMember()">➕ ДОБАВИТЬ ИГРОКА</button>
         <h3 style="margin-top:25px; color:#e65100;">🔄 СМЕНИТЬ ГЕРОЯ:</h3>
         <div id="switch-list"></div>
-        <button class="btn-choice" onclick="closeAll()" style="margin-top:40px; background:#eee; border-color:#ccc; color:#666;">ЗАКРЫТЬ</button>
+        <button class="btn-choice" onclick="closeAll()" style="margin-top:40px; background:#eee; color:#666;">ЗАКРЫТЬ</button>
     </div>
 
     <script>
         let state;
-        const storageKey = 'familyApp_FINAL_STABLE_V4';
+        const storageKey = 'familyApp_PERFECT_V6';
         const mapOuter = document.getElementById('map-outer');
         const viewport = document.getElementById('viewport');
         
+        const furnitureHotspots = [
+            { id: 'lapomoyka', name: '🐾 Лапомойка', x: 740, y: 360, r: 60 },
+            { id: 'unitaz', name: '🚽 Унитаз', x: 860, y: 360, r: 60 },
+            { id: 'wash', name: '🧼 Стиральная машина', x: 860, y: 510, r: 70 },
+            { id: 'laundry', name: '🧺 Корзина для белья', x: 760, y: 510, r: 60 },
+            { id: 'tumba', name: '🗄 Тумбочка', x: 640, y: 480, r: 40 },
+            { id: 'veshalka', name: '🧥 Вешалка', x: 680, y: 400, r: 50 },
+            { id: 'shoe', name: '👟 Шкаф для обуви', x: 500, y: 580, r: 60 },
+            { id: 'clothes', name: '👗 Шкаф для одежды', x: 380, y: 580, r: 70 },
+            { id: 'household', name: '🧹 Хоз. шкаф', x: 320, y: 640, r: 60 },
+            { id: 'sport', name: '⛺️ Шкаф для спорта', x: 320, y: 720, r: 60 }
+        ];
+
         let scale = 0.5, posX = -250, posY = -250, isDragging = false, startX, startY;
         let lastTap = 0, initialPinchDist = 0, initialScale = 0;
         let oldScale, oldPosX, oldPosY;
@@ -197,49 +194,43 @@
         function updateTransform() { mapOuter.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`; }
         function changeZoom(delta) { scale = Math.min(Math.max(0.15, scale + delta), 3); updateTransform(); }
 
-        // --- УПРАВЛЕНИЕ (MOVE & ZOOM) ---
         viewport.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 1) {
-                isDragging = true;
-                startX = e.touches[0].pageX - posX;
-                startY = e.touches[0].pageY - posY;
-                mapOuter.style.transition = 'none';
-            } else if (e.touches.length === 2) {
-                isDragging = false;
-                initialPinchDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
-                initialScale = scale;
-            }
+            if (e.touches.length === 1) { isDragging = true; startX = e.touches[0].pageX - posX; startY = e.touches[0].pageY - posY; mapOuter.style.transition = 'none'; }
+            else if (e.touches.length === 2) { isDragging = false; initialPinchDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY); initialScale = scale; }
         }, { passive: false });
 
         viewport.addEventListener('touchmove', (e) => {
             e.preventDefault();
-            if (e.touches.length === 1 && isDragging) {
-                posX = e.touches[0].pageX - startX;
-                posY = e.touches[0].pageY - startY;
-            } else if (e.touches.length === 2) {
-                const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
-                scale = Math.min(Math.max(0.15, initialScale * (dist / initialPinchDist)), 3);
-            }
+            if (e.touches.length === 1 && isDragging) { posX = e.touches[0].pageX - startX; posY = e.touches[0].pageY - startY; }
+            else if (e.touches.length === 2) { const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY); scale = Math.min(Math.max(0.15, initialScale * (dist / initialPinchDist)), 3); }
             updateTransform();
         }, { passive: false });
 
         viewport.addEventListener('touchend', () => { isDragging = false; });
 
-        // --- ДВОЙНОЙ КЛИК (УМНЫЙ ЗУМ) ---
         viewport.addEventListener('click', (e) => {
             if (state.currentUserIndex !== state.adminIndex) return;
             const now = Date.now();
             if (now - lastTap < 300) {
+                const rect = document.getElementById('base-layer').getBoundingClientRect();
+                const clickX = (e.clientX - rect.left) / scale;
+                const clickY = (e.clientY - rect.top) / scale;
+                let found = furnitureHotspots.find(f => Math.hypot(f.x - clickX, f.y - clickY) < f.r);
+                
                 oldScale = scale; oldPosX = posX; oldPosY = posY;
-                const rect = viewport.getBoundingClientRect();
-                scale = 1.2; 
-                posX = -( (e.clientX - rect.left - oldPosX) / oldScale * scale - rect.width / 2 );
-                posY = -( (e.clientY - rect.top - oldPosY) / oldScale * scale - rect.height / 2 );
+                const viewRect = viewport.getBoundingClientRect();
+                scale = 1.3;
+                posX = -( (e.clientX - viewRect.left - oldPosX) / oldScale * scale - viewRect.width / 2 );
+                posY = -( (e.clientY - viewRect.top - oldPosY) / oldScale * scale - viewRect.height / 2 );
                 mapOuter.style.transition = 'transform 0.4s ease-out';
                 updateTransform();
-                const mapRect = document.getElementById('base-layer').getBoundingClientRect();
-                window.tempCoords = { x: (e.clientX - mapRect.left) / oldScale, y: (e.clientY - mapRect.top) / oldScale };
-                setTimeout(() => { document.getElementById('createQuestModal').style.display='block'; document.getElementById('overlay').style.display='block'; }, 400);
+                window.tempCoords = { x: clickX, y: clickY };
+                
+                setTimeout(() => {
+                    document.getElementById('furniture-hint').innerText = found ? `Объект: ${found.name}` : "Пустая зона";
+                    document.getElementById('createQuestModal').style.display='block';
+                    document.getElementById('overlay').style.display='block';
+                }, 400);
             }
             lastTap = now;
         });
@@ -247,14 +238,14 @@
         function cancelQuest() { scale = oldScale; posX = oldPosX; posY = oldPosY; updateTransform(); closeAll(); }
         function confirmCreateQuest() {
             const txt = document.getElementById('new-quest-text').value;
-            if(txt) { state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt }); document.getElementById('new-quest-text').value = ''; }
+            if(txt) state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt });
+            document.getElementById('new-quest-text').value = '';
             cancelQuest(); save();
         }
 
-        // --- ДАННЫЕ И ЧАТ ---
         function loadData() {
             const saved = localStorage.getItem(storageKey);
-            state = saved ? JSON.parse(saved) : { familyName: "Наш Дом", currentUserIndex: 0, adminIndex: 0, quests: [], messages: [], members: [{name: "Админ", points: 0, avatar: "👤", lastRead: Date.now()}] };
+            state = saved ? JSON.parse(saved) : { familyName: "Дом", currentUserIndex: 0, adminIndex: 0, quests: [], messages: [], members: [{name: "Админ", points: 0, avatar: "👤", isPhoto: false, lastRead: Date.now()}] };
             updateUI();
         }
         function save() { localStorage.setItem(storageKey, JSON.stringify(state)); updateUI(); }
@@ -268,58 +259,42 @@
             if (user.isPhoto) { avaDiv.innerText = ''; avaDiv.style.backgroundImage = `url(${user.avatar})`; }
             else { avaDiv.innerText = user.avatar; avaDiv.style.backgroundImage = 'none'; }
 
-            const qContainer = document.getElementById('quest-container');
-            qContainer.innerHTML = '';
+            const qCont = document.getElementById('quest-container'); qCont.innerHTML = '';
             state.quests.forEach((q, i) => {
                 const img = document.createElement('img'); img.src = 'arrow.png'; img.className = 'arrow';
                 img.style.left = q.x + 'px'; img.style.top = q.y + 'px';
                 img.onclick = (e) => { e.stopPropagation(); openQuest(i); };
-                qContainer.appendChild(img);
+                qCont.appendChild(img);
             });
 
-            const fList = document.getElementById('family-list');
-            const sList = document.getElementById('switch-list');
+            const fList = document.getElementById('family-list'); const sList = document.getElementById('switch-list');
             fList.innerHTML = ''; sList.innerHTML = '';
             state.members.forEach((m, i) => {
                 let ava = m.isPhoto ? `<div class="mini-ava" style="background-image:url(${m.avatar})"></div>` : `<div class="mini-ava">${m.avatar}</div>`;
                 fList.innerHTML += `<div class="member-item"><span>${ava} ${m.name} ${i === state.adminIndex ? '👑' : ''}</span><div><button onclick="setAdmin(${i})" style="border:none; background:none; font-size:24px;">👑</button><button onclick="renameAnyMember(${i})" style="border:none; background:none; font-size:24px;">✏️</button></div></div>`;
                 if(i !== state.currentUserIndex) sList.innerHTML += `<button class="btn-choice" onclick="switchProfile(${i})">${m.name}</button>`;
             });
-
-            const count = state.messages.filter(m => m.date > (user.lastRead || 0) && m.text.includes('@' + user.name)).length;
             const badge = document.getElementById('chat-badge');
+            const count = state.messages.filter(m => m.date > (user.lastRead || 0) && m.text.includes('@' + user.name)).length;
             badge.style.display = count > 0 ? 'flex' : 'none'; badge.innerText = count;
         }
 
-        function openChat() { 
-            state.members[state.currentUserIndex].lastRead = Date.now(); 
-            document.getElementById('chatModal').style.display = 'block'; 
-            document.getElementById('overlay').style.display = 'block'; 
-            renderChat(); save(); 
-        }
+        function openChat() { state.members[state.currentUserIndex].lastRead = Date.now(); document.getElementById('chatModal').style.display='block'; document.getElementById('overlay').style.display='block'; renderChat(); save(); }
         function renderChat() { 
             const box = document.getElementById('chat-box'); 
             box.innerHTML = state.messages.map(m => {
                 const isMention = m.text.includes('@' + state.members[state.currentUserIndex].name);
                 return `<div class="chat-msg ${isMention ? 'mention-msg' : ''}"><b onclick="replyTo('${m.author}')" style="color:#00796b">${m.author}:</b> ${m.text}</div>`;
-            }).reverse().join(''); 
+            }).reverse().join('');
         }
-        function sendChat() { 
-            const inp = document.getElementById('chat-input'); 
-            if(!inp.value.trim()) return; 
-            state.messages.push({ author: state.members[state.currentUserIndex].name, text: inp.value, date: Date.now() }); 
-            inp.value = ''; renderChat(); save(); 
-        }
+        function sendChat() { const inp = document.getElementById('chat-input'); if(!inp.value.trim()) return; state.messages.push({ author: state.members[state.currentUserIndex].name, text: inp.value, date: Date.now() }); inp.value = ''; renderChat(); save(); }
         function replyTo(n) { document.getElementById('chat-input').value = `@${n}, ` + document.getElementById('chat-input').value; document.getElementById('chat-input').focus(); }
-
-        // --- ВСПОМОГАТЕЛЬНЫЕ ---
         function switchProfile(i) { state.currentUserIndex = i; closeAll(); save(); }
         function closeAll() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').style.display='none'; }
         function toggleSidebar() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
         function setAdmin(i) { state.adminIndex = i; save(); }
-        function addNewMember() { let n = prompt("Имя игрока:"); if(n) { state.members.push({name: n, points: 0, avatar: '👤', isPhoto: false, lastRead: Date.now()}); save(); } }
-        function renameCurrentPlayer() { let n = prompt("Ваше имя:", state.members[state.currentUserIndex].name); if(n) { state.members[state.currentUserIndex].name = n; save(); } }
-        function renameAnyMember(i) { let n = prompt("Имя игрока:", state.members[i].name); if(n) { state.members[i].name = n; save(); } }
+        function addNewMember() { let n = prompt("Имя:"); if(n) { state.members.push({name: n, points: 0, avatar: '👤', isPhoto: false, lastRead: Date.now()}); save(); } }
+        function renameAnyMember(i) { let n = prompt("Имя:", state.members[i].name); if(n) { state.members[i].name = n; save(); } }
         function openAvatarPicker() { closeAll(); document.getElementById('avatarModal').style.display='block'; document.getElementById('overlay').style.display='block'; }
         function setAvatar(e) { state.members[state.currentUserIndex].avatar = e; state.members[state.currentUserIndex].isPhoto = false; save(); closeAll(); }
         function handlePhoto(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { state.members[state.currentUserIndex].avatar = e.target.result; state.members[state.currentUserIndex].isPhoto = true; save(); closeAll(); }; reader.readAsDataURL(input.files[0]); } }
@@ -328,8 +303,7 @@
 
         const emojis = ['🐱','🐶','🦊','🐼','🐨','🐯','🦁','🦄','👤','🐷','🐸','🦒'];
         document.getElementById('emoji-grid').innerHTML = emojis.map(e => `<span onclick="setAvatar('${e}')" style="font-size:35px; cursor:pointer;">${e}</span>`).join('');
-        loadData();
-        updateTransform();
+        loadData(); updateTransform();
     </script>
 </body>
 </html>
