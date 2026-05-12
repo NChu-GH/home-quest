@@ -3,33 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Семейные Квесты - Исправленный Зум</title>
+    <title>Семейные Квесты - Финальный Дизайн</title>
     <style>
-        body { background-color: #e0f7fa; display: flex; flex-direction: column; align-items: center; padding: 0; font-family: 'Comic Sans MS', cursive, sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        /* 1. БАЗОВЫЙ ДИЗАЙН */
+        body { 
+            background-color: #e0f7fa; 
+            display: flex; flex-direction: column; align-items: center; 
+            padding: 0; font-family: 'Comic Sans MS', cursive, sans-serif; 
+            margin: 0; height: 100vh; overflow: hidden; 
+        }
+
         .main-wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100%; }
+
+        /* 2. ВЕРХНЯЯ ПАНЕЛЬ */
         .top-bar { display: flex; justify-content: space-between; align-items: stretch; padding: 10px; gap: 8px; z-index: 100; flex-shrink: 0; }
-        .profile-card { background: white; padding: 10px; border-radius: 25px; border: 4px solid #00796b; display: flex; align-items: center; gap: 10px; flex: 2; position: relative; min-width: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .avatar-circle { width: 55px; height: 55px; background: #eee; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 28px; cursor: pointer; border: 3px solid #00796b; overflow: hidden; background-size: cover; background-position: center; flex-shrink: 0; }
+        
+        .profile-card { 
+            background: white; padding: 10px; border-radius: 25px; 
+            border: 4px solid #00796b; display: flex; align-items: center; gap: 10px; flex: 2; position: relative; min-width: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .crown-icon { position: absolute; top: -18px; left: 5px; font-size: 32px; transform: rotate(-15deg); display: none; z-index: 10; }
+        .is-admin .crown-icon { display: block; }
+
+        .avatar-circle { 
+            width: 60px; height: 60px; background: #eee; border-radius: 50%; 
+            display: flex; justify-content: center; align-items: center; 
+            font-size: 30px; cursor: pointer; border: 3px solid #00796b; 
+            overflow: hidden; background-size: cover; background-position: center; flex-shrink: 0;
+        }
+
         .btn-group { display: flex; flex-direction: column; gap: 5px; flex: 0.8; }
-        .menu-btn, .chat-btn { height: 100%; min-height: 40px; border-radius: 15px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 16px; border: 3px solid; display: flex; justify-content: center; align-items: center; }
+        .menu-btn, .chat-btn { 
+            height: 100%; min-height: 45px; border-radius: 18px; cursor: pointer; 
+            font-weight: bold; font-family: inherit; font-size: 16px; border: 3px solid;
+            display: flex; justify-content: center; align-items: center;
+        }
         .menu-btn { background: #ff9800; color: white; border-color: #e65100; }
         .chat-btn { background: #4caf50; color: white; border-color: #2e7d32; position: relative; }
-        #chat-badge { position: absolute; top: -5px; right: -5px; background: #ff5252; color: white; border-radius: 50%; padding: 2px 7px; font-size: 12px; border: 2px solid white; font-weight: bold; display: none; }
+        
+        #chat-badge { 
+            position: absolute; top: -8px; right: -8px; background: #ff5252; color: white; 
+            border-radius: 50%; padding: 2px 8px; font-size: 13px; border: 2px solid white; font-weight: bold; display: none;
+        }
+
+        /* 3. КАРТА */
         .map-viewport { flex: 1; width: 100%; position: relative; overflow: hidden; background: #cfd8dc; touch-action: none; }
         #map-container { position: absolute; width: 1000px; height: 1000px; transform-origin: 0 0; will-change: transform; }
-        .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; background-size: contain; background-repeat: no-repeat; }
+        
+        .layer { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; background-size: contain; background-repeat: no-repeat; }
         #base-layer { background-image: url('Kvartira.png'); }
-        .zoom-controls { position: absolute; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 110; }
-        .z-btn { width: 50px; height: 50px; border-radius: 15px; border: 4px solid #004d40; background: white; font-size: 26px; font-weight: bold; color: #004d40; cursor: pointer; }
+
+        .arrow { position: absolute; width: 55px; height: 55px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); z-index: 60; pointer-events: auto; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); }
+        @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -80%); } }
+
+        .zoom-controls { position: absolute; bottom: 15px; right: 15px; display: flex; flex-direction: column; gap: 8px; z-index: 110; }
+        .z-btn { width: 50px; height: 50px; border-radius: 15px; border: 3px solid #004d40; background: white; font-size: 26px; font-weight: bold; color: #004d40; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+
+        /* 4. МОДАЛКИ (БИРЮЗОВАЯ РАМКА 6PX) */
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 500; }
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 35px; border: 6px solid #00796b; text-align: center; width: 85%; max-width: 420px; z-index: 1000; }
-        .btn-choice { width: 100%; padding: 15px; border-radius: 15px; border: 3px solid #00796b; cursor: pointer; font-family: inherit; font-size: 18px; background: white; font-weight: bold; margin: 5px 0; }
+        .modal { 
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            background: white; padding: 25px; border-radius: 35px; 
+            border: 6px solid #00796b; /* Та самая рамка */
+            text-align: center; width: 85%; max-width: 420px; z-index: 1000; box-shadow: 0 0 50px rgba(0,0,0,0.4);
+        }
+        .btn-choice { width: 100%; padding: 16px; margin: 8px 0; border-radius: 20px; border: 3px solid #00796b; cursor: pointer; font-family: inherit; font-size: 20px; background: white; font-weight: bold; }
+
+        /* 5. ЧАТ */
+        .chat-box { max-height: 250px; overflow-y: auto; text-align: left; background: #f1f8e9; padding: 12px; border-radius: 15px; margin-bottom: 10px; display: flex; flex-direction: column-reverse; }
+        .chat-msg { margin-bottom: 8px; padding: 10px; border-radius: 12px; background: white; font-size: 16px; border: 1px solid #eee; }
+        .mention-msg { background: #fff176 !important; border: 3px solid #fbc02d !important; font-weight: bold !important; color: #d32f2f !important; }
+
+        /* 6. МЕНЮ (ПОЛНОЕ СКРЫТИЕ) */
         .sidebar { position: fixed; right: -550px; top: 0; width: 85%; max-width: 400px; height: 100%; background: white; border-left: 8px solid #ff9800; transition: 0.4s; padding: 30px; z-index: 1000; overflow-y: auto; box-sizing: border-box; }
         .sidebar.active { right: 0; }
-        .arrow { position: absolute; width: 50px; height: 50px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); z-index: 60; }
-        @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -80%); } }
-        .crown-icon { position: absolute; top: -18px; left: 5px; font-size: 30px; transform: rotate(-15deg); display: none; z-index: 10; }
-        .is-admin .crown-icon { display: block; }
+        
+        .member-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 2px solid #ffcc80; }
+        .mini-ava { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #00796b; background-size: cover; background-position: center; display: inline-block; vertical-align: middle; text-align: center; line-height: 45px; font-size: 20px; }
+        
+        input { width: 100%; padding: 15px; border-radius: 15px; border: 3px solid #00796b; font-family: inherit; font-size: 18px; box-sizing: border-box; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -40,8 +94,8 @@
                 <div class="crown-icon">👑</div>
                 <div id="current-avatar" class="avatar-circle" onclick="openAvatarPicker()">👤</div>
                 <div style="flex:1; min-width: 0;">
-                    <b id="current-user-name">...</b>
-                    <div style="color: #00796b; font-weight: bold; font-size: 18px;">⭐️ <span id="score-val">0</span></div>
+                    <b id="current-user-name" style="font-size: 20px;">...</b>
+                    <div style="color: #00796b; font-weight: bold; font-size: 18px;">⭐️ <span id="score-val">0</span> <button onclick="renameCurrentPlayer()" style="border:none; background:none; font-size:18px; cursor:pointer;">✏️</button></div>
                 </div>
             </div>
             <div class="btn-group">
@@ -52,7 +106,7 @@
 
         <div class="map-viewport" id="viewport">
             <div id="map-container">
-                <div class="layer" id="base-layer"></div>
+                <div id="base-layer" class="layer"></div>
                 <!-- Слои мебели -->
                 <div class="layer" style="background-image: url('lapomoyka.png');"></div>
                 <div class="layer" style="background-image: url('unitaz.png');"></div>
@@ -66,9 +120,10 @@
                 <div class="layer" style="background-image: url('sport_cab.png');"></div>
                 <div id="quest-arrows"></div>
             </div>
+            
             <div class="zoom-controls">
-                <button class="z-btn" onclick="btnZoom(0.2)">+</button>
-                <button class="z-btn" onclick="btnZoom(-0.2)">−</button>
+                <button class="z-btn" onclick="btnZoom(0.3)">+</button>
+                <button class="z-btn" onclick="btnZoom(-0.3)">−</button>
             </div>
         </div>
     </div>
@@ -78,38 +133,47 @@
     <div id="createQuestModal" class="modal">
         <h2 id="modal-title" style="color:#00796b;">Задание 📝</h2>
         <p id="furniture-hint" style="font-style: italic; color: #666; margin-bottom: 10px;"></p>
-        <input type="text" id="new-quest-text" placeholder="Что нужно сделать?" style="width:100%; padding:15px; border-radius:15px; border:3px solid #00796b; font-size:18px; box-sizing:border-box;">
-        <button class="btn-choice" style="background:#4caf50; color:white; margin-top:15px;" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button>
-        <button class="btn-choice" onclick="cancelQuest()" style="color:#888; border-color:#ccc;">ОТМЕНА</button>
+        <input type="text" id="new-quest-text" placeholder="Что нужно сделать?">
+        <button class="btn-choice" style="background:#4caf50; color:white;" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button>
+        <button class="btn-choice" onclick="cancelQuest()" style="color:#888; border-color:#ccc;">ОТМЕНА ❌</button>
     </div>
 
     <div id="taskModal" class="modal">
-        <h2 id="taskText">...</h2>
+        <h2 id="taskText" style="color:#00796b;">...</h2>
         <button class="btn-choice" style="background:#00796b; color:white;" onclick="completeTask()">ГОТОВО ✅</button>
-        <button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ</button>
+        <button class="btn-choice" onclick="closeAll()" style="color:gray; border-color:gray;">ЗАКРЫТЬ</button>
     </div>
 
     <div id="chatModal" class="modal">
-        <h2>Чат 💬</h2>
-        <div id="chat-box" style="height:200px; overflow-y:auto; background:#f1f8e9; padding:15px; border-radius:20px; margin-bottom:10px; display:flex; flex-direction:column-reverse; text-align:left;"></div>
-        <div style="display:flex; gap:5px;">
-            <input type="text" id="chat-input" placeholder="..." style="flex:1; padding:10px; border-radius:10px; border:2px solid #00796b;">
-            <button class="chat-btn" onclick="sendChat()" style="width:60px;">🚀</button>
+        <h2 style="color:#2e7d32;">Чат 💬</h2>
+        <div id="chat-box"></div>
+        <div style="display:flex; gap:8px; margin-top:10px;">
+            <input type="text" id="chat-input" placeholder="Напиши...">
+            <button class="chat-btn" onclick="sendChat()" style="width:70px;">🚀</button>
         </div>
         <button class="btn-choice" onclick="closeAll()" style="margin-top:10px;">ЗАКРЫТЬ</button>
     </div>
 
+    <div id="avatarModal" class="modal">
+        <h2>Аватар героя 🎭</h2>
+        <button class="btn-choice" onclick="document.getElementById('photo-input').click()">📸 ЗАГРУЗИТЬ ФОТО</button>
+        <input type="file" id="photo-input" style="display:none;" accept="image/*" onchange="handlePhoto(this)">
+        <div id="emoji-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:20px 0;"></div>
+        <button class="btn-choice" onclick="closeAll()">ОТМЕНА</button>
+    </div>
+
     <div id="sidebar" class="sidebar">
-        <h2>🏡 Семья</h2>
-        <div id="family-list" style="background:#fff3e0; padding:15px; border-radius:15px; margin-bottom:20px;"></div>
-        <button class="btn-choice" style="background:#4caf50; color:white;" onclick="addNewMember()">➕ НОВЫЙ ИГРОК</button>
-        <div id="switch-list" style="margin-top:20px;"></div>
-        <button class="btn-choice" onclick="closeAll()" style="margin-top:30px; background:#eee;">ЗАКРЫТЬ</button>
+        <h2 style="color:#00796b;">🏡 Семья</h2>
+        <div id="family-list" style="background:#fff3e0; padding:15px; border-radius:20px; margin-bottom:20px;"></div>
+        <button class="btn-choice" style="background:#4caf50; color:white; border:none;" onclick="addNewMember()">➕ ИГРОК</button>
+        <h3 style="margin-top:25px; color:#e65100;">🔄 СМЕНИТЬ:</h3>
+        <div id="switch-list"></div>
+        <button class="btn-choice" onclick="closeAll()" style="margin-top:40px; background:#eee;">ЗАКРЫТЬ</button>
     </div>
 
     <script>
         let state;
-        const storageKey = 'familyApp_FINAL_V11';
+        const storageKey = 'familyApp_FINAL_STABLE_V12';
         
         const furnitureZones = [
             { name: '🐾 Лапомойка', x: 745, y: 405, r: 75 },
@@ -121,18 +185,15 @@
         ];
 
         const view = document.getElementById('viewport');
-        const map = document.getElementById('map-container');
+        const container = document.getElementById('map-container');
         
-        let scale = 0.5, posX = 0, posY = 0;
+        let scale = 0.5, posX = -250, posY = -250;
         let isDragging = false, startX, startY, lastTap = 0;
-        let oldScale, oldPosX, oldPosY;
-        
-        // Переменные для мобильного зума (Pinch)
-        let initialDist = null;
-        let initialScale = 0;
+        let initialDist = null, initialScale = 0;
+        let oldPos = {s: 0, x: 0, y: 0};
 
         function updateTransform() {
-            map.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+            container.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
         }
 
         function applyZoom(delta, clientX, clientY) {
@@ -147,19 +208,17 @@
             updateTransform();
         }
 
-        function btnZoom(delta) {
-            applyZoom(delta, view.offsetWidth / 2, view.offsetHeight / 2);
-        }
+        function btnZoom(delta) { applyZoom(delta, view.offsetWidth/2, view.offsetHeight/2); }
 
-        // --- СОБЫТИЯ ТАЧА (ТЕЛЕФОН) ---
+        // УПРАВЛЕНИЕ ТАЧЕМ
         view.addEventListener('touchstart', e => {
             if (e.touches.length === 1) {
                 isDragging = true;
                 startX = e.touches[0].clientX - posX;
                 startY = e.touches[0].clientY - posY;
-                map.style.transition = 'none';
+                container.style.transition = 'none';
             } else if (e.touches.length === 2) {
-                isDragging = false; // Отключаем перетаскивание при зуме
+                isDragging = false;
                 initialDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
                 initialScale = scale;
             }
@@ -170,55 +229,36 @@
             if (e.touches.length === 1 && isDragging) {
                 posX = e.touches[0].clientX - startX;
                 posY = e.touches[0].clientY - startY;
-                updateTransform();
             } else if (e.touches.length === 2 && initialDist) {
                 const currentDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
                 const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
                 const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-                
-                const zoomFactor = currentDist / initialDist;
-                const targetScale = initialScale * zoomFactor;
-                const delta = targetScale - scale;
-                
-                applyZoom(delta, midX, midY);
+                const targetScale = initialScale * (currentDist / initialDist);
+                applyZoom(targetScale - scale, midX, midY);
             }
+            updateTransform();
         }, {passive: false});
 
-        view.addEventListener('touchend', () => { 
-            isDragging = false; 
-            initialDist = null; 
-        });
+        view.addEventListener('touchend', () => { isDragging = false; initialDist = null; });
 
-        // --- СОБЫТИЯ МЫШИ (ПК) ---
-        view.addEventListener('mousedown', e => {
-            isDragging = true;
-            startX = e.clientX - posX;
-            startY = e.clientY - posY;
-            map.style.transition = 'none';
-        });
-        window.addEventListener('mousemove', e => {
-            if (!isDragging) return;
-            posX = e.clientX - startX;
-            posY = e.clientY - startY;
-            updateTransform();
-        });
+        // МЫШКА
+        view.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX - posX; startY = e.clientY - posY; container.style.transition = 'none'; });
+        window.addEventListener('mousemove', e => { if (isDragging) { posX = e.clientX - startX; posY = e.clientY - startY; updateTransform(); } });
         window.addEventListener('mouseup', () => isDragging = false);
-        view.addEventListener('wheel', e => {
-            e.preventDefault();
-            applyZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX, e.clientY);
-        }, {passive:false});
+        view.addEventListener('wheel', e => { e.preventDefault(); applyZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX, e.clientY); }, {passive:false});
 
-        // Двойной щелчок
+        // ДВОЙНОЙ КЛИК
         view.addEventListener('click', e => {
             if (state.currentUserIndex !== state.adminIndex) return;
             const now = Date.now();
             if (now - lastTap < 300) {
-                const rect = map.getBoundingClientRect();
+                const rect = document.getElementById('base-layer').getBoundingClientRect();
                 const mapX = (e.clientX - rect.left) / scale;
                 const mapY = (e.clientY - rect.top) / scale;
                 let found = furnitureZones.find(f => Math.hypot(f.x - mapX, f.y - mapY) < f.r);
-                oldScale = scale; oldPosX = posX; oldPosY = posY;
+                oldPos = {s: scale, x: posX, y: posY};
                 applyZoom(1.4 - scale, e.clientX, e.clientY);
+                container.style.transition = 'transform 0.4s ease-out';
                 window.tempCoords = { x: mapX, y: mapY };
                 setTimeout(() => {
                     document.getElementById('furniture-hint').innerText = found ? `Объект: ${found.name}` : "Пустая зона";
@@ -229,17 +269,17 @@
             lastTap = now;
         });
 
-        // --- ЛОГИКА ИГРЫ ---
+        // ЛОГИКА ИГРЫ
         function loadData() {
             const saved = localStorage.getItem(storageKey);
-            state = saved ? JSON.parse(saved) : { familyName: "Дом", currentUserIndex: 0, adminIndex: 0, quests: [], messages: [], members: [{name: "Админ", points: 0, avatar: "👤", lastRead: 0}] };
+            state = saved ? JSON.parse(saved) : { familyName: "Дом", currentUserIndex: 0, adminIndex: 0, quests: [], messages: [], members: [{name: "Админ", points: 0, avatar: "👤", isPhoto: false, lastRead: 0}] };
             updateUI();
             posX = (view.offsetWidth - 1000 * scale) / 2;
             posY = (view.offsetHeight - 1000 * scale) / 2;
             updateTransform();
         }
         function save() { localStorage.setItem(storageKey, JSON.stringify(state)); updateUI(); }
-        function cancelQuest() { scale = oldScale; posX = oldPosX; posY = oldPosY; map.style.transition = 'transform 0.4s'; updateTransform(); closeAll(); }
+        function cancelQuest() { scale = oldPos.s; posX = oldPos.x; posY = oldPos.y; container.style.transition = 'transform 0.4s'; updateTransform(); closeAll(); }
         function confirmCreateQuest() {
             const txt = document.getElementById('new-quest-text').value;
             if(txt) state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt });
@@ -251,6 +291,10 @@
             document.getElementById('current-user-name').innerText = user.name;
             document.getElementById('score-val').innerText = user.points;
             document.getElementById('p-card').classList.toggle('is-admin', state.currentUserIndex === state.adminIndex);
+            const avaDiv = document.getElementById('current-avatar');
+            if (user.isPhoto) { avaDiv.innerText = ''; avaDiv.style.backgroundImage = `url(${user.avatar})`; }
+            else { avaDiv.innerText = user.avatar; avaDiv.style.backgroundImage = 'none'; }
+            
             const qBox = document.getElementById('quest-arrows'); qBox.innerHTML = '';
             state.quests.forEach((q, i) => {
                 const img = document.createElement('img'); img.src = 'arrow.png'; img.className = 'arrow';
@@ -259,21 +303,34 @@
                 qBox.appendChild(img);
             });
             const fList = document.getElementById('family-list'); fList.innerHTML = '';
-            const sList = document.getElementById('switch-list'); sList.innerHTML = '<h3>🔄 Сменить героя:</h3>';
+            const sList = document.getElementById('switch-list'); sList.innerHTML = '';
             state.members.forEach((m, i) => {
-                fList.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:2px solid #ffcc80;"><span>${m.name} ${i===state.adminIndex?'👑':''}</span><button onclick="setAdmin(${i})" style="border:none;background:none;font-size:24px;">👑</button></div>`;
+                let ava = m.isPhoto ? `<div class="mini-ava" style="background-image:url(${m.avatar})"></div>` : `<div class="mini-ava">${m.avatar}</div>`;
+                fList.innerHTML += `<div class="member-item"><span>${ava} ${m.name} ${i===state.adminIndex?'👑':''}</span><div><button onclick="setAdmin(${i})" style="border:none;background:none;font-size:24px;">👑</button><button onclick="renameAnyMember(${i})" style="border:none;background:none;font-size:24px;">✏️</button></div></div>`;
                 if(i !== state.currentUserIndex) sList.innerHTML += `<button class="btn-choice" onclick="switchProfile(${i})">${m.name}</button>`;
             });
+            const count = state.messages.filter(m => m.date > (user.lastRead || 0) && m.text.includes('@' + user.name)).length;
+            document.getElementById('chat-badge').style.display = count > 0 ? 'flex' : 'none';
+            document.getElementById('chat-badge').innerText = count;
         }
-        function openQuest(idx) { window.activeIdx = idx; document.getElementById('taskText').innerText = state.quests[idx].text; document.getElementById('taskModal').style.display='block'; document.getElementById('overlay').style.display='block'; }
-        function completeTask() { state.members[state.currentUserIndex].points += 10; state.quests.splice(window.activeIdx, 1); closeAll(); save(); }
-        function openChat() { state.members[state.currentUserIndex].lastRead = Date.now(); document.getElementById('chatModal').style.display='block'; document.getElementById('overlay').style.display='block'; save(); }
-        function sendChat() { const inp = document.getElementById('chat-input'); if(!inp.value.trim()) return; state.messages.push({ author: state.members[state.currentUserIndex].name, text: inp.value, date: Date.now() }); inp.value = ''; save(); }
+
+        function openChat() { state.members[state.currentUserIndex].lastRead = Date.now(); document.getElementById('chatModal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; renderChat(); save(); }
+        function renderChat() { const box = document.getElementById('chat-box'); box.innerHTML = state.messages.map(m => `<div class="chat-msg"><b>${m.author}:</b> ${m.text}</div>`).reverse().join(''); }
+        function sendChat() { const inp = document.getElementById('chat-input'); if(!inp.value.trim()) return; state.messages.push({ author: state.members[state.currentUserIndex].name, text: inp.value, date: Date.now() }); inp.value = ''; renderChat(); save(); }
         function closeAll() { document.querySelectorAll('.modal').forEach(m=>m.style.display='none'); document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').style.display='none'; }
-        function toggleSidebar() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').style.display='block'; }
-        function setAdmin(i) { state.adminIndex = i; save(); }
+        function toggleSidebar() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
         function switchProfile(i) { state.currentUserIndex = i; closeAll(); save(); }
-        function addNewMember() { let n = prompt("Имя:"); if(n) { state.members.push({name:n, points:0, avatar:'👤', lastRead:Date.now()}); save(); } }
+        function setAdmin(i) { state.adminIndex = i; save(); }
+        function renameCurrentPlayer() { let n = prompt("Имя:", state.members[state.currentUserIndex].name); if(n) { state.members[state.currentUserIndex].name = n; save(); } }
+        function renameAnyMember(i) { let n = prompt("Имя:", state.members[i].name); if(n) { state.members[i].name = n; save(); } }
+        function openAvatarPicker() { closeAll(); document.getElementById('avatarModal').style.display='block'; document.getElementById('overlay').style.display='block'; }
+        function setAvatar(e) { state.members[state.currentUserIndex].avatar = e; state.members[state.currentUserIndex].isPhoto = false; save(); closeAll(); }
+        function handlePhoto(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { state.members[state.currentUserIndex].avatar = e.target.result; state.members[state.currentUserIndex].isPhoto = true; save(); closeAll(); }; reader.readAsDataURL(input.files[0]); } }
+        function openQuest(idx) { window.activeIdx = idx; document.getElementById('taskText').innerText = state.quests[idx].text; document.getElementById('taskModal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
+        function completeTask() { state.members[state.currentUserIndex].points += 10; state.quests.splice(window.activeIdx, 1); closeAll(); save(); }
+
+        const emojis = ['🐱','🐶','🦊','🐼','🐨','🐯','🦁','🦄','🐷','🐸','🐮','🦒'];
+        document.getElementById('emoji-grid').innerHTML = emojis.map(e => `<span onclick="setAvatar('${e}')" style="font-size:35px; cursor:pointer;">${e}</span>`).join('');
         loadData();
     </script>
 </body>
