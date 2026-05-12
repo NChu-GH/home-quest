@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Семейные Квесты - Fix Touch</title>
+    <title>Семейные Квесты - Зум исправлен</title>
     <style>
         body { background-color: #e0f7fa; display: flex; flex-direction: column; align-items: center; padding: 10px; font-family: 'Comic Sans MS', cursive, sans-serif; margin: 0; height: 100vh; overflow: hidden; }
         .main-wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100%; }
@@ -16,10 +16,10 @@
         .menu-btn, .chat-btn { height: 100%; min-height: 40px; border-radius: 15px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 16px; border: 3px solid; display: flex; justify-content: center; align-items: center; }
         .menu-btn { background: #ff9800; color: white; border-color: #e65100; }
         .chat-btn { background: #4caf50; color: white; border-color: #2e7d32; position: relative; }
-        #chat-badge { position: absolute; top: -5px; right: -5px; background: #ff5252; color: white; border-radius: 50%; padding: 2px 7px; font-size: 12px; border: 2px solid white; font-weight: bold; }
+        #chat-badge { position: absolute; top: -5px; right: -5px; background: #ff5252; color: white; border-radius: 50%; padding: 2px 7px; font-size: 12px; border: 2px solid white; font-weight: bold; display: none; }
 
         .map-viewport { flex: 1; width: 100%; position: relative; overflow: hidden; border: 6px solid #004d40; border-radius: 20px; background: #90a4ae; touch-action: none; }
-        #map-outer { position: absolute; transform-origin: 0 0; width: 1000px; height: 1000px; transition: transform 0.1s linear; }
+        #map-outer { position: absolute; transform-origin: 0 0; width: 1000px; height: 1000px; }
         .game-container { width: 100%; height: 100%; background-image: url('Kvartira.png'); background-size: contain; background-repeat: no-repeat; }
         
         .arrow { position: absolute; width: 50px; height: 50px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); z-index: 20; }
@@ -51,7 +51,7 @@
                 </div>
             </div>
             <div class="btn-group">
-                <button class="chat-btn" onclick="openChat()">💬<div id="chat-badge" style="display:none;">0</div></button>
+                <button class="chat-btn" onclick="openChat()">💬<div id="chat-badge">0</div></button>
                 <button class="menu-btn" onclick="toggleSidebar()">⚙️</button>
             </div>
         </div>
@@ -69,10 +69,11 @@
 
     <div id="overlay" onclick="closeAll()" class="overlay"></div>
 
+    <!-- Модалки (Квесты, Чат, Аватар) -->
     <div id="createQuestModal" class="modal">
-        <h2 style="color:#00796b;">Создать задание 📝</h2>
-        <input type="text" id="new-quest-text" placeholder="Например: Помыть коридор">
-        <button class="btn-choice" style="background:#4caf50; color:white;" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button>
+        <h2>Новое задание 📝</h2>
+        <input type="text" id="new-quest-text" placeholder="Что сделать?">
+        <button class="btn-choice" style="background:#4caf50; color:white;" onclick="confirmCreateQuest()">СОЗДАТЬ ✅</button>
         <button class="btn-choice" onclick="cancelQuest()" style="color: #888; border-color:#ccc">ОТМЕНА</button>
     </div>
 
@@ -116,7 +117,7 @@
         const gameMap = document.getElementById('game-map');
         
         let scale = 0.5, posX = -250, posY = -250, isDragging = false, startX, startY;
-        let lastTap = 0;
+        let lastTap = 0, initialPinchDist = 0, initialScale = 0;
         let oldScale, oldPosX, oldPosY;
 
         function updateTransform() { 
@@ -124,73 +125,60 @@
         }
 
         function changeZoom(delta) { 
-            scale = Math.min(Math.max(0.2, scale + delta), 2.5); 
+            scale = Math.min(Math.max(0.2, scale + delta), 3); 
             updateTransform(); 
         }
 
-        // Управление мышкой
-        viewport.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            startX = e.pageX - posX;
-            startY = e.pageY - posY;
-            mapOuter.style.transition = 'none';
-        });
-        window.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            posX = e.pageX - startX;
-            posY = e.pageY - startY;
-            updateTransform();
-        });
-        window.addEventListener('mouseup', () => isDragging = false);
-
-        // Управление тачем (ТЕЛЕФОН)
+        // --- ЛОГИКА ТАЧА (ДВИЖЕНИЕ И ЗУМ ПАЛЬЦАМИ) ---
         viewport.addEventListener('touchstart', (e) => {
             if (e.touches.length === 1) {
                 isDragging = true;
                 startX = e.touches[0].pageX - posX;
                 startY = e.touches[0].pageY - posY;
-                mapOuter.style.transition = 'none';
+            } else if (e.touches.length === 2) {
+                isDragging = false;
+                initialPinchDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+                initialScale = scale;
             }
         }, { passive: false });
 
         viewport.addEventListener('touchmove', (e) => {
-            if (!isDragging || e.touches.length !== 1) return;
-            e.preventDefault(); // ЗАПРЕЩАЕМ СКРОЛЛ СТРАНИЦЫ
-            posX = e.touches[0].pageX - startX;
-            posY = e.touches[0].pageY - startY;
+            e.preventDefault();
+            if (e.touches.length === 1 && isDragging) {
+                posX = e.touches[0].pageX - startX;
+                posY = e.touches[0].pageY - startY;
+            } else if (e.touches.length === 2) {
+                const currentDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+                const zoomFactor = currentDist / initialPinchDist;
+                scale = Math.min(Math.max(0.2, initialScale * zoomFactor), 3);
+            }
             updateTransform();
         }, { passive: false });
 
-        viewport.addEventListener('touchend', () => {
-            isDragging = false;
-        });
+        viewport.addEventListener('touchend', () => { isDragging = false; });
 
-        // Двойной щелчок
+        // Мышка
+        viewport.addEventListener('mousedown', (e) => { isDragging = true; startX = e.pageX - posX; startY = e.pageY - posY; });
+        window.addEventListener('mousemove', (e) => { if (!isDragging) return; posX = e.pageX - startX; posY = e.pageY - startY; updateTransform(); });
+        window.addEventListener('mouseup', () => isDragging = false);
+
+        // Двойной тап/клик
         viewport.addEventListener('click', (e) => {
-            if (state.members[state.currentUserIndex].name === 'Система') return; 
             if (state.currentUserIndex !== state.adminIndex) return;
-            
             const now = Date.now();
             if (now - lastTap < 300) {
                 oldScale = scale; oldPosX = posX; oldPosY = posY;
                 const rect = viewport.getBoundingClientRect();
                 const clickX = e.clientX - rect.left;
                 const clickY = e.clientY - rect.top;
-                
-                scale = 1.2; 
+                scale = 1.5; 
                 posX = -( (clickX - oldPosX) / oldScale * scale - rect.width / 2 );
                 posY = -( (clickY - oldPosY) / oldScale * scale - rect.height / 2 );
-                
                 mapOuter.style.transition = 'transform 0.4s ease-out';
                 updateTransform();
-
                 const mapRect = gameMap.getBoundingClientRect();
                 window.tempCoords = { x: (e.clientX - mapRect.left) / oldScale, y: (e.clientY - mapRect.top) / oldScale };
-                
-                setTimeout(() => {
-                    document.getElementById('createQuestModal').style.display = 'block';
-                    document.getElementById('overlay').style.display = 'block';
-                }, 400);
+                setTimeout(() => { mapOuter.style.transition = 'none'; document.getElementById('createQuestModal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }, 400);
             }
             lastTap = now;
         });
@@ -198,14 +186,11 @@
         function cancelQuest() { scale = oldScale; posX = oldPosX; posY = oldPosY; updateTransform(); closeAll(); }
         function confirmCreateQuest() {
             const txt = document.getElementById('new-quest-text').value;
-            if(txt) {
-                state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt, reward: 10 });
-                document.getElementById('new-quest-text').value = '';
-            }
+            if(txt) { state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt, reward: 10 }); document.getElementById('new-quest-text').value = ''; }
             cancelQuest(); save();
         }
 
-        // Стандартная логика
+        // Загрузка, Сохранение, UI
         function loadData() {
             const saved = localStorage.getItem(storageKey);
             state = saved ? JSON.parse(saved) : { familyName: "Наша Семья", currentUserIndex: 0, adminIndex: 0, quests: [], messages: [], members: [{name: "Админ", points: 0, avatar: "👤", isPhoto: false, lastRead: Date.now()}] };
@@ -242,7 +227,7 @@
         function openQuest(idx) { window.activeIdx = idx; document.getElementById('taskText').innerText = state.quests[idx].text; document.getElementById('taskModal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
         function completeTask() { state.members[state.currentUserIndex].points += state.quests[window.activeIdx].reward; state.quests.splice(window.activeIdx, 1); closeAll(); save(); }
         function sendChat() { const inp = document.getElementById('chat-input'); if(!inp.value.trim()) return; state.messages.push({ author: state.members[state.currentUserIndex].name, text: inp.value, date: Date.now() }); inp.value = ''; renderChat(); save(); }
-        function renderChat() { const box = document.getElementById('chat-box'); box.innerHTML = state.messages.map(m => `<div style="margin-bottom:8px; padding:10px; border-radius:12px; background:white; font-size:16px; border:1px solid #eee;"><b>${m.author}:</b> ${m.text}</div>`).reverse().join(''); }
+        function renderChat() { const box = document.getElementById('chat-box'); box.innerHTML = state.messages.map(m => `<div style="margin-bottom:8px; padding:10px; border-radius:12px; background:white; font-size:14px; border:1px solid #eee;"><b>${m.author}:</b> ${m.text}</div>`).reverse().join(''); }
         function openChat() { state.members[state.currentUserIndex].lastRead = Date.now(); document.getElementById('chatModal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; renderChat(); save(); }
         function switchProfile(i) { state.currentUserIndex = i; closeAll(); save(); }
         function closeAll() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').style.display='none'; }
