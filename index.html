@@ -1,164 +1,26 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Мой Дом - Идеальная Сборка</title>
-    <style>
-        /* 1. ГЛОБАЛЬНЫЙ ДИЗАЙН */
-        body { 
-            background-color: #e0f7fa; 
-            display: flex; flex-direction: column; align-items: center; 
-            padding: 0; font-family: 'Comic Sans MS', cursive, sans-serif; 
-            margin: 0; height: 100vh; overflow: hidden; 
-        }
-        .main-wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100%; }
-
-        /* 2. ВЕРХНЯЯ ПАНЕЛЬ */
-        .top-bar { display: flex; justify-content: space-between; align-items: stretch; padding: 10px; gap: 8px; z-index: 100; flex-shrink: 0; }
-        .profile-card { background: white; padding: 10px; border-radius: 25px; border: 4px solid #00796b; display: flex; align-items: center; gap: 10px; flex: 2; position: relative; min-width: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .crown-icon { position: absolute; top: -18px; left: 5px; font-size: 32px; transform: rotate(-15deg); display: none; z-index: 10; }
-        .is-admin .crown-icon { display: block; }
-        .avatar-circle { width: 60px; height: 60px; background: #eee; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; cursor: pointer; border: 3px solid #00796b; overflow: hidden; background-size: cover; background-position: center; flex-shrink: 0; }
-        
-        .btn-group { display: flex; flex-direction: column; gap: 5px; flex: 0.8; }
-        .menu-btn, .chat-btn { height: 100%; min-height: 45px; border-radius: 18px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 16px; border: 3px solid; display: flex; justify-content: center; align-items: center; }
-        .menu-btn { background: #ff9800; color: white; border-color: #e65100; }
-        .chat-btn { background: #4caf50; color: white; border-color: #2e7d32; }
-
-        /* 3. КАРТА И СЛОИ */
-        .map-viewport { flex: 1; width: 100%; position: relative; overflow: hidden; background: #cfd8dc; touch-action: none; border-top: 2px solid #004d40; }
-        #map-container { position: absolute; width: 1000px; height: 1000px; transform-origin: 0 0; }
-        .layer { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; background-size: contain; background-repeat: no-repeat; transition: filter 0.4s; }
-        
-        /* ПОДСВЕТКА ВЫБРАННОГО */
-        .highlight { filter: drop-shadow(0 0 20px #00e5ff) brightness(1.3) !important; }
-
-        #quest-arrows { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; z-index: 60; }
-        .arrow { position: absolute; width: 55px; height: 55px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); pointer-events: auto; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); }
-        @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -80%); } }
-
-        /* 4. МОДАЛКИ (БИРЮЗОВАЯ РАМКА 6PX) */
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 500; }
-        .modal { 
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            background: white; padding: 25px; border-radius: 35px; border: 6px solid #00796b; 
-            text-align: center; width: 85%; max-width: 420px; z-index: 1000; box-shadow: 0 0 50px rgba(0,0,0,0.4);
-        }
-        .btn-choice { width: 100%; padding: 16px; margin: 8px 0; border-radius: 20px; border: 3px solid #00796b; cursor: pointer; font-family: inherit; font-size: 20px; background: white; font-weight: bold; }
-
-        /* 5. МЕНЮ */
-        .sidebar { position: fixed; right: -550px; top: 0; width: 85%; max-width: 400px; height: 100%; background: white; border-left: 8px solid #ff9800; transition: 0.4s; padding: 30px; z-index: 1000; overflow-y: auto; box-sizing: border-box; }
-        .sidebar.active { right: 0; }
-        .member-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 2px solid #ffcc80; }
-        input { width: 100%; padding: 15px; border-radius: 15px; border: 3px solid #00796b; font-family: inherit; font-size: 18px; box-sizing: border-box; margin-bottom: 10px; }
-        
-        .zoom-controls { position: absolute; bottom: 15px; right: 15px; display: flex; flex-direction: column; gap: 8px; z-index: 110; }
-        .z-btn { width: 50px; height: 50px; border-radius: 15px; border: 3px solid #004d40; background: white; font-size: 26px; font-weight: bold; color: #004d40; cursor: pointer; }
-    </style>
-</head>
-<body>
-
-<div class="main-wrapper">
-    <div class="top-bar">
-        <div id="p-card" class="profile-card">
-            <div class="crown-icon">👑</div>
-            <div id="current-avatar" class="avatar-circle" onclick="openAvatarPicker()">👤</div>
-            <div style="flex:1; min-width: 0;">
-                <b id="current-user-name">...</b>
-                <div style="color: #00796b; font-weight: bold; font-size: 18px;">⭐️ <span id="score-val">0</span> <button onclick="renameCurrentPlayer()" style="border:none;background:none;font-size:18px;cursor:pointer;">✏️</button></div>
-            </div>
-        </div>
-        <div class="btn-group">
-            <button class="chat-btn" onclick="alert('Чат скоро!')">💬</button>
-            <button class="menu-btn" onclick="toggleSidebar()">⚙️</button>
-        </div>
-    </div>
-
-    <div class="map-viewport" id="viewport">
-        <div id="map-container">
-            <!-- КОМНАТЫ (слои по твоим названиям) -->
-            <div class="layer" style="background-image: url('Sanuzel1.png');"></div>
-            <div class="layer" style="background-image: url('Koridor.png');"></div>
-            <div class="layer" style="background-image: url('Gostinaya.png');"></div>
-            <div class="layer" style="background-image: url('Spalnya1.png');"></div>
-            <div class="layer" style="background-image: url('Spalnya2.png');"></div>
-            <div class="layer" style="background-image: url('Vannaya.png');"></div>
-            <div class="layer" style="background-image: url('Sanuzel2.png');"></div>
-            <div class="layer" style="background-image: url('Kuhnya.png');"></div>
-            <div class="layer" style="background-image: url('Balcon.png');"></div>
-            
-            <!-- МЕБЕЛЬ (с ID для подсветки) -->
-            <div id="obj-Lapomoika" class="layer" style="background-image: url('Lapomoika.png');"></div>
-            <div id="obj-Unitaz1" class="layer" style="background-image: url('Unitaz1.png');"></div>
-            <div id="obj-Stiralka" class="layer" style="background-image: url('Stiralka.png');"></div>
-            <div id="obj-Korzina" class="layer" style="background-image: url('Korzina.png');"></div>
-            <div id="obj-Tumbochka" class="layer" style="background-image: url('Tumbochka.png');"></div>
-            <div id="obj-Veshalka" class="layer" style="background-image: url('Veshalka.png');"></div>
-            <div id="obj-Shkaf1" class="layer" style="background-image: url('Shkaf1.png');"></div>
-            <div id="obj-Shkaf2" class="layer" style="background-image: url('Shkaf2.png');"></div>
-            <div id="obj-Shkaf3" class="layer" style="background-image: url('Shkaf3.png');"></div>
-            <div id="obj-Shkaf4" class="layer" style="background-image: url('Shkaf4.png');"></div>
-            <div id="obj-Shkaf5" class="layer" style="background-image: url('Shkaf5.png');"></div>
-            
-            <div id="quest-arrows"></div>
-        </div>
-        <div class="zoom-controls">
-            <button class="z-btn" onclick="btnZoom(0.3)">+</button>
-            <button class="z-btn" onclick="btnZoom(-0.3)">−</button>
-        </div>
-    </div>
-</div>
-
-<div id="overlay" onclick="closeAll()" class="overlay"></div>
-
-<div id="createQuestModal" class="modal">
-    <h2 id="modal-title">Задание 📝</h2>
-    <p id="furniture-hint" style="color:#00796b; font-weight:bold; margin-bottom:10px;"></p>
-    <input type="text" id="new-quest-text" placeholder="Что сделать?">
-    <button class="btn-choice" style="background:#4caf50; color:white;" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button>
-    <button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button>
-</div>
-
-<div id="taskModal" class="modal">
-    <h2 id="taskText">...</h2>
-    <button class="btn-choice" style="background:#00796b; color:white;" onclick="completeTask()">ГОТОВО ✅</button>
-    <button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ 🔙</button>
-</div>
-
-<div id="sidebar" class="sidebar">
-    <h2 style="color:#00796b;">🏡 Семья</h2>
-    <div id="family-list" style="background:#fff3e0; padding:15px; border-radius:20px; margin-bottom:20px;"></div>
-    <button class="btn-choice" style="background:#4caf50; color:white;" onclick="addNewMember()">➕ ИГРОК</button>
-    <div id="switch-list"></div>
-    <button class="btn-choice" onclick="closeAll()" style="margin-top:40px; background:#eee;">ЗАКРЫТЬ ❌</button>
-</div>
-
-<div id="avatarModal" class="modal">
-    <h2>Аватар героя 🎭</h2>
-    <div id="emoji-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:20px 0;"></div>
-    <button class="btn-choice" onclick="closeAll()">🔙 НАЗАД</button>
-</div>
-
 <script>
     let state;
-    const storageKey = 'FamilyApp_Persistent_Storage'; // Данные сохраняются
+    const storageKey = 'FamilyApp_Persistent_Storage'; 
     const container = document.getElementById('map-container');
     const view = document.getElementById('viewport');
     
-    // БАЗА ЗОН (Координаты под твой рисунок)
+    // ОБНОВЛЕННАЯ БАЗА ЗОН: Шкафы 2, 3, 4, 5 теперь на местах
     const zones = [
         { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 80 },
         { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 80 },
         { id: 'Stiralka', name: '🧼 Стиральная машина', x: 865, y: 555, r: 90 },
         { id: 'Korzina', name: '🧺 Корзина', x: 765, y: 555, r: 80 },
         { id: 'Veshalka', name: '🧥 Вешалка', x: 690, y: 420, r: 75 },
-        { id: 'Shkaf1', name: '👗 Шкаф 1', x: 505, y: 620, r: 80 },
-        { id: 'Shkaf2', name: '🧥 Шкаф 2', x: 400, y: 620, r: 80 }
+        { id: 'Tumbochka', name: '🗄 Тумбочка', x: 640, y: 500, r: 60 },
+        { id: 'Shkaf1', name: '👟 Шкаф для обуви', x: 505, y: 620, r: 80 },
+        { id: 'Shkaf2', name: '👗 Шкаф для одежды', x: 410, y: 620, r: 80 }, // Сдвинул левее
+        { id: 'Shkaf3', name: '🧹 Хоз. шкаф', x: 330, y: 630, r: 70 },       // Сдвинул в угол
+        { id: 'Shkaf4', name: '⛺️ Шкаф ремонт/спорт', x: 330, y: 710, r: 70 }, // Ниже по стене
+        { id: 'Shkaf5', name: '📦 Доп. хранение', x: 330, y: 790, r: 70 }      // Пятый шкаф
     ];
 
-    let scale = 0.5, posX = 0, posY = 0, isDragging = false, startX, startY, lastTap = 0;
-    let initialDist = null, initialScale = 0, oldPos = {s: 0.5, x: 0, y: 0};
+    let scale = 0.5, posX = -250, posY = -250, isDragging = false, startX, startY, lastTap = 0;
+    let initialDist = null, initialScale = 0, oldPos = {s: 0.5, x: -250, y: -250};
 
     function updateTransform() { container.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`; }
 
@@ -173,7 +35,6 @@
 
     function btnZoom(delta) { applyZoom(delta, view.offsetWidth/2, view.offsetHeight/2); }
 
-    // УПРАВЛЕНИЕ ТАЧЕМ
     view.addEventListener('touchstart', e => {
         if (e.touches.length === 1) { isDragging = true; startX = e.touches[0].clientX - posX; startY = e.touches[0].clientY - posY; container.style.transition = 'none'; }
         else if (e.touches.length === 2) { 
@@ -199,7 +60,6 @@
     window.addEventListener('mouseup', () => isDragging = false);
     view.addEventListener('wheel', e => { e.preventDefault(); applyZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX, e.clientY); }, {passive:false});
 
-    // ДВОЙНОЙ КЛИК + ПОДСВЕТКА
     view.addEventListener('click', e => {
         if (state.currentUserIndex !== state.adminIndex) return;
         const now = Date.now();
@@ -244,9 +104,6 @@
         const user = state.members[state.currentUserIndex];
         document.getElementById('current-user-name').innerText = user.name;
         document.getElementById('score-val').innerText = user.points;
-        document.getElementById('p-card').classList.toggle('is-admin', state.currentUserIndex === state.adminIndex);
-        document.getElementById('current-avatar').innerText = user.avatar;
-        
         const qBox = document.getElementById('quest-arrows'); qBox.innerHTML = '';
         state.quests.forEach((q, i) => {
             const img = document.createElement('img'); img.src = 'arrow.png'; img.className = 'arrow';
@@ -277,5 +134,3 @@
     document.getElementById('emoji-grid').innerHTML = emojis.map(e => `<span onclick="setAvatar('${e}')" style="font-size:35px; cursor:pointer;">${e}</span>`).join('');
     loadData();
 </script>
-</body>
-</html>
