@@ -3,25 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Семейный Квест: Вся Квартира</title>
+    <title>Моя Квартира - Финальная Сборка</title>
     <style>
-        /* ДИЗАЙН: БИРЮЗОВЫЕ РАМКИ 6PX И COMIC SANS */
-        body { 
-            background-color: #e0f7fa; 
-            display: flex; flex-direction: column; align-items: center; 
-            padding: 0; font-family: 'Comic Sans MS', cursive, sans-serif; 
-            margin: 0; height: 100vh; overflow: hidden; 
-        }
-
+        body { background-color: #e0f7fa; display: flex; flex-direction: column; align-items: center; padding: 0; font-family: 'Comic Sans MS', cursive, sans-serif; margin: 0; height: 100vh; overflow: hidden; }
         .main-wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100%; }
-
+        
         /* ВЕРХНЯЯ ПАНЕЛЬ */
         .top-bar { display: flex; justify-content: space-between; align-items: stretch; padding: 10px; gap: 8px; z-index: 100; flex-shrink: 0; }
-        .profile-card { 
-            background: white; padding: 10px; border-radius: 25px; border: 4px solid #00796b; 
-            display: flex; align-items: center; gap: 10px; flex: 2; position: relative; min-width: 0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
+        .profile-card { background: white; padding: 10px; border-radius: 25px; border: 4px solid #00796b; display: flex; align-items: center; gap: 10px; flex: 2; position: relative; min-width: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .crown-icon { position: absolute; top: -18px; left: 5px; font-size: 32px; transform: rotate(-15deg); display: none; z-index: 10; }
         .is-admin .crown-icon { display: block; }
         .avatar-circle { width: 60px; height: 60px; background: #eee; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; cursor: pointer; border: 3px solid #00796b; overflow: hidden; background-size: cover; background-position: center; flex-shrink: 0; }
@@ -32,8 +21,8 @@
         .chat-btn { background: #4caf50; color: white; border-color: #2e7d32; position: relative; }
         #chat-badge { position: absolute; top: -8px; right: -8px; background: #ff5252; color: white; border-radius: 50%; padding: 2px 8px; font-size: 13px; border: 2px solid white; font-weight: bold; display: none; }
 
-        /* КАРТА (СЛОИ КОМНАТ И МЕБЕЛИ) */
-        .map-viewport { flex: 1; width: 100%; position: relative; overflow: hidden; background: #cfd8dc; touch-action: none; border-top: 2px solid #004d40; }
+        /* КАРТА */
+        .map-viewport { flex: 1; width: 100%; position: relative; overflow: hidden; background: #cfd8dc; touch-action: none; }
         #map-container { position: absolute; width: 1000px; height: 1000px; transform-origin: 0 0; }
         .layer { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; background-size: contain; background-repeat: no-repeat; }
         
@@ -41,24 +30,21 @@
         .arrow { position: absolute; width: 55px; height: 55px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); pointer-events: auto; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); }
         @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -80%); } }
 
-        /* МОДАЛКИ С БИРЮЗОВОЙ РАМКОЙ 6PX */
+        .zoom-controls { position: absolute; bottom: 15px; right: 15px; display: flex; flex-direction: column; gap: 8px; z-index: 110; }
+        .z-btn { width: 50px; height: 50px; border-radius: 15px; border: 4px solid #004d40; background: white; font-size: 26px; font-weight: bold; color: #004d40; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+
+        /* МОДАЛКИ (БИРЮЗОВАЯ РАМКА 6PX) */
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 500; }
-        .modal { 
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            background: white; padding: 25px; border-radius: 35px; border: 6px solid #00796b; 
-            text-align: center; width: 85%; max-width: 420px; z-index: 1000; box-shadow: 0 0 50px rgba(0,0,0,0.4);
-        }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 35px; border: 6px solid #00796b; text-align: center; width: 85%; max-width: 420px; z-index: 1000; box-shadow: 0 0 50px rgba(0,0,0,0.4); }
         .btn-choice { width: 100%; padding: 16px; margin: 8px 0; border-radius: 20px; border: 3px solid #00796b; cursor: pointer; font-family: inherit; font-size: 20px; background: white; font-weight: bold; }
 
-        /* МЕНЮ И ЧАТ */
-        .sidebar { position: fixed; right: -550px; top: 0; width: 85%; max-width: 420px; height: 100%; background: white; border-left: 8px solid #ff9800; transition: 0.4s; padding: 30px; z-index: 1000; overflow-y: auto; box-sizing: border-box; }
+        .sidebar { position: fixed; right: -550px; top: 0; width: 85%; max-width: 400px; height: 100%; background: white; border-left: 8px solid #ff9800; transition: 0.4s; padding: 30px; z-index: 1000; overflow-y: auto; box-sizing: border-box; }
         .sidebar.active { right: 0; }
-        .chat-box { max-height: 250px; overflow-y: auto; text-align: left; background: #f1f8e9; padding: 12px; border-radius: 15px; margin-bottom: 10px; display: flex; flex-direction: column-reverse; }
-        .chat-msg { margin-bottom: 8px; padding: 10px; border-radius: 12px; background: white; font-size: 16px; border: 1px solid #eee; }
+        .member-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 2px solid #ffcc80; }
         .mini-ava { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #00796b; background-size: cover; display: inline-block; vertical-align: middle; text-align: center; line-height: 45px; font-size: 20px; overflow: hidden; }
         input { width: 100%; padding: 15px; border-radius: 15px; border: 3px solid #00796b; font-family: inherit; font-size: 18px; box-sizing: border-box; margin-bottom: 10px; }
-        .zoom-controls { position: absolute; bottom: 15px; right: 15px; display: flex; flex-direction: column; gap: 8px; z-index: 110; }
-        .z-btn { width: 50px; height: 50px; border-radius: 15px; border: 4px solid #004d40; background: white; font-size: 26px; font-weight: bold; color: #004d40; cursor: pointer; }
+        .chat-box { max-height: 250px; overflow-y: auto; text-align: left; background: #f1f8e9; padding: 12px; border-radius: 15px; margin-bottom: 10px; display: flex; flex-direction: column-reverse; }
+        .chat-msg { margin-bottom: 8px; padding: 10px; border-radius: 12px; background: white; font-size: 16px; border: 1px solid #eee; }
     </style>
 </head>
 <body>
@@ -69,8 +55,8 @@
             <div class="crown-icon">👑</div>
             <div id="current-avatar" class="avatar-circle" onclick="openAvatarPicker()">👤</div>
             <div style="flex:1; min-width: 0;">
-                <b id="current-user-name">...</b>
-                <div style="color: #00796b; font-weight: bold; font-size: 18px;">⭐️ <span id="score-val">0</span> <button onclick="renameCurrentPlayer()" style="border:none; background:none; font-size:18px; cursor:pointer;">✏️</button></div>
+                <b id="current-user-name" style="font-size: 20px;">...</b>
+                <div style="color: #00796b; font-weight: bold; font-size: 18px;">⭐️ <span id="score-val">0</span> <button onclick="renameCurrentPlayer()" style="background:none; border:none; font-size:18px; cursor:pointer;">✏️</button></div>
             </div>
         </div>
         <div class="btn-group">
@@ -82,28 +68,27 @@
     <div class="map-viewport" id="viewport">
         <div id="map-container">
             <!-- КОМНАТЫ -->
-            <div class="layer" style="background-image: url('sanuzel1.png');"></div>
-            <div class="layer" style="background-image: url('koridor.png');"></div>
-            <div class="layer" style="background-image: url('gostinaya.png');"></div>
-            <div class="layer" style="background-image: url('spalnya1.png');"></div>
-            <div class="layer" style="background-image: url('spalnya2.png');"></div>
-            <div class="layer" style="background-image: url('vanna.png');"></div>
-            <div class="layer" style="background-image: url('sanuzel2.png');"></div>
-            <div class="layer" style="background-image: url('kuhnya.png');"></div>
-            <div class="layer" style="background-image: url('balkon.png');"></div>
-            
+            <div class="layer" style="background-image: url('Sanuzel1.png');"></div>
+            <div class="layer" style="background-image: url('Koridor.png');"></div>
+            <div class="layer" style="background-image: url('Gostinaya.png');"></div>
+            <div class="layer" style="background-image: url('Spalnya1.png');"></div>
+            <div class="layer" style="background-image: url('Spalnya2.png');"></div>
+            <div class="layer" style="background-image: url('Vannaya.png');"></div>
+            <div class="layer" style="background-image: url('Sanuzel2.png');"></div>
+            <div class="layer" style="background-image: url('Kuhnya.png');"></div>
+            <div class="layer" style="background-image: url('Balcon.png');"></div>
             <!-- МЕБЕЛЬ -->
-            <div class="layer" style="background-image: url('lapomoyka.png');"></div>
-            <div class="layer" style="background-image: url('unitaz.png');"></div>
-            <div class="layer" style="background-image: url('wash_machine.png');"></div>
-            <div class="layer" style="background-image: url('laundry.png');"></div>
-            <div class="layer" style="background-image: url('tumba.png');"></div>
-            <div class="layer" style="background-image: url('veshalka.png');"></div>
-            <div class="layer" style="background-image: url('shoe_cab.png');"></div>
-            <div class="layer" style="background-image: url('clothes_cab.png');"></div>
-            <div class="layer" style="background-image: url('household_cab.png');"></div>
-            <div class="layer" style="background-image: url('sport_cab.png');"></div>
-            
+            <div class="layer" style="background-image: url('Lapomoika.png');"></div>
+            <div class="layer" style="background-image: url('Unitaz1.png');"></div>
+            <div class="layer" style="background-image: url('Stiralka.png');"></div>
+            <div class="layer" style="background-image: url('Korzina.png');"></div>
+            <div class="layer" style="background-image: url('Tumbochka.png');"></div>
+            <div class="layer" style="background-image: url('Veshalka.png');"></div>
+            <div class="layer" style="background-image: url('Shkaf1.png');"></div>
+            <div class="layer" style="background-image: url('Shkaf2.png');"></div>
+            <div class="layer" style="background-image: url('Shkaf3.png');"></div>
+            <div class="layer" style="background-image: url('Shkaf4.png');"></div>
+            <div class="layer" style="background-image: url('Shkaf5.png');"></div>
             <div id="quest-arrows"></div>
         </div>
         <div class="zoom-controls">
@@ -115,11 +100,11 @@
 
 <div id="overlay" onclick="closeAll()" class="overlay"></div>
 
-<!-- ОКНА -->
+<!-- МОДАЛКИ -->
 <div id="createQuestModal" class="modal">
     <h2 id="modal-title" style="color:#00796b;">Задание 📝</h2>
     <p id="furniture-hint" style="font-style: italic; color: #666; margin-bottom: 10px;"></p>
-    <input type="text" id="new-quest-text" placeholder="Напиши задачу...">
+    <input type="text" id="new-quest-text" placeholder="Что сделать?">
     <button class="btn-choice" style="background:#4caf50; color:white;" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button>
     <button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button>
 </div>
@@ -131,7 +116,7 @@
 </div>
 
 <div id="chatModal" class="modal">
-    <h2 style="color:#2e7d32;">Семейный чат 💬</h2>
+    <h2 style="color:#2e7d32;">Чат 💬</h2>
     <div id="chat-box" class="chat-box"></div>
     <div style="display:flex; gap:8px;">
         <input type="text" id="chat-input" placeholder="Напиши...">
@@ -158,13 +143,13 @@
 
 <script>
     let state;
-    const storageKey = 'familyApp_FULL_KVAR_V1';
+    const storageKey = 'familyApp_PERFECT_FINAL';
     const container = document.getElementById('map-container');
     const view = document.getElementById('viewport');
     const qBox = document.getElementById('quest-arrows');
     
-    // БАЗА ЗОН (Поправлено под твою отрисовку)
-    const zones = [
+    // БАЗА ЗОН ДЛЯ МЕБЕЛИ
+    const furnitureZones = [
         { name: '🐾 Лапомойка', x: 745, y: 405, r: 85 }, { name: '🚽 Унитаз', x: 865, y: 405, r: 85 },
         { name: '🧼 Стиральная машина', x: 865, y: 555, r: 95 }, { name: '🧺 Корзина для белья', x: 765, y: 555, r: 85 },
         { name: '🧥 Вешалка', x: 690, y: 420, r: 75 }, { name: '👟 Шкаф для обуви', x: 505, y: 620, r: 85 }
@@ -187,7 +172,7 @@
 
     function btnZoom(delta) { applyZoom(delta, view.offsetWidth/2, view.offsetHeight/2); }
 
-    // УПРАВЛЕНИЕ
+    // УПРАВЛЕНИЕ ТАЧЕМ И МЫШКОЙ
     view.addEventListener('touchstart', e => {
         if (e.touches.length === 1) { isDragging = true; startX = e.touches.clientX - posX; startY = e.touches.clientY - posY; container.style.transition = 'none'; }
         else if (e.touches.length === 2) { isDragging = false; initialDist = Math.hypot(e.touches.clientX - e.touches.clientX, e.touches.clientY - e.touches.clientY); initialScale = scale; }
@@ -207,7 +192,6 @@
     view.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX - posX; startY = e.clientY - posY; container.style.transition = 'none'; });
     window.addEventListener('mousemove', e => { if (isDragging) { posX = e.clientX - startX; posY = e.clientY - startY; updateTransform(); } });
     window.addEventListener('mouseup', () => isDragging = false);
-    view.addEventListener('wheel', e => { e.preventDefault(); applyZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX, e.clientY); }, {passive:false});
 
     // ДВОЙНОЙ КЛИК + УМНЫЙ ЗУМ
     view.addEventListener('click', e => {
@@ -216,7 +200,7 @@
         if (now - lastTap < 300) {
             const rect = container.getBoundingClientRect();
             const mapX = (e.clientX - rect.left) / scale, mapY = (e.clientY - rect.top) / scale;
-            let found = zones.find(f => Math.hypot(f.x - mapX, f.y - mapY) < f.r);
+            let found = furnitureZones.find(f => Math.hypot(f.x - mapX, f.y - mapY) < f.r);
             oldPos = {s: scale, x: posX, y: posY};
             applyZoom(1.4 - scale, e.clientX, e.clientY);
             container.style.transition = 'transform 0.4s ease-out';
@@ -230,11 +214,13 @@
         lastTap = now;
     });
 
-    // ДАННЫЕ И СЕМЬЯ
+    // ЛОГИКА ДАННЫХ
     function loadData() {
         const saved = localStorage.getItem(storageKey);
         state = saved ? JSON.parse(saved) : { familyName: "Дом", currentUserIndex: 0, adminIndex: 0, quests: [], messages: [], members: [{name: "Админ", points: 0, avatar: "👤", isPhoto: false, lastRead: 0}] };
-        updateUI(); updateTransform();
+        updateUI(); 
+        posX = (view.offsetWidth - 1000 * scale) / 2; posY = (view.offsetHeight - 1000 * scale) / 2;
+        updateTransform();
     }
     function save() { localStorage.setItem(storageKey, JSON.stringify(state)); updateUI(); }
     function cancelQuest() { scale = oldPos.s; posX = oldPos.x; posY = oldPos.y; container.style.transition = 'transform 0.4s'; updateTransform(); closeAll(); }
@@ -243,6 +229,7 @@
         if(txt) { state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt }); }
         document.getElementById('new-quest-text').value = ''; cancelQuest(); save();
     }
+
     function updateUI() {
         const user = state.members[state.currentUserIndex];
         document.getElementById('current-user-name').innerText = user.name;
@@ -272,11 +259,7 @@
         document.getElementById('chat-badge').innerText = count;
     }
 
-    function addNewMember() { 
-        let n = prompt("Имя игрока:"); 
-        if(n) { state.members.push({name:n, points:0, avatar:'👤', isPhoto:false, lastRead:Date.now()}); save(); } 
-    }
-
+    function addNewMember() { let n = prompt("Имя игрока:"); if(n) { state.members.push({name:n, points:0, avatar:'👤', isPhoto:false, lastRead:Date.now()}); save(); } }
     function openChat() { state.members[state.currentUserIndex].lastRead = Date.now(); document.getElementById('chatModal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; renderChat(); save(); }
     function renderChat() { const box = document.getElementById('chat-box'); box.innerHTML = state.messages.map(m => `<div class="chat-msg"><b>${m.author}:</b> ${m.text}</div>`).reverse().join(''); }
     function sendChat() { const inp = document.getElementById('chat-input'); if(!inp.value.trim()) return; state.messages.push({ author: state.members[state.currentUserIndex].name, text: inp.value, date: Date.now() }); inp.value = ''; renderChat(); save(); }
