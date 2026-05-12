@@ -3,36 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Семейные Квесты - Точное Управление</title>
+    <title>Семейные Квесты - Исправленный Зум</title>
     <style>
         body { background-color: #e0f7fa; display: flex; flex-direction: column; align-items: center; padding: 0; font-family: 'Comic Sans MS', cursive, sans-serif; margin: 0; height: 100vh; overflow: hidden; }
         .main-wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100%; }
         .top-bar { display: flex; justify-content: space-between; align-items: stretch; padding: 10px; gap: 8px; z-index: 100; flex-shrink: 0; }
         .profile-card { background: white; padding: 10px; border-radius: 25px; border: 4px solid #00796b; display: flex; align-items: center; gap: 10px; flex: 2; position: relative; min-width: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .crown-icon { position: absolute; top: -18px; left: 5px; font-size: 30px; transform: rotate(-15deg); display: none; z-index: 10; }
-        .is-admin .crown-icon { display: block; }
         .avatar-circle { width: 55px; height: 55px; background: #eee; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 28px; cursor: pointer; border: 3px solid #00796b; overflow: hidden; background-size: cover; background-position: center; flex-shrink: 0; }
         .btn-group { display: flex; flex-direction: column; gap: 5px; flex: 0.8; }
         .menu-btn, .chat-btn { height: 100%; min-height: 40px; border-radius: 15px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 16px; border: 3px solid; display: flex; justify-content: center; align-items: center; }
         .menu-btn { background: #ff9800; color: white; border-color: #e65100; }
         .chat-btn { background: #4caf50; color: white; border-color: #2e7d32; position: relative; }
         #chat-badge { position: absolute; top: -5px; right: -5px; background: #ff5252; color: white; border-radius: 50%; padding: 2px 7px; font-size: 12px; border: 2px solid white; font-weight: bold; display: none; }
-
         .map-viewport { flex: 1; width: 100%; position: relative; overflow: hidden; background: #cfd8dc; touch-action: none; }
         #map-container { position: absolute; width: 1000px; height: 1000px; transform-origin: 0 0; will-change: transform; }
         .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; background-size: contain; background-repeat: no-repeat; }
         #base-layer { background-image: url('Kvartira.png'); }
-
         .zoom-controls { position: absolute; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 110; }
         .z-btn { width: 50px; height: 50px; border-radius: 15px; border: 4px solid #004d40; background: white; font-size: 26px; font-weight: bold; color: #004d40; cursor: pointer; }
-
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 500; }
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 35px; border: 6px solid #00796b; text-align: center; width: 85%; max-width: 420px; z-index: 1000; }
         .btn-choice { width: 100%; padding: 15px; border-radius: 15px; border: 3px solid #00796b; cursor: pointer; font-family: inherit; font-size: 18px; background: white; font-weight: bold; margin: 5px 0; }
-        .sidebar { position: fixed; right: -550px; top: 0; width: 85%; max-width: 420px; height: 100%; background: white; border-left: 8px solid #ff9800; transition: 0.4s; padding: 30px; z-index: 1000; overflow-y: auto; box-sizing: border-box; }
+        .sidebar { position: fixed; right: -550px; top: 0; width: 85%; max-width: 400px; height: 100%; background: white; border-left: 8px solid #ff9800; transition: 0.4s; padding: 30px; z-index: 1000; overflow-y: auto; box-sizing: border-box; }
         .sidebar.active { right: 0; }
         .arrow { position: absolute; width: 50px; height: 50px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); z-index: 60; }
         @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -80%); } }
+        .crown-icon { position: absolute; top: -18px; left: 5px; font-size: 30px; transform: rotate(-15deg); display: none; z-index: 10; }
+        .is-admin .crown-icon { display: block; }
     </style>
 </head>
 <body>
@@ -56,7 +53,7 @@
         <div class="map-viewport" id="viewport">
             <div id="map-container">
                 <div class="layer" id="base-layer"></div>
-                <!-- Слои твоей мебели -->
+                <!-- Слои мебели -->
                 <div class="layer" style="background-image: url('lapomoyka.png');"></div>
                 <div class="layer" style="background-image: url('unitaz.png');"></div>
                 <div class="layer" style="background-image: url('wash_machine.png');"></div>
@@ -112,16 +109,15 @@
 
     <script>
         let state;
-        const storageKey = 'familyApp_FINAL_V10';
+        const storageKey = 'familyApp_FINAL_V11';
         
-        // Уточненные координаты (увеличил радиус попадания)
         const furnitureZones = [
-            { name: '🐾 Лапомойка', x: 745, y: 405, r: 70 },
-            { name: '🚽 Унитаз', x: 865, y: 405, r: 70 },
-            { name: '🧼 Стиральная машина', x: 865, y: 555, r: 80 },
-            { name: '🧺 Корзина для белья', x: 765, y: 555, r: 70 },
-            { name: '🧥 Вешалка', x: 690, y: 420, r: 60 },
-            { name: '👟 Шкаф для обуви', x: 505, y: 620, r: 70 }
+            { name: '🐾 Лапомойка', x: 745, y: 405, r: 75 },
+            { name: '🚽 Унитаз', x: 865, y: 405, r: 75 },
+            { name: '🧼 Стиральная машина', x: 865, y: 555, r: 85 },
+            { name: '🧺 Корзина для белья', x: 765, y: 555, r: 75 },
+            { name: '🧥 Вешалка', x: 690, y: 420, r: 65 },
+            { name: '👟 Шкаф для обуви', x: 505, y: 620, r: 75 }
         ];
 
         const view = document.getElementById('viewport');
@@ -130,23 +126,23 @@
         let scale = 0.5, posX = 0, posY = 0;
         let isDragging = false, startX, startY, lastTap = 0;
         let oldScale, oldPosX, oldPosY;
+        
+        // Переменные для мобильного зума (Pinch)
+        let initialDist = null;
+        let initialScale = 0;
 
         function updateTransform() {
             map.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
         }
 
-        // --- ЛОГИКА ЗУМА В ТОЧКУ (ИСПРАВЛЕННАЯ) ---
         function applyZoom(delta, clientX, clientY) {
             const rect = view.getBoundingClientRect();
             const mouseX = clientX - rect.left;
             const mouseY = clientY - rect.top;
-
             const newScale = Math.min(Math.max(0.15, scale + delta), 4);
-            
-            // Основная формула зума в точку:
-            posX = mouseX - (mouseX - posX) * (newScale / scale);
-            posY = mouseY - (mouseY - posY) * (newScale / scale);
-            
+            const ratio = newScale / scale;
+            posX = mouseX - (mouseX - posX) * ratio;
+            posY = mouseY - (mouseY - posY) * ratio;
             scale = newScale;
             updateTransform();
         }
@@ -155,35 +151,58 @@
             applyZoom(delta, view.offsetWidth / 2, view.offsetHeight / 2);
         }
 
-        // --- СОБЫТИЯ МЫШИ И ТАЧА ---
-        const getPoint = e => e.touches ? e.touches[0] : e;
+        // --- СОБЫТИЯ ТАЧА (ТЕЛЕФОН) ---
+        view.addEventListener('touchstart', e => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                startX = e.touches[0].clientX - posX;
+                startY = e.touches[0].clientY - posY;
+                map.style.transition = 'none';
+            } else if (e.touches.length === 2) {
+                isDragging = false; // Отключаем перетаскивание при зуме
+                initialDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+                initialScale = scale;
+            }
+        }, {passive: false});
 
-        const startMove = e => {
-            isDragging = true;
-            const p = getPoint(e);
-            startX = p.clientX - posX;
-            startY = p.clientY - posY;
-            map.style.transition = 'none';
-        };
-
-        const move = e => {
-            if (!isDragging) return;
-            if (e.touches && e.touches.length > 1) return; // Не двигать при зуме пальцами
+        view.addEventListener('touchmove', e => {
             e.preventDefault();
-            const p = getPoint(e);
-            posX = p.clientX - startX;
-            posY = p.clientY - startY;
+            if (e.touches.length === 1 && isDragging) {
+                posX = e.touches[0].clientX - startX;
+                posY = e.touches[0].clientY - startY;
+                updateTransform();
+            } else if (e.touches.length === 2 && initialDist) {
+                const currentDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+                const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                
+                const zoomFactor = currentDist / initialDist;
+                const targetScale = initialScale * zoomFactor;
+                const delta = targetScale - scale;
+                
+                applyZoom(delta, midX, midY);
+            }
+        }, {passive: false});
+
+        view.addEventListener('touchend', () => { 
+            isDragging = false; 
+            initialDist = null; 
+        });
+
+        // --- СОБЫТИЯ МЫШИ (ПК) ---
+        view.addEventListener('mousedown', e => {
+            isDragging = true;
+            startX = e.clientX - posX;
+            startY = e.clientY - posY;
+            map.style.transition = 'none';
+        });
+        window.addEventListener('mousemove', e => {
+            if (!isDragging) return;
+            posX = e.clientX - startX;
+            posY = e.clientY - startY;
             updateTransform();
-        };
-
-        view.addEventListener('mousedown', startMove);
-        window.addEventListener('mousemove', move);
+        });
         window.addEventListener('mouseup', () => isDragging = false);
-        view.addEventListener('touchstart', startMove, {passive:false});
-        view.addEventListener('touchmove', move, {passive:false});
-        view.addEventListener('touchend', () => isDragging = false);
-
-        // Колесо мыши
         view.addEventListener('wheel', e => {
             e.preventDefault();
             applyZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX, e.clientY);
@@ -197,12 +216,9 @@
                 const rect = map.getBoundingClientRect();
                 const mapX = (e.clientX - rect.left) / scale;
                 const mapY = (e.clientY - rect.top) / scale;
-                
                 let found = furnitureZones.find(f => Math.hypot(f.x - mapX, f.y - mapY) < f.r);
-                
                 oldScale = scale; oldPosX = posX; oldPosY = posY;
-                applyZoom(1.4 - scale, e.clientX, e.clientY); // Приближаем в точку клика
-                
+                applyZoom(1.4 - scale, e.clientX, e.clientY);
                 window.tempCoords = { x: mapX, y: mapY };
                 setTimeout(() => {
                     document.getElementById('furniture-hint').innerText = found ? `Объект: ${found.name}` : "Пустая зона";
@@ -213,33 +229,28 @@
             lastTap = now;
         });
 
-        // --- ЛОГИКА ПРИЛОЖЕНИЯ ---
+        // --- ЛОГИКА ИГРЫ ---
         function loadData() {
             const saved = localStorage.getItem(storageKey);
             state = saved ? JSON.parse(saved) : { familyName: "Дом", currentUserIndex: 0, adminIndex: 0, quests: [], messages: [], members: [{name: "Админ", points: 0, avatar: "👤", lastRead: 0}] };
             updateUI();
-            // Начальное центрирование
             posX = (view.offsetWidth - 1000 * scale) / 2;
             posY = (view.offsetHeight - 1000 * scale) / 2;
             updateTransform();
         }
-
         function save() { localStorage.setItem(storageKey, JSON.stringify(state)); updateUI(); }
         function cancelQuest() { scale = oldScale; posX = oldPosX; posY = oldPosY; map.style.transition = 'transform 0.4s'; updateTransform(); closeAll(); }
-
         function confirmCreateQuest() {
             const txt = document.getElementById('new-quest-text').value;
             if(txt) state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt });
             document.getElementById('new-quest-text').value = '';
             cancelQuest();
         }
-
         function updateUI() {
             const user = state.members[state.currentUserIndex];
             document.getElementById('current-user-name').innerText = user.name;
             document.getElementById('score-val').innerText = user.points;
             document.getElementById('p-card').classList.toggle('is-admin', state.currentUserIndex === state.adminIndex);
-            
             const qBox = document.getElementById('quest-arrows'); qBox.innerHTML = '';
             state.quests.forEach((q, i) => {
                 const img = document.createElement('img'); img.src = 'arrow.png'; img.className = 'arrow';
@@ -247,15 +258,13 @@
                 img.onclick = e => { e.stopPropagation(); openQuest(i); };
                 qBox.appendChild(img);
             });
-
             const fList = document.getElementById('family-list'); fList.innerHTML = '';
             const sList = document.getElementById('switch-list'); sList.innerHTML = '<h3>🔄 Сменить героя:</h3>';
             state.members.forEach((m, i) => {
-                fList.innerHTML += `<div class="member-item"><span>${m.name} ${i===state.adminIndex?'👑':''}</span><button onclick="setAdmin(${i})" style="border:none;background:none;font-size:24px;">👑</button></div>`;
+                fList.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:2px solid #ffcc80;"><span>${m.name} ${i===state.adminIndex?'👑':''}</span><button onclick="setAdmin(${i})" style="border:none;background:none;font-size:24px;">👑</button></div>`;
                 if(i !== state.currentUserIndex) sList.innerHTML += `<button class="btn-choice" onclick="switchProfile(${i})">${m.name}</button>`;
             });
         }
-
         function openQuest(idx) { window.activeIdx = idx; document.getElementById('taskText').innerText = state.quests[idx].text; document.getElementById('taskModal').style.display='block'; document.getElementById('overlay').style.display='block'; }
         function completeTask() { state.members[state.currentUserIndex].points += 10; state.quests.splice(window.activeIdx, 1); closeAll(); save(); }
         function openChat() { state.members[state.currentUserIndex].lastRead = Date.now(); document.getElementById('chatModal').style.display='block'; document.getElementById('overlay').style.display='block'; save(); }
@@ -265,7 +274,6 @@
         function setAdmin(i) { state.adminIndex = i; save(); }
         function switchProfile(i) { state.currentUserIndex = i; closeAll(); save(); }
         function addNewMember() { let n = prompt("Имя:"); if(n) { state.members.push({name:n, points:0, avatar:'👤', lastRead:Date.now()}); save(); } }
-
         loadData();
     </script>
 </body>
