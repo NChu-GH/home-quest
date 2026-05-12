@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Семейные Квесты - План Квартиры</title>
+    <title>Семейные Квесты - Fix Touch</title>
     <style>
-        body { background-color: #e0f7fa; display: flex; flex-direction: column; align-items: center; padding: 10px; font-family: 'Comic Sans MS', cursive, sans-serif; margin: 0; min-height: 100vh; overflow: hidden; }
-        .main-wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100vh; }
-        .top-bar { display: flex; justify-content: space-between; align-items: stretch; margin-bottom: 10px; gap: 8px; z-index: 100; }
+        body { background-color: #e0f7fa; display: flex; flex-direction: column; align-items: center; padding: 10px; font-family: 'Comic Sans MS', cursive, sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        .main-wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100%; }
+        .top-bar { display: flex; justify-content: space-between; align-items: stretch; margin-bottom: 10px; gap: 8px; z-index: 100; flex-shrink: 0; }
         .profile-card { background: white; padding: 10px; border-radius: 20px; border: 3px solid #00796b; display: flex; align-items: center; gap: 10px; flex: 2; position: relative; min-width: 0; }
         .crown-icon { position: absolute; top: -15px; left: 5px; font-size: 25px; transform: rotate(-15deg); display: none; z-index: 10; }
         .is-admin .crown-icon { display: block; }
@@ -19,10 +19,8 @@
         #chat-badge { position: absolute; top: -5px; right: -5px; background: #ff5252; color: white; border-radius: 50%; padding: 2px 7px; font-size: 12px; border: 2px solid white; font-weight: bold; }
 
         .map-viewport { flex: 1; width: 100%; position: relative; overflow: hidden; border: 6px solid #004d40; border-radius: 20px; background: #90a4ae; touch-action: none; }
-        #map-outer { position: absolute; transform-origin: 0 0; width: 1000px; height: 1000px; transition: transform 0.4s ease-out; }
-        
-        /* ЗДЕСЬ ЗАМЕНЕНО НА Kvartira.png */
-        .game-container { width: 100%; height: 100%; background-image: url('Kvartira.png'); background-size: contain; background-repeat: no-repeat; cursor: grab; }
+        #map-outer { position: absolute; transform-origin: 0 0; width: 1000px; height: 1000px; transition: transform 0.1s linear; }
+        .game-container { width: 100%; height: 100%; background-image: url('Kvartira.png'); background-size: contain; background-repeat: no-repeat; }
         
         .arrow { position: absolute; width: 50px; height: 50px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); z-index: 20; }
         @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -75%); } }
@@ -121,35 +119,74 @@
         let lastTap = 0;
         let oldScale, oldPosX, oldPosY;
 
-        function updateTransform() { mapOuter.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`; }
-        function changeZoom(delta) { scale = Math.min(Math.max(0.2, scale + delta), 2.5); updateTransform(); }
+        function updateTransform() { 
+            mapOuter.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`; 
+        }
 
-        const handleStart = (x, y) => { isDragging = true; startX = x - posX; startY = y - posY; mapOuter.style.transition = 'none'; };
-        const handleMove = (x, y) => { if (!isDragging) return; posX = x - startX; posY = y - startY; updateTransform(); };
-        const handleEnd = () => { isDragging = false; };
+        function changeZoom(delta) { 
+            scale = Math.min(Math.max(0.2, scale + delta), 2.5); 
+            updateTransform(); 
+        }
 
-        viewport.addEventListener('mousedown', (e) => handleStart(e.pageX, e.pageY));
-        window.addEventListener('mousemove', (e) => handleMove(e.pageX, e.pageY));
-        window.addEventListener('mouseup', handleEnd);
-        viewport.addEventListener('touchstart', (e) => { if (e.touches.length === 1) handleStart(e.touches.pageX, e.touches.pageY); });
-        viewport.addEventListener('touchmove', (e) => { if (e.touches.length === 1) handleMove(e.touches.pageX, e.touches.pageY); });
-        viewport.addEventListener('touchend', handleEnd);
+        // Управление мышкой
+        viewport.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.pageX - posX;
+            startY = e.pageY - posY;
+            mapOuter.style.transition = 'none';
+        });
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            posX = e.pageX - startX;
+            posY = e.pageY - startY;
+            updateTransform();
+        });
+        window.addEventListener('mouseup', () => isDragging = false);
 
+        // Управление тачем (ТЕЛЕФОН)
+        viewport.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                startX = e.touches[0].pageX - posX;
+                startY = e.touches[0].pageY - posY;
+                mapOuter.style.transition = 'none';
+            }
+        }, { passive: false });
+
+        viewport.addEventListener('touchmove', (e) => {
+            if (!isDragging || e.touches.length !== 1) return;
+            e.preventDefault(); // ЗАПРЕЩАЕМ СКРОЛЛ СТРАНИЦЫ
+            posX = e.touches[0].pageX - startX;
+            posY = e.touches[0].pageY - startY;
+            updateTransform();
+        }, { passive: false });
+
+        viewport.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        // Двойной щелчок
         viewport.addEventListener('click', (e) => {
+            if (state.members[state.currentUserIndex].name === 'Система') return; 
             if (state.currentUserIndex !== state.adminIndex) return;
+            
             const now = Date.now();
             if (now - lastTap < 300) {
                 oldScale = scale; oldPosX = posX; oldPosY = posY;
                 const rect = viewport.getBoundingClientRect();
                 const clickX = e.clientX - rect.left;
                 const clickY = e.clientY - rect.top;
+                
                 scale = 1.2; 
                 posX = -( (clickX - oldPosX) / oldScale * scale - rect.width / 2 );
                 posY = -( (clickY - oldPosY) / oldScale * scale - rect.height / 2 );
+                
                 mapOuter.style.transition = 'transform 0.4s ease-out';
                 updateTransform();
+
                 const mapRect = gameMap.getBoundingClientRect();
                 window.tempCoords = { x: (e.clientX - mapRect.left) / oldScale, y: (e.clientY - mapRect.top) / oldScale };
+                
                 setTimeout(() => {
                     document.getElementById('createQuestModal').style.display = 'block';
                     document.getElementById('overlay').style.display = 'block';
@@ -159,17 +196,16 @@
         });
 
         function cancelQuest() { scale = oldScale; posX = oldPosX; posY = oldPosY; updateTransform(); closeAll(); }
-
         function confirmCreateQuest() {
             const txt = document.getElementById('new-quest-text').value;
             if(txt) {
                 state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt, reward: 10 });
                 document.getElementById('new-quest-text').value = '';
             }
-            cancelQuest();
-            save();
+            cancelQuest(); save();
         }
 
+        // Стандартная логика
         function loadData() {
             const saved = localStorage.getItem(storageKey);
             state = saved ? JSON.parse(saved) : { familyName: "Наша Семья", currentUserIndex: 0, adminIndex: 0, quests: [], messages: [], members: [{name: "Админ", points: 0, avatar: "👤", isPhoto: false, lastRead: Date.now()}] };
@@ -214,7 +250,6 @@
         function setAdmin(i) { state.adminIndex = i; save(); }
         function addNewMember() { let n = prompt("Имя:"); if(n) { state.members.push({name: n, points: 0, avatar: '👤', isPhoto: false, lastRead: Date.now()}); save(); } }
         function renameCurrentPlayer() { let n = prompt("Имя:", state.members[state.currentUserIndex].name); if(n) { state.members[state.currentUserIndex].name = n; save(); } }
-        function renameAnyMember(i) { let n = prompt("Имя:", state.members[i].name); if(n) { state.members[i].name = n; save(); } }
         function openAvatarPicker() { closeAll(); document.getElementById('avatarModal').style.display='block'; document.getElementById('overlay').style.display='block'; }
         function setAvatar(e) { state.members[state.currentUserIndex].avatar = e; state.members[state.currentUserIndex].isPhoto = false; save(); closeAll(); }
         function handlePhoto(input) { if (input.files && input.files) { const reader = new FileReader(); reader.onload = (e) => { state.members[state.currentUserIndex].avatar = e.target.result; state.members[state.currentUserIndex].isPhoto = true; save(); closeAll(); }; reader.readAsDataURL(input.files); } }
