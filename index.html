@@ -2,87 +2,87 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <!-- Эта строка делает приложение удобным на телефонах -->
-    <meta name="viewport" content="width=1000, user-scalable=no">
+    <!-- Настройка для мобильных: растягиваем на весь экран -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Семейные Квесты</title>
     <style>
         body { 
             background-color: #e0f7fa; 
             display: flex; flex-direction: column; align-items: center; 
-            padding: 20px; font-family: 'Comic Sans MS', cursive, sans-serif; 
-            margin: 0;
+            padding: 10px; font-family: 'Comic Sans MS', cursive, sans-serif; 
+            margin: 0; overflow-x: hidden;
         }
 
-        /* Верхняя панель */
-        .top-bar { display: flex; justify-content: space-between; width: 1000px; margin-bottom: 15px; z-index: 5; }
-        
-        .profile-card { 
-            background: white; padding: 10px 20px; border-radius: 25px; 
-            border: 4px solid #00796b; display: flex; align-items: center; gap: 15px; position: relative; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        /* Адаптивная верхняя панель */
+        .top-bar { 
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; max-width: 1000px; margin-bottom: 10px; gap: 5px;
         }
         
-        .crown-icon { position: absolute; top: -22px; left: 15px; font-size: 35px; transform: rotate(-15deg); display: none; z-index: 10; }
+        .profile-card { 
+            background: white; padding: 8px 12px; border-radius: 20px; 
+            border: 3px solid #00796b; display: flex; align-items: center; gap: 10px; position: relative;
+            flex-shrink: 1; min-width: 0;
+        }
+        
+        .crown-icon { position: absolute; top: -18px; left: 10px; font-size: 28px; transform: rotate(-15deg); display: none; z-index: 10; }
         .is-admin .crown-icon { display: block; }
 
         .avatar-circle { 
-            width: 65px; height: 65px; background: #eee; border-radius: 50%; 
+            width: 50px; height: 50px; background: #eee; border-radius: 50%; 
             display: flex; justify-content: center; align-items: center; 
-            font-size: 35px; cursor: pointer; border: 3px solid #00796b; 
-            overflow: hidden; background-size: cover; background-position: center;
+            font-size: 28px; cursor: pointer; border: 3px solid #00796b; 
+            overflow: hidden; background-size: cover; background-position: center; flex-shrink: 0;
         }
 
-        .btn-group { display: flex; gap: 10px; }
-        .menu-btn { background: #ff9800; color: white; border: 4px solid #e65100; padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; font-family: inherit; }
+        .btn-group { display: flex; gap: 5px; flex-shrink: 0; }
+        .menu-btn, .chat-btn { 
+            padding: 8px 12px; border-radius: 20px; cursor: pointer; 
+            font-weight: bold; font-family: inherit; font-size: 14px; border-width: 3px;
+        }
+        .menu-btn { background: #ff9800; color: white; border-style: solid; border-color: #e65100; }
+        .chat-btn { background: #4caf50; color: white; border-style: solid; border-color: #2e7d32; }
         
         .chat-btn-container { position: relative; }
-        .chat-btn { background: #4caf50; color: white; border: 4px solid #2e7d32; padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; font-family: inherit; }
         #chat-badge { 
-            position: absolute; top: -10px; right: -5px; background: #ff5252; color: white; 
-            border-radius: 50%; padding: 2px 8px; font-size: 14px; border: 2px solid white; display: none; 
+            position: absolute; top: -8px; right: -5px; background: #ff5252; color: white; 
+            border-radius: 50%; padding: 2px 6px; font-size: 12px; border: 2px solid white; display: none; 
         }
 
-        /* Игровое поле */
+        /* Игровое поле — теперь адаптивное */
         .game-container { 
-            position: relative; width: 1000px; height: 1000px; 
-            background-image: url('bathroom.png'); /* GitHub найдет этот файл в папке */
-            background-size: contain; 
-            background-repeat: no-repeat;
-            border: 8px solid #004d40; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
-            cursor: crosshair;
+            position: relative; width: 100%; max-width: 1000px; aspect-ratio: 1/1;
+            background: url('bathroom.png') no-repeat; background-size: contain; 
+            border: 6px solid #004d40; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); 
+            cursor: crosshair; touch-action: none;
         }
-        .arrow { position: absolute; width: 50px; cursor: pointer; animation: bounce 1.5s infinite; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4)); }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        .arrow { position: absolute; width: 40px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); }
+        @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -65%); } }
 
-        /* Окна с бирюзовой рамкой */
+        /* Модальные окна — крупнее для пальцев */
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 500; }
         .modal { 
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            background: white; padding: 30px; border-radius: 35px; border: 6px solid #00796b; 
-            text-align: center; min-width: 400px; z-index: 1000; box-shadow: 0 0 100px rgba(0,0,0,0.5); 
+            background: white; padding: 20px; border-radius: 25px; border: 5px solid #00796b; 
+            text-align: center; width: 85%; max-width: 400px; z-index: 1000; box-shadow: 0 0 50px rgba(0,0,0,0.3); 
         }
         
-        .chat-box { 
-            max-height: 250px; overflow-y: auto; text-align: left; 
-            background: #f1f8e9; padding: 15px; border-radius: 15px; 
-            border: 2px solid #a5d6a7; margin-bottom: 10px; display: flex; flex-direction: column-reverse;
-        }
-        .chat-msg { margin-bottom: 8px; padding: 8px 12px; border-radius: 15px; background: white; font-size: 14px; border: 1px solid #e0e0e0; }
-        .mention-msg { background: #fff176 !important; border: 3px solid #fbc02d !important; font-weight: bold; color: #d32f2f !important; }
+        .chat-box { max-height: 200px; overflow-y: auto; text-align: left; background: #f1f8e9; padding: 10px; border-radius: 15px; margin-bottom: 10px; display: flex; flex-direction: column-reverse; }
+        .chat-msg { margin-bottom: 6px; padding: 8px; border-radius: 12px; background: white; font-size: 13px; border: 1px solid #e0e0e0; }
         
+        .chat-input-area { display: flex; gap: 5px; }
+        .chat-input { flex: 1; padding: 12px; border-radius: 12px; border: 2px solid #00796b; font-family: inherit; font-size: 16px; }
+
         .sidebar { 
-            position: fixed; right: -400px; top: 0; width: 320px; height: 100%; 
-            background: white; border-left: 8px solid #ff9800; transition: 0.4s; 
-            padding: 25px; z-index: 1000; box-shadow: -5px 0 20px rgba(0,0,0,0.3); overflow-y: auto; 
+            position: fixed; right: -100%; top: 0; width: 80%; height: 100%; 
+            background: white; border-left: 6px solid #ff9800; transition: 0.4s; 
+            padding: 20px; z-index: 1000; overflow-y: auto; 
         }
         .sidebar.active { right: 0; }
 
-        .btn-choice { 
-            width: 100%; padding: 12px; margin: 5px 0; border-radius: 15px; 
-            border: 3px solid #00796b; cursor: pointer; font-family: inherit; font-size: 16px; background: white;
-        }
-        .mini-ava { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #00796b; background-size: cover; display: inline-block; vertical-align: middle; margin-right: 8px; }
-        #photo-input { display: none; }
+        .btn-choice { width: 100%; padding: 14px; margin: 6px 0; border-radius: 15px; border: 3px solid #00796b; cursor: pointer; font-family: inherit; font-size: 18px; background: white; }
+        
+        .mini-ava { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #00796b; background-size: cover; display: inline-block; vertical-align: middle; }
     </style>
 </head>
 <body>
@@ -91,19 +91,17 @@
         <div id="p-card" class="profile-card">
             <div class="crown-icon">👑</div>
             <div id="current-avatar" class="avatar-circle" onclick="openAvatarPicker()"></div>
-            <div>
-                <b id="current-user-name">Загрузка...</b>
-                <button onclick="renameCurrentPlayer()" style="background:none; border:none; cursor:pointer;">✏️</button>
-                <div style="color: #00796b; font-size: 20px; font-weight: bold;">⭐️ <span id="score-val">0</span></div>
-                <button class="btn-choice" style="padding: 3px 8px; font-size: 12px; margin:0;" onclick="openExchange()">💳 Обмен</button>
+            <div style="min-width: 0;">
+                <b id="current-user-name" style="display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Загрузка...</b>
+                <div style="color: #00796b; font-weight: bold; font-size: 14px;">⭐️ <span id="score-val">0</span> <button onclick="renameCurrentPlayer()" style="background:none; border:none; padding:0; cursor:pointer;">✏️</button></div>
             </div>
         </div>
         <div class="btn-group">
             <div class="chat-btn-container">
-                <button class="chat-btn" onclick="openChat()">💬 ЧАТ</button>
+                <button class="chat-btn" onclick="openChat()">💬</button>
                 <div id="chat-badge">0</div>
             </div>
-            <button class="menu-btn" onclick="toggleSidebar()">⚙️ СЕМЬЯ</button>
+            <button class="menu-btn" onclick="toggleSidebar()">⚙️</button>
         </div>
     </div>
 
@@ -111,62 +109,43 @@
 
     <div id="overlay" class="overlay" onclick="closeAll()"></div>
 
-    <!-- Модалки (все те же самые, с бирюзовой рамкой) -->
     <div id="createQuestModal" class="modal">
-        <h2 style="color:#00796b;">Новое задание 📝</h2>
-        <input type="text" id="new-quest-text" placeholder="Что нужно сделать?" style="width:90%; padding:10px; margin-bottom:10px; border-radius:10px; border:2px solid #00796b; font-family:inherit;">
-        <input type="number" id="new-quest-reward" value="10" style="width:90%; padding:10px; margin-bottom:15px; border-radius:10px; border:2px solid #00796b; font-family:inherit;">
-        <button class="btn-choice" style="background:#4caf50; color:white;" onclick="confirmCreateQuest()">Поставить задачу ✅</button>
-        <button class="btn-choice" onclick="closeAll()">Отмена ❌</button>
+        <h3>Новое задание 📝</h3>
+        <input type="text" id="new-quest-text" placeholder="Что сделать?" class="chat-input" style="width:90%; margin-bottom:10px;">
+        <button class="btn-choice" style="background:#4caf50; color:white;" onclick="confirmCreateQuest()">ОК ✅</button>
+        <button class="btn-choice" onclick="closeAll()">Отмена</button>
     </div>
 
     <div id="taskModal" class="modal">
         <h2 id="taskText">Задание</h2>
-        <p style="font-size:20px;">Награда: <span id="taskReward">0</span> ⭐️</p>
         <button class="btn-choice" style="background:#00796b; color:white;" onclick="completeTask()">Готово! ✅</button>
     </div>
 
     <div id="chatModal" class="modal">
-        <h2 style="color:#2e7d32;">Семейный чат 💬</h2>
+        <h3>Чат 💬</h3>
         <div id="chat-box" class="chat-box"></div>
-        <div style="display:flex; gap:5px;">
-            <input type="text" id="chat-input" style="flex:1; padding:10px; border-radius:10px; border:2px solid #00796b; font-family:inherit;" placeholder="Напиши что-нибудь..." onkeypress="if(event.key==='Enter') sendChat()">
-            <button class="chat-btn" onclick="sendChat()" style="padding: 5px 15px;">🚀</button>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" class="chat-input" placeholder="...">
+            <button class="chat-btn" onclick="sendChat()">🚀</button>
         </div>
-        <button class="btn-choice" onclick="closeAll()" style="margin-top:15px;">Закрыть ❌</button>
+        <button class="btn-choice" onclick="closeAll()" style="margin-top:10px;">Закрыть</button>
     </div>
 
-    <!-- Модалки аватара, обмена и т.д. -->
     <div id="avatarModal" class="modal">
-        <h2 style="color:#00796b;">Аватар героя 🎭</h2>
-        <button class="btn-choice" onclick="document.getElementById('photo-input').click()">📸 Загрузить фото</button>
+        <h3>Аватар 🎭</h3>
+        <button class="btn-choice" onclick="document.getElementById('photo-input').click()">📸 Фото</button>
         <input type="file" id="photo-input" style="display:none;" onchange="handlePhoto(this)">
-        <div id="emoji-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:15px 0;"></div>
-        <button class="btn-choice" onclick="closeAll()">🔙 Назад</button>
-    </div>
-
-    <div id="exchangeModal" class="modal">
-        <h2 style="color:#00796b;">Магазин 🛍</h2>
-        <button class="btn-choice" onclick="requestCash()">💰 Вывод в кэш</button>
-        <button class="btn-choice" onclick="renderTransferList()">🎁 Передать бонусы</button>
-        <button class="btn-choice" onclick="closeAll()">❌ Закрыть</button>
-    </div>
-
-    <div id="transferModal" class="modal">
-        <h2 style="color:#00796b;">Кому дарим? 🎁</h2>
-        <div id="transfer-list-container"></div>
-        <button class="btn-choice" onclick="openExchange()">🔙 Назад</button>
+        <div id="emoji-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:10px 0;"></div>
+        <button class="btn-choice" onclick="closeAll()">Отмена</button>
     </div>
 
     <div id="sidebar" class="sidebar">
-        <h2 style="color:#00796b;">🏡 Семья</h2>
-        <input type="text" id="family-name-input" onchange="saveFamilyName()" style="width:90%; padding:10px; border-radius:10px; border:2px solid #00796b; font-family:inherit;">
-        <h3>👨‍👩‍👧 Участники:</h3>
-        <div id="family-list" style="background:#fff3e0; padding:10px; border-radius:15px; margin-bottom:15px;"></div>
-        <button class="btn-choice" style="background:#4caf50; color:white;" onclick="addNewMember()">➕ Добавить игрока</button>
-        <h3>🔄 Сменить профиль:</h3>
+        <h2>🏠 Семья</h2>
+        <div id="family-list" style="background:#fff3e0; padding:10px; border-radius:15px;"></div>
+        <button class="btn-choice" style="background:#4caf50; color:white;" onclick="addNewMember()">+ Игрок</button>
+        <h3>🔄 Сменить:</h3>
         <div id="switch-list"></div>
-        <button class="btn-choice" onclick="closeAll()" style="margin-top:20px;">❌ Закрыть</button>
+        <button class="btn-choice" onclick="closeAll()">Закрыть</button>
     </div>
 
     <script>
@@ -176,7 +155,6 @@
         const saved = localStorage.getItem(storageKey);
         if (saved) {
             state = JSON.parse(saved);
-            state.members.forEach(m => { if(m.lastRead === undefined) m.lastRead = 0; });
         } else {
             state = { familyName: "Наша Семья", currentUserIndex: 0, adminIndex: 0, quests: [], messages: [], members: [{name: "Админ", points: 0, avatar: "👤", isPhoto: false, lastRead: Date.now()}] };
         }
@@ -201,7 +179,9 @@
             state.quests.forEach((q, i) => {
                 const img = document.createElement('img');
                 img.src = 'arrow.png'; img.className = 'arrow';
-                img.style.left = q.x + 'px'; img.style.top = q.y + 'px';
+                // Рассчитываем положение в % для адаптивности
+                img.style.left = q.x + '%'; 
+                img.style.top = q.y + '%';
                 img.onclick = (e) => { e.stopPropagation(); openQuest(i); };
                 map.appendChild(img);
             });
@@ -210,24 +190,52 @@
             const sList = document.getElementById('switch-list');
             fList.innerHTML = ''; sList.innerHTML = '';
             state.members.forEach((m, i) => {
-                let ava = m.isPhoto ? `<div class="mini-ava" style="background-image:url(${m.avatar})"></div>` : `<div class="mini-ava" style="background:none;">${m.avatar}</div>`;
-                fList.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span>${ava} ${m.name} ${i === state.adminIndex ? '👑' : ''}</span>
-                    <button onclick="setAdmin(${i})" style="border:none; background:none; cursor:pointer; font-size:18px;">👑</button>
+                let ava = m.isPhoto ? `<div class="mini-ava" style="background-image:url(${m.avatar})"></div>` : m.avatar;
+                fList.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                    <span>${ava} ${m.name}</span>
+                    <button onclick="setAdmin(${i})" style="border:none; background:none;">👑</button>
                 </div>`;
-                if(i !== state.currentUserIndex) sList.innerHTML += `<button class="btn-choice" onclick="switchProfile(${i})">Зайти как ${m.name}</button>`;
+                if(i !== state.currentUserIndex) sList.innerHTML += `<button class="btn-choice" onclick="switchProfile(${i})">${m.name}</button>`;
             });
 
             updateBadge();
         }
 
+        function mapClick(e) {
+            if(state.currentUserIndex !== state.adminIndex) return;
+            const rect = document.getElementById('game-map').getBoundingClientRect();
+            // Сохраняем координаты в процентах от размера контейнера
+            const xPct = ((e.clientX - rect.left) / rect.width) * 100;
+            const yPct = ((e.clientY - rect.top) / rect.height) * 100;
+            window.tempCoords = { x: xPct, y: yPct };
+            document.getElementById('createQuestModal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function confirmCreateQuest() {
+            const txt = document.getElementById('new-quest-text').value;
+            if(!txt) return;
+            state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt, reward: 10 });
+            document.getElementById('new-quest-text').value = '';
+            closeAll(); save();
+        }
+
+        function openQuest(idx) {
+            window.activeQuestIdx = idx;
+            document.getElementById('taskText').innerText = state.quests[idx].text;
+            document.getElementById('taskModal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function completeTask() {
+            state.members[state.currentUserIndex].points += state.quests[window.activeQuestIdx].reward;
+            state.quests.splice(window.activeQuestIdx, 1);
+            closeAll(); save();
+        }
+
         function updateBadge() {
             const user = state.members[state.currentUserIndex];
-            const isAdmin = (state.currentUserIndex === state.adminIndex);
-            const count = state.messages.filter(m => {
-                if (m.date <= user.lastRead) return false;
-                return m.text.includes('@' + user.name) || (isAdmin && m.text.includes('ЗАПРОС КЭША'));
-            }).length;
+            const count = state.messages.filter(m => m.date > (user.lastRead || 0) && m.text.includes('@' + user.name)).length;
             const badge = document.getElementById('chat-badge');
             badge.style.display = count > 0 ? 'block' : 'none';
             badge.innerText = count;
@@ -243,78 +251,32 @@
         function renderChat() {
             const user = state.members[state.currentUserIndex];
             const box = document.getElementById('chat-box');
-            box.innerHTML = state.messages.map(m => {
-                const isMention = m.text.includes('@' + user.name) || (state.currentUserIndex === state.adminIndex && m.text.includes('ЗАПРОС КЭША'));
-                return `<div class="chat-msg ${m.type === 'system' ? 'system-msg' : ''} ${isMention ? 'mention-msg' : ''}">
-                    <b style="cursor:pointer; color:#00796b" onclick="replyTo('${m.author}')">${m.author}:</b> ${m.text}
-                </div>`;
-            }).reverse().join('');
+            box.innerHTML = state.messages.map(m => `
+                <div class="chat-msg ${m.text.includes('@' + user.name) ? 'mention-msg' : ''}">
+                    <b onclick="replyTo('${m.author}')">${m.author}:</b> ${m.text}
+                </div>`).reverse().join('');
         }
 
         function sendChat() {
             const inp = document.getElementById('chat-input');
             if(!inp.value.trim()) return;
-            state.messages.push({ author: state.members[state.currentUserIndex].name, text: inp.value, type: 'user', date: Date.now() });
+            state.messages.push({ author: state.members[state.currentUserIndex].name, text: inp.value, date: Date.now() });
             inp.value = ''; renderChat(); save();
         }
 
-        function switchProfile(i) { state.currentUserIndex = i; closeAll(); save(); }
-        function closeAll() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').style.display = 'none'; }
+        function replyTo(n) { const i = document.getElementById('chat-input'); i.value = `@${n}, ` + i.value; i.focus(); }
+        function closeAll() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').style.display='none'; }
         function toggleSidebar() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
-
-        let tempCoords = {x: 0, y: 0}, activeQuestIdx = null;
-        function mapClick(e) {
-            if(state.currentUserIndex !== state.adminIndex) return;
-            const rect = document.getElementById('game-map').getBoundingClientRect();
-            tempCoords = { x: e.clientX - rect.left - 25, y: e.clientY - rect.top - 25 };
-            document.getElementById('createQuestModal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        }
-        function confirmCreateQuest() {
-            const txt = document.getElementById('new-quest-text').value;
-            const rwd = parseInt(document.getElementById('new-quest-reward').value) || 10;
-            if(!txt) return;
-            state.quests.push({ x: tempCoords.x, y: tempCoords.y, text: txt, reward: rwd });
-            addSystemMsg(`📍 Новое задание: "${txt}"`);
-            closeAll(); save();
-        }
-        function openQuest(idx) {
-            activeQuestIdx = idx;
-            const q = state.quests[idx];
-            document.getElementById('taskText').innerText = q.text;
-            document.getElementById('taskReward').innerText = q.reward;
-            document.getElementById('taskModal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        }
-        function completeTask() {
-            const q = state.quests[activeQuestIdx];
-            state.members[state.currentUserIndex].points += q.reward;
-            addSystemMsg(`✅ ${state.members[state.currentUserIndex].name} выполнил "${q.text}" (+${q.reward})`);
-            state.quests.splice(activeQuestIdx, 1);
-            closeAll(); save();
-        }
-
-        function replyTo(n) { if(n !== 'Система') { const i = document.getElementById('chat-input'); i.value = `@${n}, ` + i.value; i.focus(); } }
-        function addSystemMsg(t) { state.messages.push({ author: 'Система', text: t, type: 'system', date: Date.now() }); save(); }
-        function setAdmin(i) { state.adminIndex = i; addSystemMsg(`👑 Админ теперь ${state.members[i].name}`); save(); }
-        function addNewMember() { let n = prompt("Имя игрока:"); if(n) { state.members.push({name: n, points: 0, avatar: '👤', isPhoto: false, lastRead: Date.now()}); addSystemMsg(`🆕 Пришел ${n}`); save(); } }
+        function switchProfile(i) { state.currentUserIndex = i; closeAll(); save(); }
+        function addNewMember() { let n = prompt("Имя:"); if(n) { state.members.push({name: n, points: 0, avatar: '👤', isPhoto: false}); save(); } }
+        function setAdmin(i) { state.adminIndex = i; save(); }
         function renameCurrentPlayer() { let n = prompt("Имя:", state.members[state.currentUserIndex].name); if(n) { state.members[state.currentUserIndex].name = n; save(); } }
-        function renameAnyMember(i) { let n = prompt("Имя:", state.members[i].name); if(n) { state.members[i].name = n; save(); } }
-        function saveFamilyName() { state.familyName = document.getElementById('family-name-input').value; save(); }
-        function openAvatarPicker() { closeAll(); document.getElementById('avatarModal').style.display='block'; document.getElementById('overlay').style.display='block'; }
+        function openAvatarPicker() { document.getElementById('avatarModal').style.display='block'; document.getElementById('overlay').style.display='block'; }
         function setAvatar(e) { state.members[state.currentUserIndex].avatar = e; state.members[state.currentUserIndex].isPhoto = false; save(); closeAll(); }
-        function handlePhoto(input) { if (input.files && input.files) { const reader = new FileReader(); reader.onload = (e) => { state.members[state.currentUserIndex].avatar = e.target.result; state.members[state.currentUserIndex].isPhoto = true; save(); closeAll(); }; reader.readAsDataURL(input.files); } }
-        function openExchange() { closeAll(); document.getElementById('exchangeModal').style.display='block'; document.getElementById('overlay').style.display='block'; }
-        function requestCash() { addSystemMsg(`📩 ЗАПРОС КЭША от ${state.members[state.currentUserIndex].name} @${state.members[state.adminIndex].name}`); alert("Запрос в чате!"); closeAll(); }
-        function renderTransferList() {
-            closeAll(); const c = document.getElementById('transfer-list-container'); c.innerHTML = '';
-            state.members.forEach((m, index) => { if(index !== state.currentUserIndex) c.innerHTML += `<button class="btn-choice" onclick="transferTo(${index})">🎁 ${m.name}</button>`; });
-            document.getElementById('transferModal').style.display = 'block'; document.getElementById('overlay').style.display = 'block';
-        }
-        function transferTo(ti) { let amt = prompt("Сколько?"); if(amt > 0 && amt <= state.members[state.currentUserIndex].points) { state.members[state.currentUserIndex].points -= parseInt(amt); state.members[ti].points += parseInt(amt); addSystemMsg(`💸 ${state.members[state.currentUserIndex].name} -> ${state.members[ti].name} (${amt}⭐️)`); save(); closeAll(); } }
+        function handlePhoto(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { state.members[state.currentUserIndex].avatar = e.target.result; state.members[state.currentUserIndex].isPhoto = true; save(); closeAll(); }; reader.readAsDataURL(input.files[0]); } }
 
-        const emojis = ['🐱','🐶','🦊','🐼','🐨','🐯','🦁','🦄','🐷','🐸','👤','🐲'];
-        document.getElementById('emoji-grid').innerHTML = emojis.map(e => `<span onclick="setAvatar('${e}')" style="font-size:35px; cursor:pointer;">${e}</span>`).join('');
+        const emojis = ['🐱','🐶','🦊','🐼','🐨','🐯','🦁','🦄','👤'];
+        document.getElementById('emoji-grid').innerHTML = emojis.map(e => `<span onclick="setAvatar('${e}')" style="font-size:30px; cursor:pointer;">${e}</span>`).join('');
 
         updateUI();
     </script>
