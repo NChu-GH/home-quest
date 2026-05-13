@@ -98,7 +98,7 @@
 
 <div id="overlay" onclick="closeAll()" class="overlay"></div>
 
-<!-- Сайдбар настроек -->
+<!-- Настройки (Сайдбар) -->
 <div id="sidebar" class="sidebar">
     <h2>Настройки ⚙️</h2>
     
@@ -169,8 +169,13 @@
 
     let zoom = 0.6;
     let panX = 0, panY = 0;
+    
     let isDragging = false;
     let startX, startY;
+    
+    let startDist = 0;
+    let startZoom = 0;
+
     let lastClickCoords = { x: 0, y: 0 };
     let activeQuestId = null;
 
@@ -194,7 +199,7 @@
     }
 
     function renderAppState() {
-        document.getElementById('current-user-name').innerText = `${appState.familyName}: ${appState.currentUser.name}`;
+        document.getElementById('current-user-name').innerText = `${appState.familyName: ${appState.currentUser.name}}`;
         document.getElementById('current-avatar').innerText = appState.currentUser.avatar || "👤";
         document.getElementById('score-val').innerText = appState.currentUser.score;
 
@@ -289,24 +294,57 @@
     function initMapControls() {
         updateTransform();
 
-        mapContainer.addEventListener('click', function(e) {
-            if (isDragging) return;
-            if (e.target.classList.contains('arrow')) return;
+        // Создание задания по ДВОЙНОМУ клику (ПК)
+        mapContainer.addEventListener('dblclick', function(e) {
+            handleCreationGesture(e.clientX, e.clientY, e.target);
+        });
+
+        // Двойной тап (телефон)
+        let lastTap = 0;
+        mapContainer.addEventListener('touchend', function(e) {
+            if (e.touches.length > 0) return; 
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 300 && tapLength > 0) {
+                const touch = e.changedTouches[0];
+                handleCreationGesture(touch.clientX, touch.clientY, e.target);
+                e.preventDefault();
+            }
+            lastTap = currentTime;
+        });
+
+        function handleCreationGesture(clientX, clientY, target) {
+            if (appState.currentUser.role !== 'admin') {
+                alert("Только Администратор 👑 может добавлять задания!");
+                return;
+            }
+            if (target.classList.contains('arrow')) return;
 
             const rect = mapContainer.getBoundingClientRect();
-            const x = (e.clientX - rect.left) / zoom;
-            const y = (e.clientY - rect.top) / zoom;
+            const x = (clientX - rect.left) / zoom;
+            const y = (clientY - rect.top) / zoom;
 
             lastClickCoords = { x, y };
             
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('createQuestModal').style.display = 'block';
-        });
+        }
 
+        // Приближение/удаление колесиком мыши (ПК)
+        viewport.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            const zoomFactor = 0.05;
+            if (e.deltaY < 0) {
+                zoom = Math.min(2.0, zoom + zoomFactor);
+            } else {
+                zoom = Math.max(0.3, zoom - zoomFactor);
+            }
+            updateTransform();
+        }, { passive: false });
+
+        // Перетаскивание мыши (ПК)
         viewport.addEventListener('mousedown', (e) => {
-            isDragging = false;
-            const target = e.target;
-            if (target.classList.contains('z-btn') || target.closest('.top-bar') || target.closest('.modal')) return;
+            if (e.target.classList.contains('z-btn') || e.target.closest('.top-bar') || e.target.closest('.modal')) return;
             isDragging = true;
             startX = e.clientX - panX;
             startY = e.clientY - panY;
@@ -320,29 +358,48 @@
         });
 
         window.addEventListener('mouseup', () => {
-            setTimeout(() => { isDragging = false; }, 50);
+            isDragging = false;
         });
 
+        // Тач-события на смартфоне (Перетаскивание одной рукой и Зум двумя пальцами)
         viewport.addEventListener('touchstart', (e) => {
-            if(e.touches.length === 1) {
-                isDragging = false;
-                const target = e.target;
-                if (target.classList.contains('z-btn') || target.closest('.top-bar') || target.closest('.modal')) return;
+            const target = e.target;
+            if (target.classList.contains('z-btn') || target.closest('.top-bar') || target.closest('.modal')) return;
+
+            if (e.touches.length === 1) {
                 isDragging = true;
                 startX = e.touches[0].clientX - panX;
                 startY = e.touches[0].clientY - panY;
+            } else if (e.touches.length === 2) {
+                isDragging = false;
+                startDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                startZoom = zoom;
             }
         });
 
         viewport.addEventListener('touchmove', (e) => {
-            if (!isDragging || e.touches.length !== 1) return;
-            panX = e.touches[0].clientX - startX;
-            panY = e.touches[0].clientY - startY;
-            updateTransform();
+            if (e.touches.length === 1 && isDragging) {
+                panX = e.touches[0].clientX - startX;
+                panY = e.touches[0].clientY - startY;
+                updateTransform();
+            } else if (e.touches.length === 2) {
+                const currentDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                const factor = currentDist / startDist;
+                zoom = Math.max(0.3, Math.min(2.0, startZoom * factor));
+                updateTransform();
+            }
         });
 
-        viewport.addEventListener('touchend', () => {
-            setTimeout(() => { isDragging = false; }, 50);
+        viewport.addEventListener('touchend', (e) => {
+            if (e.touches.length === 0) {
+                isDragging = false;
+            }
         });
     }
 
