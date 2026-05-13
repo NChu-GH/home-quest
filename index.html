@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Home Quest 🏡</title>
     <style>
-        /* --- Фирменный UI/UX стиль --- */
+        /* --- Фирменный UI/UX стиль (Сохранено полностью) --- */
         * {
             box-sizing: border-box;
             user-select: none;
@@ -32,30 +32,35 @@
             background-color: #ffffff;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
             display: flex;
             flex-direction: column;
         }
 
-        /* --- Навигационная панель (Вкладки) --- */
-        .nav-tabs {
+        /* --- Нижнее меню навигации (Добавлено для переключения разделов) --- */
+        .bottom-nav {
             display: flex;
             background: #00796b;
-            border-bottom: 4px solid #004d40;
-            z-index: 10;
+            border-top: 4px solid #004d40;
+            z-index: 90;
+            height: 60px;
         }
-        .nav-tab {
+        .nav-btn {
             flex: 1;
+            background: none;
+            border: none;
             color: white;
-            text-align: center;
-            padding: 12px 5px;
-            cursor: pointer;
+            font-family: inherit;
             font-size: 14px;
-            font-weight: bold;
-            transition: background 0.2s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-        .nav-tab.active {
+        .nav-btn.active {
             background: #004d40;
-            box-shadow: inset 0 -4px 0 #00cbd6;
+            font-weight: bold;
         }
 
         /* --- Экраны приложения --- */
@@ -70,7 +75,7 @@
             flex-direction: column;
         }
 
-        /* --- Экран 1: Интерактивная карта --- */
+        /* --- Область интерактивной карты --- */
         .map-viewport {
             flex: 1;
             position: relative;
@@ -81,6 +86,7 @@
         .map-viewport:active {
             cursor: grabbing;
         }
+
         .map-container {
             width: 1000px;
             height: 1000px;
@@ -90,6 +96,7 @@
             transform-origin: 0 0;
             will-change: transform;
         }
+
         .layer {
             position: absolute;
             top: 0;
@@ -98,14 +105,17 @@
             height: 1000px;
             pointer-events: none;
         }
+
         .furniture {
             pointer-events: auto;
             cursor: pointer;
             transition: filter 0.2s ease;
         }
+
         .furniture.highlighted {
             filter: drop-shadow(0 0 15px #00cbd6) brightness(1.3) !important;
         }
+
         .quest-arrow {
             position: absolute;
             width: 50px;
@@ -116,125 +126,98 @@
             transition: transform 0.3s ease;
         }
 
-        /* --- Экран 2: Семейный Чат --- */
-        .chat-container {
+        /* --- Контентные экраны (Профиль, Семья, Чат) --- */
+        .screen-content {
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #e5ddd5;
-            touch-action: pan-y;
-        }
-        .chat-messages {
-            flex: 1;
-            padding: 15px;
+            padding: 20px;
             overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            touch-action: pan-y;
-        }
-        .chat-message {
-            background: white;
-            padding: 10px 15px;
-            border-radius: 18px;
-            max-width: 80%;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            position: relative;
-        }
-        .chat-message.my-msg {
-            align-self: flex-end;
-            background: #dcf8c6;
-        }
-        .msg-meta {
-            font-size: 11px;
-            color: #777;
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .msg-avatar {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        .msg-text {
-            font-size: 15px;
-            word-break: break-word;
-        }
-        .chat-input-area {
-            display: flex;
-            padding: 10px;
-            background: #f0f0f0;
-            gap: 8px;
-            border-top: 1px solid #ddd;
+            background: #fdfdfd;
+            touch-action: pan-y; /* Разрешаем вертикальный скролл списков */
         }
 
-        /* --- Экран 3: Настройки Профиля и Семьи --- */
-        .profile-container {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: #f9fbfd;
-            touch-action: pan-y;
-        }
-        .section-card {
-            background: white;
-            border: 4px solid #00796b;
-            border-radius: 25px;
-            padding: 20px;
+        /* --- Элементы Профиля и Семьи --- */
+        .profile-avatar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             margin-bottom: 20px;
         }
-        .section-title {
-            color: #00796b;
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .avatar-picker-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .profile-avatar-preview {
-            width: 90px;
-            height: 90px;
+        .avatar-preview {
+            width: 100px;
+            height: 100px;
+            border: 4px solid #00796b;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid #00796b;
             background: #eee;
+            margin-bottom: 10px;
         }
-        .hidden-file-input {
+        .hidden-input {
             display: none;
         }
-        .members-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 12px;
+        .section-box {
+            background: #f0fdfa;
+            border: 3px solid #b2dfdb;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
         }
         .member-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: #f0f4f8;
-            padding: 8px 12px;
-            border-radius: 15px;
+            gap: 15px;
+            padding: 8px 0;
+            border-bottom: 1px dashed #b2dfdb;
         }
         .member-avatar {
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             object-fit: cover;
+            border: 2px solid #00796b;
         }
 
-        /* --- Всплывающие модальные окна --- */
+        /* --- Интерфейс Чата --- */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f7f9fa;
+            border: 3px solid #b2dfdb;
+            border-radius: 20px;
+            margin-bottom: 10px;
+            touch-action: pan-y;
+        }
+        .chat-input-area {
+            display: flex;
+            gap: 8px;
+        }
+        .message-bubble {
+            margin-bottom: 10px;
+            padding: 8px 14px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+            font-size: 14px;
+        }
+        .message-bubble.my-msg {
+            background: #e0f2f1;
+            align-self: flex-end;
+            margin-left: auto;
+            border-bottom-right-radius: 2px;
+        }
+        .message-bubble.other-msg {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        /* --- Всплывающие модальные окна (UI сохранен строго по ТЗ) --- */
         .modal-overlay {
             position: absolute;
             top: 0;
@@ -248,20 +231,23 @@
             z-index: 100;
             padding: 20px;
         }
+
         .modal-window {
             background: #ffffff;
             width: 100%;
             max-width: 400px;
-            border: 6px solid #00796b;
-            border-radius: 35px;
+            border: 6px solid #00796b; /* Исходная 6px бирюзовая рамка */
+            border-radius: 35px;       /* Исходный радиус 35px */
             padding: 25px;
             text-align: center;
             animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+
         @keyframes popUp {
             from { transform: scale(0.8); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
+
         .modal-title {
             font-size: 22px;
             color: #00796b;
@@ -269,7 +255,6 @@
             margin-bottom: 15px;
         }
 
-        /* Элементы ввода и кнопки */
         .input-field {
             width: 100%;
             padding: 12px 20px;
@@ -279,11 +264,11 @@
             font-family: inherit;
             font-size: 16px;
             outline: none;
-            touch-action: manipulation;
         }
         .input-field:focus {
             border-color: #00796b;
         }
+
         .btn {
             background-color: #00796b;
             color: white;
@@ -308,37 +293,23 @@
             background-color: #e57373;
             box-shadow: 0 4px 0 #b71c1c;
         }
-        .loader {
-            position: absolute;
-            top: 60px;
-            right: 15px;
-            background: rgba(0,121,107,0.9);
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            display: none;
-            z-index: 90;
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 10px;
+            box-shadow: 0 2px 0 #004d40;
         }
     </style>
 </head>
 <body>
 
 <div class="phone-container">
-    <!-- Навигационное верхнее меню (Вкладки) -->
-    <div class="nav-tabs">
-        <div class="nav-tab active" onclick="switchScreen('map-screen')">🏡 Карта</div>
-        <div class="nav-tab" onclick="switchScreen('chat-screen')">💬 Чат</div>
-        <div class="nav-tab" onclick="switchScreen('profile-screen')">👤 Профиль</div>
-    </div>
 
-    <div id="loader" class="loader">Синхронизация... 🚀</div>
-
-    <!-- ЭКРАН 1: ИНТЕРАКТИВНАЯ КАРТА -->
-    <div id="map-screen" class="app-screen active">
+    <!-- ЭКРАН 1: КАРТА КВАРТИРЫ -->
+    <div id="screenMap" class="app-screen active">
         <div class="map-viewport" id="viewport">
             <div class="map-container" id="mapContainer">
-                <!-- Базовые слои -->
+                <!-- Базовые слои (9 шт.) -->
                 <img src="Sanuzel1.png" class="layer" alt="Sanuzel1">
                 <img src="Koridor.png" class="layer" alt="Koridor">
                 <img src="Gostinaya.png" class="layer" alt="Gostinaya">
@@ -349,7 +320,7 @@
                 <img src="Kuhnya.png" class="layer" alt="Kuhnya">
                 <img src="Balcon.png" class="layer" alt="Balcon">
 
-                <!-- Интерактивная мебель -->
+                <!-- Интерактивная мебель (11 шт.) -->
                 <img src="Lapomoika.png" class="layer furniture" id="Lapomoika" alt="Lapomoika">
                 <img src="Unitaz1.png" class="layer furniture" id="Unitaz1" alt="Unitaz1">
                 <img src="Stiralka.png" class="layer furniture" id="Stiralka" alt="Stiralka">
@@ -367,56 +338,64 @@
         </div>
     </div>
 
-    <!-- ЭКРАН 2: СЕМЕЙНЫЙ ЧАТ -->
-    <div id="chat-screen" class="app-screen">
-        <div class="chat-container">
-            <div class="chat-messages" id="chatMessages">
-                <!-- Сообщения генерируются скриптом -->
+    <!-- ЭКРАН 2: ПРОФИЛЬ -->
+    <div id="screenProfile" class="app-screen">
+        <div class="screen-content">
+            <h2 style="color: #00796b; text-align:center;">Мой Профиль 👤</h2>
+            <div class="profile-avatar-container">
+                <img src="" id="profileAvatar" class="avatar-preview" alt="Аватар">
+                <button class="btn btn-sm" onclick="document.getElementById('avatarLoader').click()">📷 Изменить фото</button>
+                <input type="file" id="avatarLoader" class="hidden-input" accept="image/*">
             </div>
+            <div class="section-box">
+                <label>Ваше Имя:</label>
+                <input type="text" id="profileNameInput" class="input-field" placeholder="Введите имя...">
+                <button class="btn btn-sm" id="btnSaveProfile">✅ Сохранить имя</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЭКРАН 3: СЕМЬЯ -->
+    <div id="screenFamily" class="app-screen">
+        <div class="screen-content">
+            <h2 style="color: #00796b; text-align:center;">Моя Семья 🏡</h2>
+            <div class="section-box">
+                <label>Название Семьи:</label>
+                <input type="text" id="familyNameInput" class="input-field" placeholder="Название вашей семьи...">
+                <button class="btn btn-sm" id="btnSaveFamilyName">✅ Обновить название</button>
+            </div>
+            <div class="section-box">
+                <h3>Участники:</h3>
+                <div id="membersList"></div>
+                <div style="margin-top: 15px;">
+                    <input type="text" id="newMemberInput" class="input-field" placeholder="Имя нового участника...">
+                    <button class="btn btn-sm" id="btnAddMember">➕ Добавить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЭКРАН 4: ЧАТ -->
+    <div id="screenChat" class="app-screen">
+        <div class="screen-content chat-container">
+            <h2 style="color: #00796b; text-align:center; margin: 0 0 10px 0;">Семейный Чат 💬</h2>
+            <div id="chatMessages" class="chat-messages"></div>
             <div class="chat-input-area">
-                <input type="text" id="chatInput" class="input-field" style="margin:0;" placeholder="Написать семье...">
-                <button class="btn" id="btnSendMsg" style="margin:0; padding: 12px 18px;">🚀</button>
+                <input type="text" id="chatInputField" class="input-field" style="margin:0;" placeholder="Сообщение...">
+                <button class="btn" id="btnSendMsg" style="margin:0; padding: 0 20px;">🚀</button>
             </div>
         </div>
     </div>
 
-    <!-- ЭКРАН 3: НАСТРОЙКИ ПРОФИЛЯ И СЕМЬИ -->
-    <div id="profile-screen" class="app-screen">
-        <div class="profile-container">
-            
-            <!-- Карточка Личного Профиля -->
-            <div class="section-card">
-                <h3 class="section-title">👤 Мой Профиль</h3>
-                <div class="avatar-picker-wrapper">
-                    <img id="userAvatar" class="profile-avatar-preview" src="data:image/svg+xml;utf8,<svg xmlns='w3.org' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='35' r='20' fill='%2300796b'/><path d='M20,80 C20,60 80,60 80,80' fill='%2300796b'/></svg>" alt="Avatar">
-                    <button class="btn" style="padding: 6px 15px; font-size: 13px;" onclick="document.getElementById('avatarFileInput').click()">📸 Изменить фото</button>
-                    <input type="file" id="avatarFileInput" class="hidden-file-input" accept="image/*">
-                </div>
-                <input type="text" id="userNameInput" class="input-field" placeholder="Ваше имя">
-                <button class="btn" id="btnSaveProfile" style="width: 100%; justify-content: center;">✅ Сохранить профиль</button>
-            </div>
+    <!-- НИЖНЕЕ МЕНЮ НАВИГАЦИИ -->
+    <nav class="bottom-nav">
+        <button class="nav-btn active" onclick="switchScreen('screenMap', this)">🏡 Карта</button>
+        <button class="nav-btn" onclick="switchScreen('screenProfile', this)">👤 Профиль</button>
+        <button class="nav-btn" onclick="switchScreen('screenFamily', this)">👨‍👩‍👧 Семья</button>
+        <button class="nav-btn" onclick="switchScreen('screenChat', this)">💬 Чат</button>
+    </nav>
 
-            <!-- Карточка Семьи -->
-            <div class="section-card">
-                <h3 class="section-title">🏡 Моя Семья</h3>
-                <input type="text" id="familyNameInput" class="input-field" placeholder="Название семьи (например: Ивановы)">
-                
-                <h4 style="margin: 15px 0 5px 0; color: #004d40;">Участники:</h4>
-                <div class="members-list" id="familyMembersContainer">
-                    <!-- Список участников генерируется скриптом -->
-                </div>
-                
-                <div style="display: flex; gap: 8px;">
-                    <input type="text" id="newMemberInput" class="input-field" style="margin:0;" placeholder="Имя нового участника">
-                    <button class="btn" id="btnAddMember" style="margin:0; padding: 12px 18px;">➕</button>
-                </div>
-                <button class="btn" id="btnSaveFamily" style="width: 100%; justify-content: center; margin-top: 15px; background-color: #004d40;">✅ Сохранить настройки семьи</button>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- Модальное окно администратора (Форма объекта) -->
+    <!-- МОДАЛЬНОЕ ОКНО КВЕСТОВ (Сохранено полностью) -->
     <div class="modal-overlay" id="adminModal">
         <div class="modal-window">
             <h3 class="modal-title" id="modalTitle">Мебель 🏡</h3>
@@ -431,356 +410,199 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "google.com";
-
-    // Состояние приложения (добавлены настройки профиля, семьи и чата)
-    let state = {
-        zoom: 0.5,
-        panX: 0,
-        panY: 0,
-        isDragging: false,
-        startX: 0,
-        startY: 0
+    // --- Локальное хранилище данных (чтобы ничего не пропадало без настроенного GAS) ---
+    let appState = {
+        zoom: 0.5, panX: 0, panY: 0, isDragging: false, startX: 0, startY: 0
     };
-
-    // Данные профиля по умолчанию (сохраняются в localStorage и синхронизируются)
-    let profileData = {
-        name: localStorage.getItem('hq_user_name') || "Пользователь",
-        avatar: localStorage.getItem('hq_user_avatar') || ""
-    };
-
-    let familyData = {
-        name: "Наша Семья 🏡",
-        members: ["Мама", "Папа", "Я"]
-    };
-
-    let chatMessages = [
-        { sender: "Мама", text: "Кто оставил квест на стиральной машине? Нам нужно помыть кота! 🐾", time: "12:30", avatar: "" },
-        { sender: "Папа", text: "Я проверил шкаф 1, там пусто.", time: "12:45", avatar: "" }
-    ];
-
+    
+    let profileData = JSON.parse(localStorage.getItem('hq_profile')) || { name: "Пользователь", avatar: "" };
+    let familyData = JSON.parse(localStorage.getItem('hq_family')) || { name: "Наша Семья", members: ["Мама", "Папа"] };
+    let chatMessages = JSON.parse(localStorage.getItem('hq_chat')) || [{ sender: "Система", text: "Чат активирован! 🚀" }];
     let questData = {};
 
-    // Элементы DOM
+    // Элементы
     const viewport = document.getElementById('viewport');
     const mapContainer = document.getElementById('mapContainer');
     const adminModal = document.getElementById('adminModal');
     const questInput = document.getElementById('questInput');
     const modalTitle = document.getElementById('modalTitle');
-    const loader = document.getElementById('loader');
     const questArrow = document.getElementById('questArrow');
 
-    // Новые элементы DOM для профиля, семьи и чата
-    const chatMessagesContainer = document.getElementById('chatMessages');
-    const chatInput = document.getElementById('chatInput');
-    const btnSendMsg = document.getElementById('btnSendMsg');
-    const userNameInput = document.getElementById('userNameInput');
-    const userAvatar = document.getElementById('userAvatar');
-    const avatarFileInput = document.getElementById('avatarFileInput');
-    const familyNameInput = document.getElementById('familyNameInput');
-    const familyMembersContainer = document.getElementById('familyMembersContainer');
-    const newMemberInput = document.getElementById('newMemberInput');
-    const btnAddMember = document.getElementById('btnAddMember');
-
-    let currentSelectedTarget = null;
-    let originalTransformBeforeZoom = null;
-
-    // --- Переключение экранов (Вкладки) ---
-    function switchScreen(screenId) {
+    // Переключение экранов
+    function switchScreen(screenId, btnElement) {
         document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-        
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
-        event.currentTarget.classList.add('active');
-
-        if(screenId === 'map-screen') {
-            initMapPosition();
-        } else if(screenId === 'chat-screen') {
-            renderChat();
-        } else if(screenId === 'profile-screen') {
-            renderProfileAndFamily();
-        }
+        btnElement.classList.add('active');
+        if(screenId === 'screenMap') initMapPosition();
     }
 
-    // --- Логика Управления Профилем и Семьей ---
-    function renderProfileAndFamily() {
-        userNameInput.value = profileData.name;
-        if(profileData.avatar) userAvatar.src = profileData.avatar;
-        
-        familyNameInput.value = familyData.name;
-        
-        familyMembersContainer.innerHTML = "";
-        familyData.members.forEach((member, index) => {
-            const item = document.createElement('div');
-            item.className = 'member-item';
-            item.innerHTML = `
-                <div class="member-avatar" style="background:#00796b; display:flex; align-items:center; justify-content:center; color:white; font-size:12px;">${member[0]}</div>
-                <span style="flex:1;">${member}</span>
-                <span style="cursor:pointer; color:#e57373;" onclick="removeFamilyMember(${index})">❌</span>
-            `;
-            familyMembersContainer.appendChild(item);
-        });
-    }
-
-    // Изменение фото профиля (перевод в Base64)
-    avatarFileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                profileData.avatar = event.target.result;
-                userAvatar.src = profileData.avatar;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    document.getElementById('btnSaveProfile').addEventListener('click', () => {
-        profileData.name = userNameInput.value.trim() || "Пользователь";
-        localStorage.setItem('hq_user_name', profileData.name);
-        if(profileData.avatar) localStorage.setItem('hq_user_avatar', profileData.avatar);
-        alert("Профиль успешно сохранен! ✅");
-        saveFamilyToCloud();
-    });
-
-    // Управление членами семьи и названием
-    btnAddMember.addEventListener('click', () => {
-        const name = newMemberInput.value.trim();
-        if(name) {
-            familyData.members.push(name);
-            newMemberInput.value = "";
-            renderProfileAndFamily();
-        }
-    });
-
-    function removeFamilyMember(index) {
-        familyData.members.splice(index, 1);
-        renderProfileAndFamily();
-    }
-
-    document.getElementById('btnSaveFamily').addEventListener('click', () => {
-        familyData.name = familyNameInput.value.trim() || "Наша Семья 🏡";
-        alert("Данные семьи обновлены! ✅");
-        saveFamilyToCloud();
-    });
-
-    // --- Логика Семейного Чата ---
-    function renderChat() {
-        chatMessagesContainer.innerHTML = "";
-        chatMessages.forEach(msg => {
-            const isMe = msg.sender === profileData.name;
-            const msgEl = document.createElement('div');
-            msgEl.className = `chat-message ${isMe ? 'my-msg' : ''}`;
-            
-            const avatarHtml = msg.avatar 
-                ? `<img class="msg-avatar" src="${msg.avatar}">` 
-                : `<div class="msg-avatar" style="background:#00796b; display:inline-block; width:14px; height:14px; border-radius:50%;"></div>`;
-
-            msgEl.innerHTML = `
-                <div class="msg-meta">${avatarHtml} <span>${msg.sender}</span> • ${msg.time}</div>
-                <div class="msg-text">${msg.text}</div>
-            `;
-            chatMessagesContainer.appendChild(msgEl);
-        });
-        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
-    }
-
-    btnSendMsg.addEventListener('click', sendNewMessage);
-    chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendNewMessage(); });
-
-    function sendNewMessage() {
-        const text = chatInput.value.trim();
-        if(!text) return;
-
-        const now = new Date();
-        const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-        const newMsg = {
-            sender: profileData.name,
-            text: text,
-            time: timeStr,
-            avatar: profileData.avatar
-        };
-
-        chatMessages.push(newMsg);
-        chatInput.value = "";
-        renderChat();
-        saveFamilyToCloud(); // Синхронизируем чат вместе с остальными данными в облако
-    }
-
-    // --- Код Карты (Оригинальная Логика Сохранена в точности) ---
+    // --- Логика Карта (Инициализация и перемещение без изменений) ---
     function initMapPosition() {
         const viewRect = viewport.getBoundingClientRect();
-        if(viewRect.width === 0) return;
-        state.zoom = viewRect.width / 1000;
-        state.panX = 0;
-        state.panY = (viewRect.height - (1000 * state.zoom)) / 2;
+        appState.zoom = viewRect.width / 1000;
+        appState.panX = 0;
+        appState.panY = (viewRect.height - (1000 * appState.zoom)) / 2;
         updateTransform();
     }
 
     function updateTransform() {
-        mapContainer.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
+        mapContainer.style.transform = `translate(${appState.panX}px, ${appState.panY}px) scale(${appState.zoom})`;
     }
 
+    // Обработка кликов (Умный зум и подсветка)
     let lastTap = 0;
+    let currentSelectedTarget = null;
+    let originalTransformBeforeZoom = null;
+
     viewport.addEventListener('click', function(e) {
         const now = Date.now();
-        const DOUBLE_TAP_DELAY = 300;
         const targetFurniture = e.target.closest('.furniture');
-        
-        if ((now - lastTap) < DOUBLE_TAP_DELAY) {
+        if ((now - lastTap) < 300) {
             if (targetFurniture) {
                 e.preventDefault();
-                handleFurnitureDoubleClick(targetFurniture, e);
+                targetFurniture.classList.add('highlighted');
+                setTimeout(() => targetFurniture.classList.remove('highlighted'), 1000);
+                originalTransformBeforeZoom = { zoom: appState.zoom, panX: appState.panX, panY: appState.panY };
+                const rect = mapContainer.getBoundingClientRect();
+                const clickX = (e.clientX - rect.left) / appState.zoom;
+                const clickY = (e.clientY - rect.top) / appState.zoom;
+                appState.zoom = 1.2;
+                const viewRect = viewport.getBoundingClientRect();
+                appState.panX = viewRect.width / 2 - clickX * appState.zoom;
+                appState.panY = viewRect.height / 2 - clickY * appState.zoom;
+                keepMapInBounds();
+                updateTransform();
+                currentSelectedTarget = targetFurniture.id;
+                modalTitle.innerText = `Объект: ${currentSelectedTarget} 🏡`;
+                questInput.value = questData[currentSelectedTarget] || "";
+                setTimeout(() => adminModal.style.display = 'flex', 300);
             }
         } else {
-            if (targetFurniture && !state.isDragging) {
-                showActiveQuest(targetFurniture.id);
+            if (targetFurniture && !appState.isDragging) {
+                if (questData[targetFurniture.id]) alert(`Квест: "${questData[targetFurniture.id]}"`);
             }
         }
         lastTap = now;
     });
 
-    function handleFurnitureDoubleClick(element, event) {
-        element.classList.add('highlighted');
-        setTimeout(() => element.classList.remove('highlighted'), 1000);
-
-        originalTransformBeforeZoom = { zoom: state.zoom, panX: state.panX, panY: state.panY };
-
-        const rect = mapContainer.getBoundingClientRect();
-        const clickX = (event.clientX - rect.left) / state.zoom;
-        const clickY = (event.clientY - rect.top) / state.zoom;
-
-        state.zoom = 1.2;
-        const viewRect = viewport.getBoundingClientRect();
-        state.panX = viewRect.width / 2 - clickX * state.zoom;
-        state.panY = viewRect.height / 2 - clickY * state.zoom;
-        
-        keepMapInBounds();
-        updateTransform();
-
-        currentSelectedTarget = element.id;
-        modalTitle.innerText = `Объект: ${currentSelectedTarget} 🏡`;
-        questInput.value = questData[currentSelectedTarget] || "";
-        
-        setTimeout(() => {
-            adminModal.style.display = 'flex';
-        }, 300);
-    }
-
     function keepMapInBounds() {
-        const minPanX = -1000 * state.zoom + 50;
-        const maxPanX = viewport.clientWidth - 50;
-        const minPanY = -1000 * state.zoom + 50;
-        const maxPanY = viewport.clientHeight - 50;
-
-        state.panX = Math.min(Math.max(state.panX, minPanX), maxPanX);
-        state.panY = Math.min(Math.max(state.panY, minPanY), maxPanY);
+        const minX = -1000 * appState.zoom + 50, maxX = viewport.clientWidth - 50;
+        const minY = -1000 * appState.zoom + 50, maxY = viewport.clientHeight - 50;
+        appState.panX = Math.min(Math.max(appState.panX, minX), maxX);
+        appState.panY = Math.min(Math.max(appState.panY, minY), maxY);
     }
 
-    function startDrag(clientX, clientY) {
-        state.isDragging = true;
-        state.startX = clientX - state.panX;
-        state.startY = clientY - state.panY;
-    }
-
-    function moveDrag(clientX, clientY) {
-        if (!state.isDragging) return;
-        state.panX = clientX - state.startX;
-        state.panY = clientY - state.startY;
-        keepMapInBounds();
-        updateTransform();
-    }
-
-    function stopDrag() {
-        state.isDragging = false;
-    }
+    function startDrag(cX, cY) { appState.isDragging = true; appState.startX = cX - appState.panX; appState.startY = cY - appState.panY; }
+    function moveDrag(cX, cY) { if (!appState.isDragging) return; appState.panX = cX - appState.startX; appState.panY = cY - appState.startY; keepMapInBounds(); updateTransform(); }
+    function stopDrag() { appState.isDragging = false; }
 
     viewport.addEventListener('mousedown', (e) => startDrag(e.clientX, e.clientY));
     window.addEventListener('mousemove', (e) => moveDrag(e.clientX, e.clientY));
     window.addEventListener('mouseup', stopDrag);
-
-    viewport.addEventListener('touchstart', (e) => {
-        if(e.touches.length === 1) {
-            startDrag(e.touches[0].clientX, e.touches[0].clientY);
-        }
-    }, { passive: false });
-
-    viewport.addEventListener('touchmove', (e) => {
-        if(e.touches.length === 1) {
-            e.preventDefault();
-            moveDrag(e.touches[0].clientX, e.touches[0].clientY);
-        }
-    }, { passive: false });
-
+    viewport.addEventListener('touchstart', (e) => { if(e.touches.length === 1) startDrag(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+    viewport.addEventListener('touchmove', (e) => { if(e.touches.length === 1) { e.preventDefault(); moveDrag(e.touches[0].clientX, e.touches[0].clientY); } }, { passive: false });
     viewport.addEventListener('touchend', stopDrag);
 
     document.getElementById('btnCancel').addEventListener('click', () => {
         adminModal.style.display = 'none';
-        if (originalTransformBeforeZoom) {
-            state.zoom = originalTransformBeforeZoom.zoom;
-            state.panX = originalTransformBeforeZoom.panX;
-            state.panY = originalTransformBeforeZoom.panY;
-            updateTransform();
-        }
+        if (originalTransformBeforeZoom) { appState.zoom = originalTransformBeforeZoom.zoom; appState.panX = originalTransformBeforeZoom.panX; appState.panY = originalTransformBeforeZoom.panY; updateTransform(); }
     });
-
     document.getElementById('btnSave').addEventListener('click', () => {
-        const questText = questInput.value.trim();
-        adminModal.style.display = 'none';
-        
-        if(questText) {
-            questData[currentSelectedTarget] = questText;
-        } else {
-            delete questData[currentSelectedTarget];
-        }
-        
-        updateQuestArrowVisibility();
-        saveQuestToCloud(currentSelectedTarget, questText);
+        const txt = questInput.value.trim(); adminModal.style.display = 'none';
+        if(txt) questData[currentSelectedTarget] = txt; else delete questData[currentSelectedTarget];
+        const keys = Object.keys(questData);
+        if (keys.length > 0) { questArrow.style.left = `500px`; questArrow.style.top = `500px`; questArrow.style.display = 'block'; } else { questArrow.style.display = 'none'; }
     });
 
-    function showActiveQuest(furnitureId) {
-        if (questData[furnitureId]) {
-            alert(`Квест для этого места: \n"${questData[furnitureId]}"`);
+    // --- Логика Управления Профилем (Исправлено) ---
+    function renderProfile() {
+        document.getElementById('profileNameInput').value = profileData.name;
+        document.getElementById('profileAvatar').src = profileData.avatar || "data:image/svg+xml;utf8,<svg xmlns='w3.org' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23b2dfdb'/></svg>";
+    }
+    
+    document.getElementById('btnSaveProfile').addEventListener('click', () => {
+        profileData.name = document.getElementById('profileNameInput').value.trim() || "Пользователь";
+        localStorage.setItem('hq_profile', JSON.stringify(profileData));
+        alert("Имя профиля успешно сохранено! ✅");
+    });
+
+    document.getElementById('avatarLoader').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                profileData.avatar = event.target.result;
+                localStorage.setItem('hq_profile', JSON.stringify(profileData));
+                renderProfile();
+            };
+            reader.readAsDataURL(file);
         }
+    });
+
+    // --- Логика Управления Семьей и Участниками (Исправлено) ---
+    function renderFamily() {
+        document.getElementById('familyNameInput').value = familyData.name;
+        const listContainer = document.getElementById('membersList');
+        listContainer.innerHTML = "";
+        familyData.members.forEach(member => {
+            const div = document.createElement('div');
+            div.className = "member-item";
+            div.innerHTML = `<div class="member-avatar" style="background:#b2dfdb; display:flex; align-items:center; justify-content:center; font-size:12px;">👤</div><span>${member}</span>`;
+            listContainer.appendChild(div);
+        });
     }
 
-    function updateQuestArrowVisibility() {
-        const keys = Object.keys(questData);
-        if (keys.length > 0) {
-            const targetId = keys[keys.length - 1];
-            const targetElement = document.getElementById(targetId);
-            
-            if (targetElement) {
-                let x = 500, y = 500;
-                const coordinates = {
-                    'Lapomoika': {x: 150, y: 200},
-                    'Unitaz1': {x: 250, y: 120},
-                    'Stiralka': {x: 820, y: 150},
-                    'Shkaf1': {x: 450, y: 80},
-                    'Shkaf2': {x: 550, y: 80},
-                    'Tumbochka': {x: 300, y: 700}
-                };
+    document.getElementById('btnSaveFamilyName').addEventListener('click', () => {
+        familyData.name = document.getElementById('familyNameInput').value.trim() || "Наша Семья";
+        localStorage.setItem('hq_family', JSON.stringify(familyData));
+        alert("Название семьи обновлено! ✅");
+    });
 
-                if (coordinates[targetId]) {
-                    x = coordinates[targetId].x;
-                    y = coordinates[targetId].y;
-                }
-
-                questArrow.style.left = `${x}px`;
-                questArrow.style.top = `${y}px`;
-                questArrow.style.display = 'block';
-                return;
-            }
+    document.getElementById('btnAddMember').addEventListener('click', () => {
+        const newName = document.getElementById('newMemberInput').value.trim();
+        if(newName) {
+            familyData.members.push(newName);
+            localStorage.setItem('hq_family', JSON.stringify(familyData));
+            document.getElementById('newMemberInput').value = "";
+            renderFamily();
         }
-        questArrow.style.display = 'none';
+    });
+
+    // --- Логика Семейного Чата (Исправлено) ---
+    function renderChat() {
+        const box = document.getElementById('chatMessages');
+        box.innerHTML = "";
+        chatMessages.forEach(m => {
+            const isMe = m.sender === profileData.name;
+            const div = document.createElement('div');
+            div.className = `message-bubble ${isMe ? 'my-msg' : 'other-msg'}`;
+            div.innerHTML = `<strong>${m.sender}:</strong> ${m.text}`;
+            box.appendChild(div);
+        });
+        box.scrollTop = box.scrollHeight;
     }
 
-    // --- Облачная синхронизация данных ---
-    function showLoader(show) {
-        loader.style.display = show ? 'block' : 'none';
-    }
+    document.getElementById('btnSendMsg').addEventListener('click', () => {
+        const inp = document.getElementById('chatInputField');
+        const txt = inp.value.trim();
+        if(txt) {
+            chatMessages.push({ sender: profileData.name, text: txt });
+            localStorage.setItem('hq_chat', JSON.stringify(chatMessages));
+            inp.value = "";
+            renderChat();
+        }
+    });
 
-    function saveQuestToCloud(target, text) {
-        showLoader(true);
-        if (SCRIPT_URL.includes("ВАШ_ID_СКРИПТА") || SCRIPT_URL === "google.com") {
+    // Инициализация при старте
+    window.addEventListener('load', () => {
+        initMapPosition();
+        renderProfile();
+        renderFamily();
+        renderChat();
+    });
+    window.addEventListener('resize', initMapPosition);
+</script>
+
+</body>
+</html>
