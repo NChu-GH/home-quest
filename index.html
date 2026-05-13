@@ -181,6 +181,17 @@
             font-weight: bold;
             margin-bottom: 10px;
         }
+        .bonus-badge {
+            background: #e0f2f1;
+            border: 2px solid #00796b;
+            color: #004d40;
+            padding: 10px;
+            border-radius: 15px;
+            font-size: 18px;
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+        }
         .member-row {
             display: flex;
             align-items: center;
@@ -294,6 +305,18 @@
             border-color: #00796b;
         }
 
+        .select-field {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 10px 0;
+            border: 3px solid #b2dfdb;
+            border-radius: 15px;
+            font-family: inherit;
+            font-size: 16px;
+            background: white;
+            outline: none;
+        }
+
         .btn {
             background-color: #00796b;
             color: white;
@@ -313,6 +336,7 @@
         .btn:active { transform: translateY(4px); box-shadow: 0 0px 0 #004d40; }
         .btn-cancel { background-color: #e57373; box-shadow: 0 4px 0 #b71c1c; }
         .btn-sm { padding: 6px 14px; font-size: 13px; border-radius: 12px; box-shadow: 0 2px 0 #004d40; }
+        .btn-cash { background-color: #4caf50; box-shadow: 0 4px 0 #2e7d32; }
     </style>
 </head>
 <body>
@@ -359,14 +383,14 @@
         </div>
     </div>
 
-    <!-- ВЫДВИЖНАЯ ПАНЕЛЬ СЛЕВА: НАСТРОЙКИ, ПРОФИЛЬ И СЕМЬЯ -->
+    <!-- ВЫДВИЖНАЯ ПАНЕЛЬ СЛЕВА: НАСТРОЙКИ, ПРОФИЛЬ, БОНУСЫ И СЕМЬЯ -->
     <div id="panelMenu" class="side-panel">
         <div class="panel-header">
-            <span>Настройки 🏡</span>
+            <span>Настройки и Бонусы 🏡</span>
             <span style="cursor:pointer;" onclick="togglePanel('panelMenu', false)">❌</span>
         </div>
         <div class="panel-content">
-            <!-- Блок Профиля -->
+            <!-- Блок Профиля и Счета Монет -->
             <div style="background:#f0fdfa; border:3px solid #b2dfdb; border-radius:20px; padding:15px; margin-bottom:15px;">
                 <h4 style="margin:0 0 10px 0; color:#00796b;">Мой Профиль 👤</h4>
                 <div class="avatar-container">
@@ -375,7 +399,24 @@
                     <button class="btn btn-sm" onclick="document.getElementById('fileInput').click()">📷 Изменить фото</button>
                     <input type="file" id="fileInput" style="display:none;" accept="image/*">
                 </div>
-                <label>Ваше Имя:</label>
+                
+                <!-- Монеты и Банковские операции -->
+                <div class="bonus-badge">Мои Бонусы: <span id="bonusCount">0</span> 🪙</div>
+                <div style="display: flex; justify-content: center; gap: 5px; margin-bottom: 15px;">
+                    <button class="btn btn-sm btn-cash" id="btnExchangeCash">💵 Обменять на кэш</button>
+                </div>
+
+                <!-- Форма Передачи Бонусов -->
+                <div style="border-top: 1px dashed #b2dfdb; padding-top: 10px;">
+                    <label style="font-size:13px; color:#004d40;">Передать другому участнику:</label>
+                    <select id="transferTargetSelect" class="select-field" style="padding:6px; font-size:14px; margin:5px 0;"></select>
+                    <div style="display:flex; gap:5px;">
+                        <input type="number" id="transferAmountInput" class="input-field" style="margin:0; padding:6px;" placeholder="Сумма монеток...">
+                        <button class="btn btn-sm" id="btnSendBonuses">🚀 Послать</button>
+                    </div>
+                </div>
+
+                <label style="display:block; margin-top:15px;">Ваше Имя:</label>
                 <input type="text" id="userNameInput" class="input-field" placeholder="Ваше имя...">
                 <button class="btn btn-sm" id="btnSaveProfile">✅ Сохранить имя</button>
             </div>
@@ -427,10 +468,10 @@
 </div>
 
 <script>
-    // --- Инициализация чистых динамических данных без жестких заглушек ---
-    let myProfile = JSON.parse(localStorage.getItem('hq_myProfile')) || { name: "Администратор", avatar: "" };
-    let familySettings = JSON.parse(localStorage.getItem('hq_familySettings')) || { title: "Наша Семья", members: [] }; // Список пуст изначально
-    let chatStorage = JSON.parse(localStorage.getItem('hq_chatStorage')) || [{ user: "Система", text: "Чат активирован! Добро пожаловать. 🚀" }];
+    // --- Локальное хранилище данных ---
+    let myProfile = JSON.parse(localStorage.getItem('hq_myProfile')) || { name: "Администратор", avatar: "", bonuses: 1000 };
+    let familySettings = JSON.parse(localStorage.getItem('hq_familySettings')) || { title: "Наша Семья", members: [], memberBalances: {} };
+    let chatStorage = JSON.parse(localStorage.getItem('hq_chatStorage')) || [{ user: "Система", text: "Чат активирован! Назначайте квесты и зарабатывайте бонусы 🪙" }];
     let questData = {};
 
     let state = { zoom: 0.5, panX: 0, panY: 0, isDragging: false, startX: 0, startY: 0 };
@@ -447,7 +488,7 @@
         document.getElementById(panelId).classList.toggle('open', open);
     }
 
-    // --- Логика Карта и Жесты (Строго из ТЗ) ---
+    // --- Карта и Жесты ---
     function initMapPosition() {
         const viewRect = viewport.getBoundingClientRect();
         state.zoom = viewRect.width / 1000;
@@ -478,7 +519,7 @@
                 state.panY = viewRect.height / 2 - clickY * state.zoom;
                 keepMapInBounds();
                 updateTransform();
-                currentSelectedTarget = targetFurniture.id; // Строго берет ID картинки мебели
+                currentSelectedTarget = targetFurniture.id;
                 modalTitle.innerText = `Объект: ${currentSelectedTarget} 🏡`;
                 questInput.value = questData[currentSelectedTarget] || "";
                 setTimeout(() => adminModal.style.display = 'flex', 300);
@@ -519,10 +560,25 @@
         if (Object.keys(questData).length > 0) { questArrow.style.left = `500px`; questArrow.style.top = `500px`; questArrow.style.display = 'block'; } else { questArrow.style.display = 'none'; }
     });
 
-    // --- Логика Профиля (Имя, Фото, Роль) ---
+    // --- Логика Профиля и Операций с Бонусами ---
     function initProfileUI() {
         document.getElementById('userNameInput').value = myProfile.name;
+        document.getElementById('bonusCount').innerText = myProfile.bonuses;
         document.getElementById('userAvatar').src = myProfile.avatar || "data:image/svg+xml;utf8,<svg xmlns='w3.org' width='90' height='90' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2300796b'/><text x='50' y='60' font-size='40' text-anchor='middle' fill='white'>👑</text></svg>";
+        
+        // Обновление селектора перевода
+        const select = document.getElementById('transferTargetSelect');
+        select.innerHTML = "";
+        if(familySettings.members.length === 0) {
+            select.innerHTML = "<option value=''>Нет участников</option>";
+        } else {
+            familySettings.members.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.innerText = `${m} (${familySettings.memberBalances[m] || 0} 🪙)`;
+                select.appendChild(opt);
+            });
+        }
     }
 
     document.getElementById('btnSaveProfile').addEventListener('click', () => {
@@ -545,92 +601,60 @@
         }
     });
 
-    // --- Логика Семьи (Мгновенное переименование и Удаление) ---
-    function initFamilyUI() {
-        // Синхронное обновление названия во всех элементах интерфейса
-        document.getElementById('mainFamilyTitle').innerText = `${familySettings.title} 🏡`;
-        document.getElementById('familyNameInput').value = familySettings.title;
-        
-        const container = document.getElementById('membersContainer');
-        container.innerHTML = "";
-        
-        if (familySettings.members.length === 0) {
-            container.innerHTML = `<div style="color:#757575; font-size:14px; padding:10px 0;">Список пуст. Добавьте участников ниже.</div>`;
-        } else {
-            familySettings.members.forEach((member, index) => {
-                const row = document.createElement('div');
-                row.className = 'member-row';
-                row.innerHTML = `
-                    <div class="member-info">
-                        <div class="member-icon">👤</div>
-                        <span>${member}</span>
-                    </div>
-                    <button class="btn-delete" onclick="deleteMember(${index})">❌</button>
-                `;
-                container.appendChild(row);
-            });
-        }
-    }
+    // Передача монет другому игроку
+    document.getElementById('btnSendBonuses').addEventListener('click', () => {
+        const target = document.getElementById('transferTargetSelect').value;
+        const amount = parseInt(document.getElementById('transferAmountInput').value);
 
-    document.getElementById('btnSaveFamilyName').addEventListener('click', () => {
-        familySettings.title = document.getElementById('familyNameInput').value.trim() || "Наша Семья";
+        if(!target || isNaN(amount) || amount <= 0) {
+            alert("Укажите корректного получателя и сумму перевода! ❌");
+            return;
+        }
+        if(myProfile.bonuses < amount) {
+            alert("Недостаточно бонусов на балансе! ❌");
+            return;
+        }
+
+        // Проведение транзакции
+        myProfile.bonuses -= amount;
+        if(!familySettings.memberBalances[target]) familySettings.memberBalances[target] = 0;
+        familySettings.memberBalances[target] += amount;
+
+        // Фиксация
+        localStorage.setItem('hq_myProfile', JSON.stringify(myProfile));
         localStorage.setItem('hq_familySettings', JSON.stringify(familySettings));
-        initFamilyUI();
-        alert("Название семьи успешно обновлено! ✅");
-    });
+        
+        // Сообщение в чат
+        chatStorage.push({ user: "Банк 🪙", text: `${myProfile.name} передал участнику ${target} ${amount} бонусов!` });
+        localStorage.setItem('hq_chatStorage', JSON.stringify(chatStorage));
 
-    document.getElementById('btnAddMember').addEventListener('click', () => {
-        const name = document.getElementById('newMemberName').value.trim();
-        if (name) {
-            familySettings.members.push(name);
-            localStorage.setItem('hq_familySettings', JSON.stringify(familySettings));
-            document.getElementById('newMemberName').value = "";
-            initFamilyUI();
-        }
-    });
-
-    function deleteMember(index) {
-        if(confirm(`Удалить участника ${familySettings.members[index]}?`)) {
-            familySettings.members.splice(index, 1);
-            localStorage.setItem('hq_familySettings', JSON.stringify(familySettings));
-            initFamilyUI();
-        }
-    }
-
-    // --- Логика Семейного Чата ---
-    function initChatUI() {
-        const history = document.getElementById('chatHistory');
-        history.innerHTML = "";
-        chatStorage.forEach(m => {
-            const isMe = m.user === myProfile.name;
-            const bubble = document.createElement('div');
-            bubble.className = `msg-bubble ${isMe ? 'my' : 'other'}`;
-            bubble.innerHTML = `<strong>${m.user}:</strong> ${m.text}`;
-            history.appendChild(bubble);
-        });
-        history.scrollTop = history.scrollHeight;
-    }
-
-    document.getElementById('btnSendMessage').addEventListener('click', () => {
-        const input = document.getElementById('chatMessageInput');
-        const text = input.value.trim();
-        if (text) {
-            chatStorage.push({ user: myProfile.name, text: text });
-            localStorage.setItem('hq_chatStorage', JSON.stringify(chatStorage));
-            input.value = "";
-            initChatUI();
-        }
-    });
-
-    // Запуск приложения
-    window.addEventListener('load', () => {
-        initMapPosition();
+        document.getElementById('transferAmountInput').value = "";
         initProfileUI();
         initFamilyUI();
         initChatUI();
+        alert("Монеты успешно отправлены! 🚀");
     });
-    window.addEventListener('resize', initMapPosition);
-</script>
 
-</body>
-</html>
+    // Вывод кэша
+    document.getElementById('btnExchangeCash').addEventListener('click', () => {
+        const amount = prompt(`Сколько бонусов вы хотите обменять на реальные деньги?\nВаш баланс: ${myProfile.bonuses} 🪙`);
+        const numAmount = parseInt(amount);
+
+        if(isNaN(numAmount) || numAmount <= 0) return;
+
+        if(myProfile.bonuses < numAmount) {
+            alert("Недостаточно монет для проведения обмена! ❌");
+            return;
+        }
+
+        myProfile.bonuses -= numAmount;
+        localStorage.setItem('hq_myProfile', JSON.stringify(myProfile));
+
+        // Оповещение родителей в семейный чат
+        chatStorage.push({ user: "Запрос Кэша 💵", text: `⚠️ Участник ${myProfile.name} запросил обмен ${numAmount} бонусов на реальные деньги!` });
+        localStorage.setItem('hq_chatStorage', JSON.stringify(chatStorage));
+
+        initProfileUI();
+        initChatUI();
+        alert("Запрос отправлен в Семейный чат! Родители выдадут наличные. 💵");
+    });
