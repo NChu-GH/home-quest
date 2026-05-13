@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Семейный Квест — с синхронизацией</title>
     <style>
-        * {
-            box-sizing: border-box;
-            user-select: none;
-        }
-
+        * { box-sizing: border-box; user-select: none; }
         body {
             background: linear-gradient(145deg, #2e5f4b 0%, #1e3e31 100%);
             font-family: 'Segoe UI', 'Comic Neue', 'Chalkboard SE', 'Comic Sans MS', cursive, sans-serif;
@@ -20,17 +16,15 @@
             margin: 0;
             padding: 20px;
         }
-
         .app {
             max-width: 1000px;
             width: 100%;
             background: #fdf8e7;
-            border-radius: 70px 70px 50px 50px;
+            border-radius: 70px;
             box-shadow: 0 20px 35px rgba(0,0,0,0.3);
             overflow: hidden;
-            padding: 20px 20px 30px;
+            padding: 20px;
         }
-
         .header {
             display: flex;
             flex-wrap: wrap;
@@ -51,11 +45,20 @@
             gap: 8px;
             align-items: center;
         }
-        select {
+        select, input {
             font-size: 1rem;
             padding: 6px;
             border-radius: 30px;
             font-family: inherit;
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #ffb142;
+            border: none;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 40px;
+            cursor: pointer;
         }
         .bonus-box {
             background: #2c2b28;
@@ -65,7 +68,6 @@
             font-weight: bold;
             font-size: 1.4rem;
         }
-
         .floorplan {
             background: #ecd9b4;
             border-radius: 50px;
@@ -86,7 +88,6 @@
             text-align: center;
             cursor: pointer;
             box-shadow: 0 8px 0 #bba88a;
-            transition: 0.1s linear;
         }
         .room-card:active { transform: translateY(3px); box-shadow: 0 4px 0 #bba88a; }
         .room-name {
@@ -120,18 +121,6 @@
             padding: 4px 12px;
             border-radius: 50px;
         }
-        .reset-btn {
-            background: #6c4f2e;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 40px;
-            color: white;
-            font-weight: bold;
-            margin-top: 20px;
-            width: 100%;
-            cursor: pointer;
-        }
-
         .modal {
             display: none;
             position: fixed;
@@ -150,21 +139,21 @@
             padding: 20px;
             text-align: center;
         }
-        .get-bonus-btn {
-            background: #ffb142;
-            border: none;
-            font-size: 1.2rem;
-            font-weight: bold;
-            padding: 8px 16px;
-            border-radius: 50px;
-            margin: 10px 0;
-            cursor: pointer;
-        }
         .close-btn { background: #b0aa9a; padding: 6px 18px; border-radius: 40px; border: none; cursor: pointer; }
-        .loading {
+        .loading, .empty-state {
             text-align: center;
             padding: 40px;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
+        }
+        .add-player-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .add-player-form input, .add-player-form button {
+            padding: 12px;
+            font-size: 1rem;
         }
     </style>
 </head>
@@ -179,62 +168,91 @@
         <div id="modalTaskImg" style="font-size: 4rem;"></div>
         <p id="modalTaskDesc"></p>
         <p>Награда: +<span id="modalReward"></span> ⭐️</p>
-        <button class="get-bonus-btn" id="completeTaskBtn">✅ Выполнить!</button>
+        <button id="completeTaskBtn" style="background:#ffb142;">✅ Выполнить!</button>
         <button class="close-btn" id="closeModalBtn">Закрыть</button>
     </div>
 </div>
 
 <script>
-    // ======================== ВАШИ ССЫЛКИ (ВСТАВЛЕНЫ) ========================
     const PLAYERS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5LxPN-yeR88dl3gavERiHxE3XifP1IbupLaiHTjuRhQ9LJBkw9FnInodu0AuQKMWZz0wQ-Ai5UiVR/pub?gid=0&single=true&output=csv";
     const TASKS_CSV_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5LxPN-yeR88dl3gavERiHxE3XifP1IbupLaiHTjuRhQ9LJBkw9FnInodu0AuQKMWZz0wQ-Ai5UiVR/pub?gid=1230357202&single=true&output=csv";
     const COMPLETIONS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5LxPN-yeR88dl3gavERiHxE3XifP1IbupLaiHTjuRhQ9LJBkw9FnInodu0AuQKMWZz0wQ-Ai5UiVR/pub?gid=1681233988&single=true&output=csv";
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzz4tLNf6jdU85F_IZVE0xBpdyxiu4TGJlDEGXVop3WSTOFKJp4Alh_NdRSMZuDN1fQ/exec";
-    // =========================================================================
 
-    let players = [];
-    let tasks = [];
-    let completions = [];
-    
-    let currentPlayerId = null;
-    let currentTask = null;
-
+    let players = [], tasks = [], completions = [];
+    let currentPlayerId = null, currentTask = null;
     const appDiv = document.getElementById("app");
 
     async function fetchCSV(url) {
-        const resp = await fetch(url);
-        const text = await resp.text();
-        const rows = text.split("\n").filter(r => r.trim() !== "");
-        if (rows.length < 2) return [];
-        const headers = rows[0].split(",").map(h => h.trim());
-        const data = [];
-        for (let i = 1; i < rows.length; i++) {
-            const values = rows[i].split(",");
-            let obj = {};
-            headers.forEach((h, idx) => { obj[h] = values[idx]?.trim() || ""; });
-            data.push(obj);
-        }
-        return data;
+        try {
+            const resp = await fetch(url);
+            if (!resp.ok) return [];
+            const text = await resp.text();
+            const rows = text.split("\n").filter(r => r.trim() !== "");
+            if (rows.length < 2) return [];
+            const headers = rows[0].split(",").map(h => h.trim());
+            const data = [];
+            for (let i = 1; i < rows.length; i++) {
+                const values = rows[i].split(",");
+                let obj = {};
+                headers.forEach((h, idx) => { obj[h] = values[idx]?.trim() || ""; });
+                data.push(obj);
+            }
+            return data;
+        } catch (e) { return []; }
     }
 
     async function loadAllData() {
-        try {
-            const [playersRaw, tasksRaw, completionsRaw] = await Promise.all([
-                fetchCSV(PLAYERS_CSV_URL),
-                fetchCSV(TASKS_CSV_URL),
-                fetchCSV(COMPLETIONS_CSV_URL)
-            ]);
-            players = playersRaw.map(p => ({ ...p, total_bonus: Number(p.total_bonus) || 0, id: String(p.id) }));
-            tasks = tasksRaw.map(t => ({ ...t, reward: Number(t.reward) || 5, id: String(t.id) }));
-            completions = completionsRaw.map(c => ({ task_id: String(c.task_id), player_id: String(c.player_id) }));
-            
-            if (players.length === 0) throw new Error("Нет игроков. Добавьте хотя бы одного в лист players.");
-            if (!currentPlayerId || !players.find(p => p.id === currentPlayerId)) {
-                currentPlayerId = players[0].id;
-            }
+        const [playersRaw, tasksRaw, completionsRaw] = await Promise.all([
+            fetchCSV(PLAYERS_CSV_URL),
+            fetchCSV(TASKS_CSV_URL),
+            fetchCSV(COMPLETIONS_CSV_URL)
+        ]);
+        players = playersRaw.map(p => ({ ...p, total_bonus: Number(p.total_bonus) || 0, id: String(p.id) }));
+        tasks = tasksRaw.map(t => ({ ...t, reward: Number(t.reward) || 5, id: String(t.id) }));
+        completions = completionsRaw.map(c => ({ task_id: String(c.task_id), player_id: String(c.player_id) }));
+        
+        if (players.length === 0) {
+            renderEmptyState();
+        } else {
+            if (!currentPlayerId || !players.find(p => p.id === currentPlayerId)) currentPlayerId = players[0].id;
             renderApp();
+        }
+    }
+
+    function renderEmptyState() {
+        appDiv.innerHTML = `
+            <div class="empty-state">
+                <h2>🏠 Добро пожаловать в Семейный Квест!</h2>
+                <p>Пока нет ни одного игрока. Создайте первого (например, себя):</p>
+                <div class="add-player-form">
+                    <input type="text" id="newPlayerName" placeholder="Имя игрока" autocomplete="off">
+                    <input type="text" id="newPlayerAvatar" placeholder="Эмодзи или ссылка на аватар (необязательно)" autocomplete="off">
+                    <button id="createFirstPlayerBtn">✨ Создать первого игрока</button>
+                </div>
+                <p style="margin-top:20px; font-size:0.9rem;">После создания можно будет добавлять остальных.</p>
+            </div>
+        `;
+        document.getElementById("createFirstPlayerBtn").addEventListener("click", async () => {
+            const name = document.getElementById("newPlayerName").value.trim();
+            if (!name) { alert("Введите имя"); return; }
+            const avatar = document.getElementById("newPlayerAvatar").value.trim() || "🐣";
+            await addPlayerToSheet(name, avatar);
+        });
+    }
+
+    async function addPlayerToSheet(name, avatar) {
+        try {
+            const params = new URLSearchParams();
+            params.append("action", "addPlayer");
+            params.append("name", name);
+            params.append("avatar", avatar);
+            const response = await fetch(WEBAPP_URL, { method: "POST", body: params, headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+            if (!response.ok) throw new Error("Ошибка записи");
+            alert(`Игрок ${name} добавлен! Теперь обновите страницу.`);
+            loadAllData();
         } catch (err) {
-            appDiv.innerHTML = `<div class="loading">❌ Ошибка загрузки: ${err.message}<br>Проверьте ссылки CSV и доступ к таблицам.</div>`;
+            alert("Не удалось добавить игрока: " + err.message);
         }
     }
 
@@ -247,36 +265,28 @@
         params.append("task_id", taskId);
         params.append("player_id", playerId);
         params.append("reward", reward);
-        const response = await fetch(WEBAPP_URL, {
-            method: "POST",
-            body: params,
-            headers: { "Content-Type": "application/x-www-form-urlencoded" }
-        });
+        const response = await fetch(WEBAPP_URL, { method: "POST", body: params, headers: { "Content-Type": "application/x-www-form-urlencoded" } });
         if (!response.ok) throw new Error("Ошибка записи");
         return await response.text();
     }
 
     async function onCompleteTask() {
         if (!currentTask || !currentPlayerId) return;
-        const taskId = currentTask.id;
-        const reward = currentTask.reward;
-        
-        if (isTaskCompletedByPlayer(taskId)) {
+        if (isTaskCompletedByPlayer(currentTask.id)) {
             alert("Вы уже получали бонус за это задание!");
             closeModal();
             return;
         }
-        
         try {
-            await sendCompletion(taskId, currentPlayerId, reward);
-            completions.push({ task_id: taskId, player_id: currentPlayerId });
+            await sendCompletion(currentTask.id, currentPlayerId, currentTask.reward);
+            completions.push({ task_id: currentTask.id, player_id: currentPlayerId });
             const player = players.find(p => p.id === currentPlayerId);
-            if (player) player.total_bonus += reward;
+            if (player) player.total_bonus += currentTask.reward;
             renderApp();
             closeModal();
-            alert(`🎉 +${reward} бонусов! Задание выполнено.`);
+            alert(`🎉 +${currentTask.reward} бонусов! Задание выполнено.`);
         } catch (err) {
-            alert("Не удалось сохранить выполнение: " + err.message);
+            alert("Ошибка: " + err.message);
         }
     }
 
@@ -289,71 +299,44 @@
         document.getElementById("taskModal").style.display = "flex";
     }
 
-    function closeModal() {
-        document.getElementById("taskModal").style.display = "none";
-        currentTask = null;
-    }
+    function closeModal() { document.getElementById("taskModal").style.display = "none"; currentTask = null; }
 
     function renderApp() {
         const currentPlayer = players.find(p => p.id === currentPlayerId);
         if (!currentPlayer) return;
-        
         const roomsMap = new Map();
-        tasks.forEach(task => {
-            if (!roomsMap.has(task.room)) roomsMap.set(task.room, []);
-            roomsMap.get(task.room).push(task);
-        });
-        
+        tasks.forEach(task => { if (!roomsMap.has(task.room)) roomsMap.set(task.room, []); roomsMap.get(task.room).push(task); });
         const playerOptions = players.map(p => `<option value="${p.id}" ${p.id === currentPlayerId ? "selected" : ""}>${p.name} ${p.avatar || "🐣"} (⭐️ ${p.total_bonus})</option>`).join("");
-        
         const roomsHtml = Array.from(roomsMap.entries()).map(([roomName, roomTasks]) => `
             <div class="room-card">
                 <div class="room-name">${roomName}</div>
-                ${roomTasks.map(task => {
-                    const completed = isTaskCompletedByPlayer(task.id);
-                    return `
-                        <div class="task-icon" data-task-id="${task.id}">
-                            ${task.icon_url ? `<img src="${task.icon_url}" alt="задание">` : "📋"}
-                        </div>
-                        <div class="task-status" style="background:${completed ? "#c8e6b5" : "#fff0c0"}">
-                            ${completed ? "✅ Выполнено" : "⭐️ Ждёт"}
-                        </div>
-                    `;
-                }).join("")}
+                ${roomTasks.map(task => `
+                    <div class="task-icon" data-task-id="${task.id}">${task.icon_url ? `<img src="${task.icon_url}">` : "📋"}</div>
+                    <div class="task-status" style="background:${isTaskCompletedByPlayer(task.id) ? "#c8e6b5" : "#fff0c0"}">
+                        ${isTaskCompletedByPlayer(task.id) ? "✅ Выполнено" : "⭐️ Ждёт"}
+                    </div>
+                `).join("")}
             </div>
         `).join("");
-        
-        const fullHtml = `
+        appDiv.innerHTML = `
             <div class="header">
                 <h1>🏠 Семейный Квест</h1>
-                <div class="player-selector">
-                    👤 <select id="playerSelect">${playerOptions}</select>
-                </div>
+                <div class="player-selector">👤 <select id="playerSelect">${playerOptions}</select></div>
                 <div class="bonus-box">⭐️ ${currentPlayer.total_bonus}</div>
             </div>
-            <div class="floorplan">
-                <div class="rooms-grid">${roomsHtml}</div>
-                <button class="reset-btn" id="resetLocalHint">🔄 Сменить игрока или обновить</button>
-            </div>
+            <div class="floorplan"><div class="rooms-grid">${roomsHtml}</div><button id="resetLocalHint" style="width:100%; margin-top:20px;">🔄 Обновить</button></div>
         `;
-        appDiv.innerHTML = fullHtml;
-        
         document.querySelectorAll(".task-icon").forEach(el => {
-            const taskId = el.dataset.taskId;
-            const task = tasks.find(t => t.id === taskId);
+            const task = tasks.find(t => t.id === el.dataset.taskId);
             if (task) el.addEventListener("click", (e) => { e.stopPropagation(); showTaskModal(task); });
         });
-        document.getElementById("playerSelect").addEventListener("change", (e) => {
-            currentPlayerId = e.target.value;
-            renderApp();
-        });
+        document.getElementById("playerSelect").addEventListener("change", (e) => { currentPlayerId = e.target.value; renderApp(); });
         document.getElementById("resetLocalHint").addEventListener("click", () => loadAllData());
     }
 
     document.getElementById("completeTaskBtn").addEventListener("click", onCompleteTask);
     document.getElementById("closeModalBtn").addEventListener("click", closeModal);
     window.onclick = (e) => { if (e.target === document.getElementById("taskModal")) closeModal(); };
-    
     loadAllData();
 </script>
 </body>
