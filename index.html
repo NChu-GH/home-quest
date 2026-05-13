@@ -174,10 +174,12 @@
 </div>
 
 <script>
+    // ======================== ВАШИ ССЫЛКИ ========================
     const PLAYERS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5LxPN-yeR88dl3gavERiHxE3XifP1IbupLaiHTjuRhQ9LJBkw9FnInodu0AuQKMWZz0wQ-Ai5UiVR/pub?gid=0&single=true&output=csv";
     const TASKS_CSV_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5LxPN-yeR88dl3gavERiHxE3XifP1IbupLaiHTjuRhQ9LJBkw9FnInodu0AuQKMWZz0wQ-Ai5UiVR/pub?gid=1230357202&single=true&output=csv";
     const COMPLETIONS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5LxPN-yeR88dl3gavERiHxE3XifP1IbupLaiHTjuRhQ9LJBkw9FnInodu0AuQKMWZz0wQ-Ai5UiVR/pub?gid=1681233988&single=true&output=csv";
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzz4tLNf6jdU85F_IZVE0xBpdyxiu4TGJlDEGXVop3WSTOFKJp4Alh_NdRSMZuDN1fQ/exec";
+    // =============================================================
 
     let players = [], tasks = [], completions = [];
     let currentPlayerId = null, currentTask = null;
@@ -185,7 +187,7 @@
 
     async function fetchCSV(url) {
         try {
-            const resp = await fetch(url);
+            const resp = await fetch(url, { cache: "no-store" });
             if (!resp.ok) return [];
             const text = await resp.text();
             const rows = text.split("\n").filter(r => r.trim() !== "");
@@ -212,10 +214,14 @@
         tasks = tasksRaw.map(t => ({ ...t, reward: Number(t.reward) || 5, id: String(t.id) }));
         completions = completionsRaw.map(c => ({ task_id: String(c.task_id), player_id: String(c.player_id) }));
         
+        console.log("Загружено игроков:", players.length);
+        
         if (players.length === 0) {
             renderEmptyState();
         } else {
-            if (!currentPlayerId || !players.find(p => p.id === currentPlayerId)) currentPlayerId = players[0].id;
+            if (!currentPlayerId || !players.find(p => p.id === currentPlayerId)) {
+                currentPlayerId = players[0].id;
+            }
             renderApp();
         }
     }
@@ -227,18 +233,21 @@
                 <p>Пока нет ни одного игрока. Создайте первого (например, себя):</p>
                 <div class="add-player-form">
                     <input type="text" id="newPlayerName" placeholder="Имя игрока" autocomplete="off">
-                    <input type="text" id="newPlayerAvatar" placeholder="Эмодзи или ссылка на аватар (необязательно)" autocomplete="off">
+                    <input type="text" id="newPlayerAvatar" placeholder="Эмодзи (🐶 🐱 🦊)" autocomplete="off" value="🐣">
                     <button id="createFirstPlayerBtn">✨ Создать первого игрока</button>
                 </div>
                 <p style="margin-top:20px; font-size:0.9rem;">После создания можно будет добавлять остальных.</p>
             </div>
         `;
-        document.getElementById("createFirstPlayerBtn").addEventListener("click", async () => {
-            const name = document.getElementById("newPlayerName").value.trim();
-            if (!name) { alert("Введите имя"); return; }
-            const avatar = document.getElementById("newPlayerAvatar").value.trim() || "🐣";
-            await addPlayerToSheet(name, avatar);
-        });
+        const btn = document.getElementById("createFirstPlayerBtn");
+        if (btn) {
+            btn.addEventListener("click", async () => {
+                const name = document.getElementById("newPlayerName").value.trim();
+                if (!name) { alert("Введите имя"); return; }
+                const avatar = document.getElementById("newPlayerAvatar").value.trim() || "🐣";
+                await addPlayerToSheet(name, avatar);
+            });
+        }
     }
 
     async function addPlayerToSheet(name, avatar) {
@@ -247,11 +256,16 @@
             params.append("action", "addPlayer");
             params.append("name", name);
             params.append("avatar", avatar);
-            const response = await fetch(WEBAPP_URL, { method: "POST", body: params, headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+            const response = await fetch(WEBAPP_URL, { 
+                method: "POST", 
+                body: params, 
+                headers: { "Content-Type": "application/x-www-form-urlencoded" } 
+            });
             const text = await response.text();
             if (!response.ok || text !== "OK") throw new Error("Сервер вернул: " + text);
             alert(`Игрок ${name} добавлен!`);
-            // Принудительно перезагружаем данные из таблицы
+            // Принудительно очищаем кэш и перезагружаем
+            currentPlayerId = null;
             await loadAllData();
         } catch (err) {
             alert("Ошибка при добавлении: " + err.message);
@@ -267,7 +281,11 @@
         params.append("task_id", taskId);
         params.append("player_id", playerId);
         params.append("reward", reward);
-        const response = await fetch(WEBAPP_URL, { method: "POST", body: params, headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+        const response = await fetch(WEBAPP_URL, { 
+            method: "POST", 
+            body: params, 
+            headers: { "Content-Type": "application/x-www-form-urlencoded" } 
+        });
         if (!response.ok) throw new Error("Ошибка записи");
         return await response.text();
     }
@@ -301,14 +319,25 @@
         document.getElementById("taskModal").style.display = "flex";
     }
 
-    function closeModal() { document.getElementById("taskModal").style.display = "none"; currentTask = null; }
+    function closeModal() { 
+        document.getElementById("taskModal").style.display = "none"; 
+        currentTask = null; 
+    }
 
     function renderApp() {
         const currentPlayer = players.find(p => p.id === currentPlayerId);
         if (!currentPlayer) return;
+        
         const roomsMap = new Map();
-        tasks.forEach(task => { if (!roomsMap.has(task.room)) roomsMap.set(task.room, []); roomsMap.get(task.room).push(task); });
-        const playerOptions = players.map(p => `<option value="${p.id}" ${p.id === currentPlayerId ? "selected" : ""}>${p.name} ${p.avatar || "🐣"} (⭐️ ${p.total_bonus})</option>`).join("");
+        tasks.forEach(task => { 
+            if (!roomsMap.has(task.room)) roomsMap.set(task.room, []); 
+            roomsMap.get(task.room).push(task); 
+        });
+        
+        const playerOptions = players.map(p => 
+            `<option value="${p.id}" ${p.id === currentPlayerId ? "selected" : ""}>${p.name} ${p.avatar || "🐣"} (⭐️ ${p.total_bonus})</option>`
+        ).join("");
+        
         const roomsHtml = Array.from(roomsMap.entries()).map(([roomName, roomTasks]) => `
             <div class="room-card">
                 <div class="room-name">${roomName}</div>
@@ -320,25 +349,47 @@
                 `).join("")}
             </div>
         `).join("");
+        
         appDiv.innerHTML = `
             <div class="header">
                 <h1>🏠 Семейный Квест</h1>
                 <div class="player-selector">👤 <select id="playerSelect">${playerOptions}</select></div>
                 <div class="bonus-box">⭐️ ${currentPlayer.total_bonus}</div>
             </div>
-            <div class="floorplan"><div class="rooms-grid">${roomsHtml}</div><button id="resetLocalHint" style="width:100%; margin-top:20px;">🔄 Обновить</button></div>
+            <div class="floorplan">
+                <div class="rooms-grid">${roomsHtml}</div>
+                <button id="resetLocalHint" style="width:100%; margin-top:20px;">🔄 Обновить</button>
+            </div>
         `;
+        
         document.querySelectorAll(".task-icon").forEach(el => {
             const task = tasks.find(t => t.id === el.dataset.taskId);
             if (task) el.addEventListener("click", (e) => { e.stopPropagation(); showTaskModal(task); });
         });
-        document.getElementById("playerSelect").addEventListener("change", (e) => { currentPlayerId = e.target.value; renderApp(); });
-        document.getElementById("resetLocalHint").addEventListener("click", () => loadAllData());
+        
+        const playerSelect = document.getElementById("playerSelect");
+        if (playerSelect) {
+            playerSelect.addEventListener("change", (e) => { 
+                currentPlayerId = e.target.value; 
+                renderApp(); 
+            });
+        }
+        
+        const resetBtn = document.getElementById("resetLocalHint");
+        if (resetBtn) {
+            resetBtn.addEventListener("click", () => loadAllData());
+        }
     }
 
-    document.getElementById("completeTaskBtn").addEventListener("click", onCompleteTask);
-    document.getElementById("closeModalBtn").addEventListener("click", closeModal);
-    window.onclick = (e) => { if (e.target === document.getElementById("taskModal")) closeModal(); };
+    // Навешиваем обработчики модалки после загрузки DOM
+    document.addEventListener("DOMContentLoaded", () => {
+        const completeBtn = document.getElementById("completeTaskBtn");
+        const closeBtn = document.getElementById("closeModalBtn");
+        if (completeBtn) completeBtn.addEventListener("click", onCompleteTask);
+        if (closeBtn) closeBtn.addEventListener("click", closeModal);
+        window.onclick = (e) => { if (e.target === document.getElementById("taskModal")) closeModal(); };
+    });
+    
     loadAllData();
 </script>
 </body>
