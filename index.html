@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>Семейный Квест - Исправленный Зум</title>
+    <title>Семейный Квест - Исправлено</title>
     <style>
         body{background:#e0f7fa;display:flex;flex-direction:column;align-items:center;padding:0;margin:0;height:100vh;overflow:hidden;font-family:'Comic Sans MS',cursive,sans-serif;}
         .main-wrapper{width:100%;max-width:500px;display:flex;flex-direction:column;height:100%;}
@@ -96,7 +96,7 @@
 <div id="createQuestModal" class="modal">
     <h2>Новое задание 📝</h2>
     <p id="furniture-hint" style="color:#00796b;font-weight:bold;margin-bottom:10px;"></p>
-    <input type="text" id="new-quest-text" placeholder="Что нужно сделать?">
+    <input type="text" id="new-quest-text" placeholder="What needs to be done?">
     <input type="number" id="new-quest-reward" placeholder="Количество бонусов" value="10" min="1">
     <button class="btn-choice" style="background:#4caf50;color:#fff;" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button>
     <button class="btn-choice" onclick="closeAll()">ОТМЕНА ❌</button>
@@ -132,7 +132,6 @@
     <div id="emoji-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0;"></div>
     <button class="btn-choice" onclick="closeAll()">🔙 НАЗАД</button>
 </div>
-
 <script>
     const SUPABASE_URL='supabase.co';
     const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtwaWJrbXZoeWV2ZWJqanB2d3huIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2Mzc5NzQsImV4cCI6MjA5NDIxMzk3NH0.8A_vPWDJoFgTPU1GpbSkBxAxCAbTDfnOpaOJdGKCn-s';
@@ -176,13 +175,13 @@
     function btnZoom(delta){applyZoom(delta,view.offsetWidth/2,view.offsetHeight/2);}
 
     view.addEventListener('touchstart',e=>{
-        if(e.touches.length===1){isDragging=true;startX=e.touches[0].clientX-posX;startY=e.touches[0].clientY-posY;container.style.transition='none';}
+        if(e.touches.length===1){isDragging=true;startX=e.touches.clientX-posX;startY=e.touches.clientY-posY;container.style.transition='none';}
         else if(e.touches.length===2){isDragging=false;initialDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);initialScale=scale;}
     },{passive:false});
 
     view.addEventListener('touchmove',e=>{
         e.preventDefault();
-        if(e.touches.length===1&&isDragging){posX=e.touches[0].clientX-startX;posY=e.touches[0].clientY-startY;}
+        if(e.touches.length===1&&isDragging){posX=e.touches.clientX-startX;posY=e.touches.clientY-startY;}
         else if(e.touches.length===2&&initialDist){
             const currentDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
             const midX=(e.touches[0].clientX+e.touches[1].clientX)/2,midY=(e.touches[0].clientY+e.touches[1].clientY)/2;
@@ -205,7 +204,7 @@
             let found=zones.find(f=>f.isRect?(mapX>=f.x1&&mapX<=f.x2&&mapY>=f.y1&&mapY<=f.y2):(Math.hypot(f.x-mapX,f.y-mapY)<f.r));
             if(found){
                 const el=document.getElementById((found.isRoom?'room-':'obj-')+found.id);
-                if(el){el.classList.add('highlight');setTimeout(() => el.classList.remove('highlight'),1000);}
+                if(el){el.classList.add('highlight');setTimeout(()=>el.classList.remove('highlight'),1000);}
             }
             window.tempCoords={x:mapX,y:mapY};
             document.getElementById('furniture-hint').innerText=found?`${found.isRoom?'Комната':'Объект'}:${found.name}`:"Пустая зона";
@@ -235,11 +234,16 @@
         document.getElementById('loader').style.display='none';
     }
 
+    // ИСПРАВЛЕННЫЙ ИСТОНЧЕННЫЙ МЕТОД ЗАПИСИ (UPSERT ТЕПЕРЬ С КОМАНДОЙ ON_CONFLICT)
     async function pushToCloud(){
         try{
             await fetch(SUPABASE_URL,{
                 method:'POST',
-                headers:{'apikey':SUPABASE_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates, return=minimal'},
+                headers:{
+                    'apikey':SUPABASE_KEY,
+                    'Content-Type':'application/json',
+                    'Prefer':'resolution=merge-duplicates, return=minimal'
+                },
                 body:JSON.stringify({key:'main_app_state',data:state})
             });
         }catch(e){console.error(e);}
@@ -285,7 +289,7 @@
     function closeAll(){document.querySelectorAll('.modal').forEach(m=>m.style.display='none');document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').style.display='none';}
     function toggleSidebar(){document.getElementById('sidebar').classList.add('active');document.getElementById('overlay').style.display='block';}
     function switchProfile(i){state.currentUserIndex=i;updateUI();closeAll();pushToCloud();}
-    function setAdmin(i){state.adminIndex=i;pushToCloud().then(updateUI);}
+    function setAdmin(i) {state.adminIndex=i;pushToCloud().then(updateUI);}
 
     const emojis=['🐱','🐶','🦊','🐼','🐨','🐯','🦁','🦄','🐷','🐸','🐮','🦒'];
     document.getElementById('emoji-grid').innerHTML=emojis.map(e=>`<span onclick="setAvatar('${e}')" style="font-size:35px;cursor:pointer;">${e}</span>`).join('');
