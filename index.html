@@ -248,11 +248,13 @@
             params.append("name", name);
             params.append("avatar", avatar);
             const response = await fetch(WEBAPP_URL, { method: "POST", body: params, headers: { "Content-Type": "application/x-www-form-urlencoded" } });
-            if (!response.ok) throw new Error("Ошибка записи");
-            alert(`Игрок ${name} добавлен! Теперь обновите страницу.`);
-            loadAllData();
+            const text = await response.text();
+            if (!response.ok || text !== "OK") throw new Error("Сервер вернул: " + text);
+            alert(`Игрок ${name} добавлен!`);
+            // Принудительно перезагружаем данные из таблицы
+            await loadAllData();
         } catch (err) {
-            alert("Не удалось добавить игрока: " + err.message);
+            alert("Ошибка при добавлении: " + err.message);
         }
     }
 
