@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>Семейный Квест - Исправленное Облако</title>
+    <title>Семейный Квест - Исправленный Зум</title>
     <style>
         body{background:#e0f7fa;display:flex;flex-direction:column;align-items:center;padding:0;margin:0;height:100vh;overflow:hidden;font-family:'Comic Sans MS',cursive,sans-serif;}
         .main-wrapper{width:100%;max-width:500px;display:flex;flex-direction:column;height:100%;}
@@ -176,19 +176,23 @@
     function btnZoom(delta){applyZoom(delta,view.offsetWidth/2,view.offsetHeight/2);}
 
     view.addEventListener('touchstart',e=>{
-        if(e.touches.length===1){isDragging=true;startX=e.touches.clientX-posX;startY=e.touches.clientY-posY;container.style.transition='none';}
-        else if(e.touches.length===2){isDragging=false;initialDist=Math.hypot(e.touches.clientX-e.touches.clientX,e.touches.clientY-e.touches.clientY);initialScale=scale;}
+        if(e.touches.length===1){isDragging=true;startX=e.touches[0].clientX-posX;startY=e.touches[0].clientY-posY;container.style.transition='none';}
+        else if(e.touches.length===2){isDragging=false;initialDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);initialScale=scale;}
     },{passive:false});
 
     view.addEventListener('touchmove',e=>{
         e.preventDefault();
-        if(e.touches.length===1&&isDragging){posX=e.touches.clientX-startX;posY=e.touches.clientY-startY;}
-        else if(e.touches.length===2&&initialDist){applyZoom((initialScale*(Math.hypot(e.touches.clientX-e.touches.clientX,e.touches.clientY-e.touches.clientY)/initialDist))-scale,(e.touches.clientX+e.touches.clientX)/2,(e.touches.clientY + e.touches.clientY)/2);}
+        if(e.touches.length===1&&isDragging){posX=e.touches[0].clientX-startX;posY=e.touches[0].clientY-startY;}
+        else if(e.touches.length===2&&initialDist){
+            const currentDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+            const midX=(e.touches[0].clientX+e.touches[1].clientX)/2,midY=(e.touches[0].clientY+e.touches[1].clientY)/2;
+            applyZoom((initialScale*(currentDist/initialDist))-scale,midX,midY);
+        }
         updateTransform();
     },{passive:false});
 
     view.addEventListener('touchend',()=>{isDragging=false;initialDist=null;});
-    view.addEventListener('mousedown',e=> {isDragging=true;startX=e.clientX-posX;startY=e.clientY-posY;container.style.transition='none';});
+    view.addEventListener('mousedown',e=>{isDragging=true;startX=e.clientX-posX;startY=e.clientY-posY;container.style.transition='none';});
     window.addEventListener('mousemove',e=>{if(isDragging){posX=e.clientX-startX;posY=e.clientY-startY;updateTransform();}});
     window.addEventListener('mouseup',()=>isDragging=false);
     view.addEventListener('wheel',e=>{e.preventDefault();applyZoom(e.deltaY<0?0.1:-0.1,e.clientX,e.clientY);},{passive:false});
@@ -201,7 +205,7 @@
             let found=zones.find(f=>f.isRect?(mapX>=f.x1&&mapX<=f.x2&&mapY>=f.y1&&mapY<=f.y2):(Math.hypot(f.x-mapX,f.y-mapY)<f.r));
             if(found){
                 const el=document.getElementById((found.isRoom?'room-':'obj-')+found.id);
-                if(el){el.classList.add('highlight');setTimeout(()=>el.classList.remove('highlight'),1000);}
+                if(el){el.classList.add('highlight');setTimeout(() => el.classList.remove('highlight'),1000);}
             }
             window.tempCoords={x:mapX,y:mapY};
             document.getElementById('furniture-hint').innerText=found?`${found.isRoom?'Комната':'Объект'}:${found.name}`:"Пустая зона";
@@ -231,7 +235,6 @@
         document.getElementById('loader').style.display='none';
     }
 
-    // ИСПРАВЛЕННЫЙ ЦЕПОЧЕЧНЫЙ МЕТОД ЗАПИСИ (UPSERT)
     async function pushToCloud(){
         try{
             await fetch(SUPABASE_URL,{
@@ -271,7 +274,7 @@
     function renameCurrentPlayer(){let n=prompt("Имя:",state.members[state.currentUserIndex].name);if(n){state.members[state.currentUserIndex].name=n;pushToCloud().then(updateUI);}}
     function renameAnyMember(i){let n=prompt("Имя:",state.members[i].name);if(n){state.members[i].name=n;pushToCloud().then(updateUI);}}
     function openAvatarPicker(){document.getElementById('avatarModal').style.display='block';document.getElementById('overlay').style.display='block';}
-    function setAvatar(e) {state.members[state.currentUserIndex].avatar=e;pushToCloud().then(()=>{updateUI();closeAll();});}
+    function setAvatar(e){state.members[state.currentUserIndex].avatar=e;pushToCloud().then(()=>{updateUI();closeAll();});}
     function openQuest(idx){window.activeIdx=idx;document.getElementById('taskText').innerText=state.quests[idx].text;document.getElementById('taskRewardText').innerText="Награда: ⭐️ "+(state.quests[idx].reward||10);document.getElementById('taskModal').style.display='block';document.getElementById('overlay').style.display='block';}
     
     function openChat(){state.lastReadChatTime=Date.now();localStorage.setItem('sb_chat_read',state.lastReadChatTime);document.getElementById('chatModal').style.display='block';document.getElementById('overlay').style.display='block';renderChat();updateChatBadge();}
