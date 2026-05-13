@@ -37,6 +37,8 @@ body{margin:0;padding:0;background-color:#f0f4f8;font-family:'Comic Sans MS',cur
 .msg-bubble{margin-bottom:8px;padding:8px 12px;border-radius:15px;max-width:85%;font-size:14px;word-wrap:break-word;}
 .msg-bubble.my{background:#e0f2f1;align-self:flex-end;margin-left:auto;border-bottom-right-radius:2px;}
 .msg-bubble.other{background:#ffffff;border:1px solid #e0e0e0;align-self:flex-start;border-bottom-left-radius:2px;}
+.msg-bubble.personal-alert{background:#fff9c4!important;border:2px dashed #fbc02d!important;animation:flashAlert 0.5s ease-in-out 2;}
+@keyframes flashAlert{0%,100%{transform:scale(1);}50%{transform:scale(1.02);}}
 .modal-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:none;justify-content:center;align-items:center;z-index:100;padding:20px;}
 .modal-window{background:#ffffff;width:100%;max-width:400px;border:6px solid #00796b;border-radius:35px;padding:25px;text-align:center;animation:popUp 0.3s cubic-bezier(0.175,0.885,0.32,1.275);}
 @keyframes popUp{from{transform:scale(0.8);opacity:0;}to{transform:scale(1);opacity:1;}}
@@ -90,7 +92,7 @@ body{margin:0;padding:0;background-color:#f0f4f8;font-family:'Comic Sans MS',cur
             <div style="background:#f0fdfa;border:3px solid #b2dfdb;border-radius:20px;padding:15px;margin-bottom:15px;">
                 <h4 style="margin:0 0 10px 0;color:#00796b;">Мой Профиль 👤</h4>
                 <div class="avatar-container">
-                    <div class="admin-badge">Роль: Администратор 👑</div>
+                    <div class="admin-badge" id="roleBadge">Роль: Пользователь 👤</div>
                     <img src="" id="userAvatar" class="avatar-img" alt="Аватар">
                     <button class="btn btn-sm" onclick="document.getElementById('fileInput').click()">📷 Изменить фото</button>
                     <input type="file" id="fileInput" style="display:none;" accept="image/*">
@@ -197,8 +199,8 @@ function stopDrag(){state.isDragging=false;}
 viewport.addEventListener('mousedown',(e)=>startDrag(e.clientX,e.clientY));
 window.addEventListener('mousemove',(e)=>moveDrag(e.clientX,e.clientY));
 window.addEventListener('mouseup',stopDrag);
-viewport.addEventListener('touchstart',(e)=>{if(e.touches.length===1)startDrag(e.touches[0].clientX,e.touches[0].clientY);},{passive:false});
-viewport.addEventListener('touchmove',(e)=>{if(e.touches.length===1){e.preventDefault();moveDrag(e.touches[0].clientX,e.touches[0].clientY);}},{passive:false});
+viewport.addEventListener('touchstart',(e)=>{if(e.touches.length===1)startDrag(e.touches.clientX,e.touches.clientY);},{passive:false});
+viewport.addEventListener('touchmove',(e)=>{if(e.touches.length===1){e.preventDefault();moveDrag(e.touches.clientX,e.touches.clientY);}},{passive:false});
 viewport.addEventListener('touchend',stopDrag);
 document.getElementById('btnCancel').addEventListener('click',()=>{
     adminModal.style.display='none';
@@ -212,12 +214,15 @@ document.getElementById('btnSave').addEventListener('click',()=>{
 function initProfileUI(){
     document.getElementById('userNameInput').value=myProfile.name;
     document.getElementById('bonusBalanceDisplay').innerText=userBonuses;
-    document.getElementById('userAvatar').src=myProfile.avatar||"data:image/svg+xml;utf8,<svg xmlns='w3.org' width='90' height='90' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2300796b'/><text x='50' y='60' font-size='40' text-anchor='middle' fill='white'>👑</text></svg>";
+    const isAdm=myProfile.name==="Администратор";
+    document.getElementById('roleBadge').innerText=isAdm?"Роль: Администратор 👑":"Роль: Пользователь 👤";
+    document.getElementById('roleBadge').style.background=isAdm?"#ffb300":"#b2dfdb";
+    document.getElementById('userAvatar').src=myProfile.avatar||"data:image/svg+xml;utf8,<svg xmlns='w3.org' width='90' height='90' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2300796b'/><text x='50' y='60' font-size='40' text-anchor='middle' fill='white'>"+(isAdm?"👑":"👤")+"</text></svg>";
 }
-document.getElementById('btnSaveProfile').addEventListener('click',()=> {
-    myProfile.name=document.getElementById('userNameInput').value.trim()||"Администратор";
+document.getElementById('btnSaveProfile').addEventListener('click',()=>{
+    myProfile.name=document.getElementById('userNameInput').value.trim()||"Пользователь";
     localStorage.setItem('hq_myProfile',JSON.stringify(myProfile));
-    alert("Имя профиля сохранено! ✅");initChatUI();
+    alert("Имя профиля сохранено! ✅");initProfileUI();initChatUI();
 });
 document.getElementById('fileInput').addEventListener('change',function(e){
     const file=e.target.files[0];
@@ -261,8 +266,9 @@ function initChatUI(){
     const history=document.getElementById('chatHistory');history.innerHTML="";
     chatStorage.forEach(m=>{
         const isMe=m.user===myProfile.name;const bubble=document.createElement('div');
-        bubble.className=`msg-bubble ${isMe?'my':'other'}`;bubble.innerHTML=`<strong>${m.user}:</strong> ${m.text}`;
-        history.appendChild(bubble);
+        bubble.className=`msg-bubble ${isMe?'my':'other'}`;
+        if(m.text.includes(`[${myProfile.name}]`)){bubble.classList.add('personal-alert');}
+        bubble.innerHTML=`<strong>${m.user}:</strong> ${m.text}`;history.appendChild(bubble);
     });
     history.scrollTop=history.scrollHeight;
 }
@@ -277,22 +283,26 @@ function actionCashOut(){
     if(parsedAmount>0&&parsedAmount<=userBonuses){
         userBonuses-=parsedAmount;localStorage.setItem('hq_userBonuses',userBonuses);
         document.getElementById('bonusBalanceDisplay').innerText=userBonuses;
-        alert(`Заявка создана! ${parsedAmount} 🪙 успешно списаны и отправлены на обмен в реальный кэш. 💵`);
+        chatStorage.push({user:"Заявка 💵",text:`⚠️ Внимание [Администратор]! Пользователь ${myProfile.name} просит выдать реальный кэш за ${parsedAmount} 🪙.`});
+        localStorage.setItem('hq_chatStorage',JSON.stringify(chatStorage));initChatUI();
+        alert(`Заявка создана! Запрос на выдачу наличных отправлен Администратору в чат. 🚀`);
     }else if(amount!==null){alert("Некорректная сумма вывода! ❌");}
 }
 function actionTransferBonus(){
     if(userBonuses<=0){alert("У вас нет бонусов для передачи! ❌");return;}
     if(!familySettings.members||familySettings.members.length===0){alert("В семье нет других участников для перевода! Сначала добавьте их в список ниже. 👤");return;}
-    const targetUser=prompt(`Кому из участников перевести бонусы?\nДоступные члены семьи:\n${familySettings.members.join(', ')}`);
+    const allUsers=[...familySettings.members,"Администратор"];
+    const targetUser=prompt(`Кому из участников перевести бонусы?\nДоступные члены семьи:\n${allUsers.join(', ')}`);
     if(!targetUser)return;
-    if(!familySettings.members.includes(targetUser.trim())){alert("Такой участник не найден в вашей семье! ❌");return;}
-    const amount=prompt(`Ваш баланс: ${userBonuses} 🪙. Какую сумму перевести для ${targetUser}?`);const parsedAmount=parseInt(amount);
+    const cleanTarget=targetUser.trim();
+    if(!allUsers.includes(cleanTarget)){alert("Такой участник не найден в вашей семье! ❌");return;}
+    const amount=prompt(`Ваш баланс: ${userBonuses} 🪙. Какую сумму перевести для ${cleanTarget}?`);const parsedAmount=parseInt(amount);
     if(parsedAmount>0&&parsedAmount<=userBonuses){
         userBonuses-=parsedAmount;localStorage.setItem('hq_userBonuses',userBonuses);
         document.getElementById('bonusBalanceDisplay').innerText=userBonuses;
-        alert(`Успешно! ${parsedAmount} 🪙 переданы участнику ${targetUser}. 🎁`);
-        chatStorage.push({user:"Система 📢",text:`${myProfile.name} перевел ${parsedAmount} 🪙 участнику ${targetUser}.`});
+        chatStorage.push({user:"Перевод 🎁",text:`Пользователь ${myProfile.name} перевел ${parsedAmount} 🪙 для [${cleanTarget}].`});
         localStorage.setItem('hq_chatStorage',JSON.stringify(chatStorage));initChatUI();
+        alert(`Успешно! ${parsedAmount} 🪙 переданы участнику ${cleanTarget}. 🎁`);
     }else if(amount!==null){alert("Недостаточно бонусов или введена неверная сумма! ❌");}
 }
 window.addEventListener('load',()=>{initMapPosition();initProfileUI();initFamilyUI();initChatUI();});
