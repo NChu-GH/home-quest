@@ -199,7 +199,7 @@
     }
 
     function renderAppState() {
-        document.getElementById('current-user-name').innerText = `${appState.familyName: ${appState.currentUser.name}}`;
+        document.getElementById('current-user-name').innerText = `${appState.familyName}: ${appState.currentUser.name}`;
         document.getElementById('current-avatar').innerText = appState.currentUser.avatar || "👤";
         document.getElementById('score-val').innerText = appState.currentUser.score;
 
@@ -294,12 +294,12 @@
     function initMapControls() {
         updateTransform();
 
-        // Создание задания по ДВОЙНОМУ клику (ПК)
+        // Двойной клик на ПК
         mapContainer.addEventListener('dblclick', function(e) {
             handleCreationGesture(e.clientX, e.clientY, e.target);
         });
 
-        // Двойной тап (телефон)
+        // Двойной тап на телефоне
         let lastTap = 0;
         mapContainer.addEventListener('touchend', function(e) {
             if (e.touches.length > 0) return; 
@@ -330,7 +330,7 @@
             document.getElementById('createQuestModal').style.display = 'block';
         }
 
-        // Приближение/удаление колесиком мыши (ПК)
+        // Зум колесиком мыши (ПК)
         viewport.addEventListener('wheel', function(e) {
             e.preventDefault();
             const zoomFactor = 0.05;
@@ -342,7 +342,7 @@
             updateTransform();
         }, { passive: false });
 
-        // Перетаскивание мыши (ПК)
+        // Drag & Drop мыши (ПК)
         viewport.addEventListener('mousedown', (e) => {
             if (e.target.classList.contains('z-btn') || e.target.closest('.top-bar') || e.target.closest('.modal')) return;
             isDragging = true;
@@ -361,7 +361,7 @@
             isDragging = false;
         });
 
-        // Тач-события на смартфоне (Перетаскивание одной рукой и Зум двумя пальцами)
+        // Тач-события смартфона (скролл и Pinch-to-Zoom)
         viewport.addEventListener('touchstart', (e) => {
             const target = e.target;
             if (target.classList.contains('z-btn') || target.closest('.top-bar') || target.closest('.modal')) return;
