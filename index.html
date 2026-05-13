@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>Семейный Квест - Облако Supabase</title>
+    <title>Семейный Квест - Исправленное Облако</title>
     <style>
         body{background:#e0f7fa;display:flex;flex-direction:column;align-items:center;padding:0;margin:0;height:100vh;overflow:hidden;font-family:'Comic Sans MS',cursive,sans-serif;}
         .main-wrapper{width:100%;max-width:500px;display:flex;flex-direction:column;height:100%;}
@@ -183,12 +183,12 @@
     view.addEventListener('touchmove',e=>{
         e.preventDefault();
         if(e.touches.length===1&&isDragging){posX=e.touches.clientX-startX;posY=e.touches.clientY-startY;}
-        else if(e.touches.length===2&&initialDist){applyZoom((initialScale*(Math.hypot(e.touches.clientX-e.touches.clientX,e.touches.clientY-e.touches.clientY)/initialDist))-scale,(e.touches.clientX+e.touches.clientX)/2,(e.touches.clientY+e.touches.clientY)/2);}
+        else if(e.touches.length===2&&initialDist){applyZoom((initialScale*(Math.hypot(e.touches.clientX-e.touches.clientX,e.touches.clientY-e.touches.clientY)/initialDist))-scale,(e.touches.clientX+e.touches.clientX)/2,(e.touches.clientY + e.touches.clientY)/2);}
         updateTransform();
     },{passive:false});
 
     view.addEventListener('touchend',()=>{isDragging=false;initialDist=null;});
-    view.addEventListener('mousedown',e=>{isDragging=true;startX=e.clientX-posX;startY=e.clientY-posY;container.style.transition='none';});
+    view.addEventListener('mousedown',e=> {isDragging=true;startX=e.clientX-posX;startY=e.clientY-posY;container.style.transition='none';});
     window.addEventListener('mousemove',e=>{if(isDragging){posX=e.clientX-startX;posY=e.clientY-startY;updateTransform();}});
     window.addEventListener('mouseup',()=>isDragging=false);
     view.addEventListener('wheel',e=>{e.preventDefault();applyZoom(e.deltaY<0?0.1:-0.1,e.clientX,e.clientY);},{passive:false});
@@ -215,7 +215,6 @@
         if(p&&state.members){const i=state.members.findIndex(m=>m.name.toLowerCase()===p.toLowerCase());if(i!==-1)state.currentUserIndex=i;}
     }
 
-    // ОБЛАЧНАЯ СИНХРОНИЗАЦИЯ SUPABASE
     async function syncData(){
         document.getElementById('loader').style.display='flex';
         try{
@@ -232,11 +231,12 @@
         document.getElementById('loader').style.display='none';
     }
 
+    // ИСПРАВЛЕННЫЙ ЦЕПОЧЕЧНЫЙ МЕТОД ЗАПИСИ (UPSERT)
     async function pushToCloud(){
         try{
-            await fetch(SUPABASE_URL+'?key=eq.main_app_state',{
+            await fetch(SUPABASE_URL,{
                 method:'POST',
-                headers:{'apikey':SUPABASE_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
+                headers:{'apikey':SUPABASE_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates, return=minimal'},
                 body:JSON.stringify({key:'main_app_state',data:state})
             });
         }catch(e){console.error(e);}
@@ -271,7 +271,7 @@
     function renameCurrentPlayer(){let n=prompt("Имя:",state.members[state.currentUserIndex].name);if(n){state.members[state.currentUserIndex].name=n;pushToCloud().then(updateUI);}}
     function renameAnyMember(i){let n=prompt("Имя:",state.members[i].name);if(n){state.members[i].name=n;pushToCloud().then(updateUI);}}
     function openAvatarPicker(){document.getElementById('avatarModal').style.display='block';document.getElementById('overlay').style.display='block';}
-    function setAvatar(e){state.members[state.currentUserIndex].avatar=e;pushToCloud().then(()=>{updateUI();closeAll();});}
+    function setAvatar(e) {state.members[state.currentUserIndex].avatar=e;pushToCloud().then(()=>{updateUI();closeAll();});}
     function openQuest(idx){window.activeIdx=idx;document.getElementById('taskText').innerText=state.quests[idx].text;document.getElementById('taskRewardText').innerText="Награда: ⭐️ "+(state.quests[idx].reward||10);document.getElementById('taskModal').style.display='block';document.getElementById('overlay').style.display='block';}
     
     function openChat(){state.lastReadChatTime=Date.now();localStorage.setItem('sb_chat_read',state.lastReadChatTime);document.getElementById('chatModal').style.display='block';document.getElementById('overlay').style.display='block';renderChat();updateChatBadge();}
