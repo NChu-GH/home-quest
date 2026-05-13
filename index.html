@@ -10,7 +10,7 @@
         
         .top-bar { display: flex; justify-content: space-between; align-items: stretch; padding: 10px; gap: 8px; z-index: 100; flex-shrink: 0; }
         .profile-card { background: white; padding: 10px; border-radius: 25px; border: 4px solid #00796b; display: flex; align-items: center; gap: 10px; flex: 2; position: relative; min-width: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .avatar-circle { width: 60px; height: 60px; background: #eee; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; border: 3px solid #00796b; background-size: cover; flex-shrink: 0; }
+        .avatar-circle { width: 60px; height: 60px; background: #eee; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; border: 3px solid #00796b; background-size: cover; flex-shrink: 0; cursor: pointer; }
         .crown-icon { position: absolute; top: -18px; left: 5px; font-size: 32px; transform: rotate(-15deg); display: none; }
         .is-admin .crown-icon { display: block; }
 
@@ -20,24 +20,29 @@
         .chat-btn { background: #4caf50; color: white; border-color: #2e7d32; }
 
         .map-viewport { flex: 1; width: 100%; position: relative; overflow: hidden; background: #cfd8dc; touch-action: none; border-top: 2px solid #004d40; }
-        #map-container { position: absolute; width: 1000px; height: 1000px; transform-origin: 0 0; }
+        #map-container { position: absolute; width: 1000px; height: 1000px; transform-origin: 0 0; cursor: crosshair; }
         .layer { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; background-size: contain; background-repeat: no-repeat; }
         
         #quest-arrows { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; z-index: 60; }
-        .arrow { position: absolute; width: 55px; height: 55px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); pointer-events: auto; }
-        @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -80%); } }
+        .arrow { position: absolute; width: 45px; height: 45px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); pointer-events: auto; font-size: 35px; text-shadow: 0 4px 6px rgba(0,0,0,0.2); text-align: center; }
+        @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -75%); } }
 
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 35px; border: 6px solid #00796b; text-align: center; width: 85%; max-width: 420px; z-index: 1000; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 35px; border: 6px solid #00796b; text-align: center; width: 85%; max-width: 420px; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 500; }
-        .btn-choice { width: 100%; padding: 16px; margin: 8px 0; border-radius: 20px; border: 3px solid #00796b; cursor: pointer; font-family: inherit; font-size: 20px; font-weight: bold; background: white; }
+        .btn-choice { width: 100%; padding: 14px; margin: 8px 0; border-radius: 20px; border: 3px solid #00796b; cursor: pointer; font-family: inherit; font-size: 18px; font-weight: bold; background: white; }
 
         .sidebar { position: fixed; right: -550px; top: 0; width: 85%; max-width: 400px; height: 100%; background: white; border-left: 8px solid #ff9800; transition: 0.4s; padding: 30px; z-index: 1000; overflow-y: auto; box-sizing: border-box; }
         .sidebar.active { right: 0; }
-        input { width: 100%; padding: 15px; border-radius: 15px; border: 3px solid #00796b; font-family: inherit; font-size: 18px; margin-bottom: 10px; box-sizing: border-box; }
+        input, select { width: 100%; padding: 12px; border-radius: 15px; border: 3px solid #00796b; font-family: inherit; font-size: 16px; margin-bottom: 12px; box-sizing: border-box; }
         
         .zoom-controls { position: absolute; bottom: 15px; right: 15px; display: flex; flex-direction: column; gap: 8px; z-index: 110; }
         .z-btn { width: 50px; height: 50px; border-radius: 15px; border: 4px solid #004d40; background: white; font-size: 26px; font-weight: bold; cursor: pointer; }
         .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #00796b; }
+        
+        .member-item { display: flex; justify-content: space-between; align-items: center; background: #e0f2f1; padding: 8px 12px; border-radius: 12px; margin-bottom: 6px; font-size: 14px; }
+        .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
+        .avatar-option { font-size: 30px; cursor: pointer; padding: 5px; text-align: center; border: 2px solid transparent; border-radius: 10px; }
+        .avatar-option:hover { background: #e0f7fa; border-color: #00796b; }
     </style>
 </head>
 <body>
@@ -51,7 +56,7 @@
             <div id="current-avatar" class="avatar-circle" onclick="openAvatarPicker()">👤</div>
             <div style="flex:1; min-width: 0;">
                 <b id="current-user-name">...</b>
-                <div style="color: #00796b; font-weight: bold; font-size: 18px;">⭐️ <span id="score-val">0</span> <button onclick="renameCurrentPlayer()" style="background:none; border:none; font-size:18px; cursor:pointer;">✏️</button></div>
+                <div style="color: #00796b; font-weight: bold; font-size: 18px;">⭐️ <span id="score-val">0</span> <button onclick="renameCurrentPlayer()" style="background:none; border:none; font-size:18px; cursor:pointer; padding:0; margin-left:5px;">✏️</button></div>
             </div>
         </div>
         <div class="btn-group">
@@ -85,194 +90,359 @@
             <div id="quest-arrows"></div>
         </div>
         <div class="zoom-controls">
-            <button class="z-btn" onclick="btnZoom(0.3)">+</button>
-            <button class="z-btn" onclick="btnZoom(-0.3)">−</button>
+            <button class="z-btn" onclick="btnZoom(0.2)">+</button>
+            <button class="z-btn" onclick="btnZoom(-0.2)">−</button>
         </div>
     </div>
 </div>
 
 <div id="overlay" onclick="closeAll()" class="overlay"></div>
 
+<!-- Сайдбар настроек -->
+<div id="sidebar" class="sidebar">
+    <h2>Настройки ⚙️</h2>
+    
+    <h3>Название семьи</h3>
+    <input type="text" id="family-name-input" placeholder="Фамилия / Название">
+    <button class="btn-choice" style="background:#4caf50; color:white; font-size:16px; padding:8px;" onclick="saveFamilyName()">Сохранить название</button>
+    <hr>
+    
+    <h3>Участники</h3>
+    <div id="members-list"></div>
+    
+    <h4>Добавить участника</h4>
+    <input type="text" id="new-member-name" placeholder="Имя участника">
+    <select id="new-member-role">
+        <option value="member">Участник</option>
+        <option value="admin">Администратор 👑</option>
+    </select>
+    <button class="btn-choice" style="background:#00796b; color:white; font-size:16px; padding:10px;" onclick="addNewMember()">Добавить человека</button>
+    
+    <br><br>
+    <button class="btn-choice" onclick="toggleSidebar()">Закрыть настройки</button>
+</div>
+
+<!-- Модальное окно создания задания -->
 <div id="createQuestModal" class="modal">
-    <h2>Задание 📝</h2>
+    <h2>Создать задание 📝</h2>
     <input type="text" id="new-quest-text" placeholder="Что нужно сделать?">
     <button class="btn-choice" style="background:#4caf50; color:white;" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button>
-    <button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button>
+    <button class="btn-choice" onclick="closeAll()">ОТМЕНА ❌</button>
 </div>
 
+<!-- Модальное окно просмотра задания -->
 <div id="taskModal" class="modal">
     <h2 id="taskText">...</h2>
-    <button class="btn-choice" style="background:#00796b; color:white;" onclick="completeTask()">ГОТОВО ✅</button>
-    <button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ 🔙</button>
+    <p>Награда за выполнение: ⭐️ 10</p>
+    <button class="btn-choice" style="background:#4caf50; color:white;" onclick="completeCurrentQuest()">ВЫПОЛНЕНО 🎉</button>
+    <button class="btn-choice" style="background:#f44336; color:white; font-size:14px; padding:8px;" onclick="deleteCurrentQuest()">Удалить квест 🗑</button>
+    <button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ</button>
 </div>
 
-<div id="sidebar" class="sidebar">
-    <h2 style="color:#00796b;">🏡 Семья</h2>
-    <div id="family-list"></div>
-    <button class="btn-choice" style="background:#4caf50; color:white;" onclick="addNewMember()">➕ ДОБАВИТЬ ИГРОКА</button>
-    <div id="switch-list"></div>
-    <button class="btn-choice" onclick="closeAll()" style="margin-top:40px; background:#eee;">ЗАКРЫТЬ ❌</button>
-</div>
-
+<!-- Модальное окно выбора аватара -->
 <div id="avatarModal" class="modal">
-    <h2>Аватар героя 🎭</h2>
-    <div id="emoji-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:20px 0;"></div>
-    <button class="btn-choice" onclick="closeAll()">🔙 НАЗАД</button>
+    <h2>Выберите аватар 👤</h2>
+    <div class="avatar-grid">
+        <div class="avatar-option" onclick="selectAvatar('🧙‍♂️')">🧙‍♂️</div>
+        <div class="avatar-option" onclick="selectAvatar('🧝‍♀️')">🧝‍♀️</div>
+        <div class="avatar-option" onclick="selectAvatar('🐱')">🐱</div>
+        <div class="avatar-option" onclick="selectAvatar('🐶')">🐶</div>
+        <div class="avatar-option" onclick="selectAvatar('🦊')">🦊</div>
+        <div class="avatar-option" onclick="selectAvatar('🦁')">🦁</div>
+        <div class="avatar-option" onclick="selectAvatar('🐼')">🐼</div>
+        <div class="avatar-option" onclick="selectAvatar('🤖')">🤖</div>
+    </div>
+    <br>
+    <button class="btn-choice" onclick="closeAll()">Закрыть</button>
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://google.com';
-    
-    let state = { currentUserIndex: 0, adminIndex: 0, quests: [], members: [] };
-    const container = document.getElementById('map-container');
-    const view = document.getElementById('viewport');
-    const qBox = document.getElementById('quest-arrows');
+    let appState = JSON.parse(localStorage.getItem('familyQuestState')) || {
+        familyName: "Наша семья",
+        currentUser: { name: "Мама", role: "admin", avatar: "👩‍🦰", score: 0 },
+        members: [
+            { name: "Мама", role: "admin", avatar: "👩‍🦰", score: 0 },
+            { name: "Папа", role: "member", avatar: "👨", score: 0 }
+        ],
+        quests: []
+    };
 
-    // УПРАВЛЕНИЕ
-    let scale = 0.4, posX = 0, posY = 0, isDragging = false, startX, startY, lastTap = 0, initialDist = null, initialScale = 0;
-    let oldPos = {s: 0.4, x: 0, y: 0};
+    let zoom = 0.6;
+    let panX = 0, panY = 0;
+    let isDragging = false;
+    let startX, startY;
+    let lastClickCoords = { x: 0, y: 0 };
+    let activeQuestId = null;
 
-    function updateTransform() { container.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`; }
-    function applyZoom(delta, clientX, clientY) {
-        const rect = view.getBoundingClientRect();
-        const newScale = Math.min(Math.max(0.1, scale + delta), 4);
-        posX = (clientX - rect.left) - (clientX - rect.left - posX) * (newScale / scale);
-        posY = (clientY - rect.top) - (clientY - rect.top - posY) * (newScale / scale);
-        scale = newScale; updateTransform();
-    }
-    function btnZoom(delta) { applyZoom(delta, view.offsetWidth/2, view.offsetHeight/2); }
+    const mapContainer = document.getElementById('map-container');
+    const viewport = document.getElementById('viewport');
 
-    view.addEventListener('touchstart', e => {
-        if (e.touches.length === 1) { isDragging = true; startX = e.touches[0].clientX - posX; startY = e.touches[0].clientY - posY; }
-        else if (e.touches.length === 2) { initialDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); initialScale = scale; }
-    }, {passive: false});
-
-    view.addEventListener('touchmove', e => {
-        e.preventDefault();
-        if (e.touches.length === 1 && isDragging) { posX = e.touches[0].clientX - startX; posY = e.touches[0].clientY - startY; }
-        else if (e.touches.length === 2) {
-            const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-            applyZoom((initialScale * (dist / initialDist)) - scale, (e.touches[0].clientX + e.touches[1].clientX)/2, (e.touches[0].clientY + e.touches[1].clientY)/2);
-        }
-        updateTransform();
-    }, {passive: false});
-
-    view.addEventListener('touchend', () => { isDragging = false; initialDist = null; });
-    view.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX - posX; startY = e.clientY - posY; });
-    window.addEventListener('mousemove', e => { if (isDragging) { posX = e.clientX - startX; posY = e.clientY - startY; updateTransform(); } });
-    window.addEventListener('mouseup', () => isDragging = false);
-
-    view.addEventListener('click', e => {
-        const now = Date.now();
-        if (now - lastTap < 300) {
-            const rect = container.getBoundingClientRect();
-            oldPos = {s: scale, x: posX, y: posY};
-            const mapX = (e.clientX - rect.left) / scale, mapY = (e.clientY - rect.top) / scale;
-            applyZoom(1.5 - scale, e.clientX, e.clientY);
-            window.tempCoords = { x: mapX, y: mapY };
-            setTimeout(() => { document.getElementById('createQuestModal').style.display='block'; document.getElementById('overlay').style.display='block'; }, 300);
-        }
-        lastTap = now;
-    });
-
-    // СИНХРОНИЗАЦИЯ С ТАБЛИЦЕЙ
-    async function syncData() {
-        document.getElementById('loader').style.display = 'flex';
-        try {
-            const response = await fetch(SCRIPT_URL);
-            const data = await response.json();
-            
-            state.members = [];
-            state.quests = [];
-            
-            // Парсим данные из таблицы (пропускаем шапку)
-            for(let i = 1; i < data.length; i++) {
-                const row = data[i];
-                if(row[0] === 'member') state.members.push({name: row[1], points: parseInt(row[2]), avatar: row[3]});
-                if(row[0] === 'quest') state.quests.push({x: parseFloat(row[2]), y: parseFloat(row[3]), text: row[1]});
-                if(row[0] === 'config') state.adminIndex = parseInt(row[2]);
-            }
-            
-            if(state.members.length === 0) state.members.push({name: "Админ", points: 0, avatar: "👤"});
-            updateUI();
-        } catch (e) { console.error("Ошибка сети", e); }
+    window.onload = function() {
         document.getElementById('loader').style.display = 'none';
+        initMapControls();
+        renderAppState();
+    };
+
+    function saveState() {
+        localStorage.setItem('familyQuestState', JSON.stringify(appState));
+        renderAppState();
     }
 
-    async function pushToCloud() {
-        // Очищаем таблицу перед записью (через наш Apps Script)
-        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'clear'}) });
-        
-        // Отправляем всех участников
-        for (let m of state.members) {
-            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'member', name: m.name, val1: m.points, val2: m.avatar}) });
-        }
-        // Отправляем все квесты
-        for (let q of state.quests) {
-            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'quest', name: q.text, val1: q.x, val2: q.y}) });
-        }
-        // Сохраняем конфиг
-        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'config', val1: state.adminIndex}) });
+    function syncData() {
+        renderAppState();
+        alert("Данные успешно обновлены! 🔄");
     }
 
-    function updateUI() {
-        const user = state.members[state.currentUserIndex] || state.members[0];
-        document.getElementById('current-user-name').innerText = user.name;
-        document.getElementById('score-val').innerText = user.points;
-        document.getElementById('current-avatar').innerText = user.avatar;
-        document.getElementById('p-card').classList.toggle('is-admin', state.currentUserIndex === state.adminIndex);
+    function renderAppState() {
+        document.getElementById('current-user-name').innerText = `${appState.familyName}: ${appState.currentUser.name}`;
+        document.getElementById('current-avatar').innerText = appState.currentUser.avatar || "👤";
+        document.getElementById('score-val').innerText = appState.currentUser.score;
 
-        qBox.innerHTML = '';
-        state.quests.forEach((q, i) => {
-            const img = document.createElement('img'); img.src = 'arrow.png'; img.className = 'arrow';
-            img.style.left = q.x + 'px'; img.style.top = q.y + 'px';
-            img.onclick = e => { e.stopPropagation(); openQuest(i); };
-            qBox.appendChild(img);
+        if(appState.currentUser.role === 'admin') {
+            document.getElementById('p-card').classList.add('is-admin');
+        } else {
+            document.getElementById('p-card').classList.remove('is-admin');
+        }
+
+        document.getElementById('family-name-input').value = appState.familyName;
+
+        const listDiv = document.getElementById('members-list');
+        listDiv.innerHTML = '';
+        appState.members.forEach((m, idx) => {
+            listDiv.innerHTML += `
+                <div class="member-item">
+                    <span>${m.avatar || '👤'} <b>${m.name}</b> (${m.role === 'admin' ? 'Админ 👑' : 'Участник'}) — ⭐️ ${m.score}</span>
+                    ${idx > 0 ? `<button onclick="removeMember(${idx})" style="background:none; border:none; color:red; cursor:pointer;">❌</button>` : ''}
+                </div>
+            `;
         });
 
-        const fList = document.getElementById('family-list'); fList.innerHTML = '';
-        const sList = document.getElementById('switch-list'); sList.innerHTML = '<h3>🔄 Сменить героя:</h3>';
-        state.members.forEach((m, i) => {
-            fList.innerHTML += `<div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #ffcc80"><span>${m.avatar} ${m.name}</span> <button onclick="setAdmin(${i})" style="border:none;background:none;font-size:20px;">👑</button></div>`;
-            if(i !== state.currentUserIndex) sList.innerHTML += `<button class="btn-choice" onclick="switchProfile(${i})">${m.name}</button>`;
-        });
+        renderQuests();
     }
 
-    function confirmCreateQuest() {
-        const txt = document.getElementById('new-quest-text').value;
-        if(txt) {
-            state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt });
-            pushToCloud();
+    function saveFamilyName() {
+        const name = document.getElementById('family-name-input').value.trim();
+        if(name) {
+            appState.familyName = name;
+            saveState();
+            alert("Название семьи изменено! 🎉");
         }
-        cancelQuest();
     }
 
-    function completeTask() {
-        state.members[state.currentUserIndex].points += 10;
-        state.quests.splice(window.activeIdx, 1);
-        pushToCloud();
-        closeAll();
+    function renameCurrentPlayer() {
+        const newName = prompt("Введите новое имя профиля:", appState.currentUser.name);
+        if(newName && newName.trim()) {
+            const oldName = appState.currentUser.name;
+            appState.currentUser.name = newName.trim();
+            
+            const index = appState.members.findIndex(m => m.name === oldName);
+            if(index !== -1) {
+                appState.members[index].name = newName.trim();
+            }
+            saveState();
+        }
     }
 
     function addNewMember() {
-        let n = prompt("Имя игрока:");
-        if(n) { state.members.push({name: n, points: 0, avatar: '👤'}); pushToCloud().then(updateUI); }
+        const nameInput = document.getElementById('new-member-name');
+        const roleSelect = document.getElementById('new-member-role');
+        
+        if(!nameInput.value.trim()) {
+            alert("Введите имя участника!");
+            return;
+        }
+
+        appState.members.push({
+            name: nameInput.value.trim(),
+            role: roleSelect.value,
+            avatar: "👤",
+            score: 0
+        });
+
+        nameInput.value = '';
+        saveState();
+        alert("Участник успешно добавлен! 👍");
     }
 
-    function switchProfile(i) { state.currentUserIndex = i; updateUI(); closeAll(); }
-    function setAdmin(i) { state.adminIndex = i; pushToCloud().then(updateUI); }
-    function openQuest(idx) { window.activeIdx = idx; document.getElementById('taskText').innerText = state.quests[idx].text; document.getElementById('taskModal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
-    function cancelQuest() { scale = oldPos.s; posX = oldPos.x; posY = oldPos.y; updateTransform(); closeAll(); }
-    function closeAll() { document.querySelectorAll('.modal').forEach(m=>m.style.display='none'); document.getElementById('overlay').style.display='none'; document.getElementById('sidebar').classList.remove('active'); }
-    function toggleSidebar() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').style.display='block'; }
-    function openAvatarPicker() { document.getElementById('avatarModal').style.display='block'; document.getElementById('overlay').style.display='block'; }
-    function setAvatar(e) { state.members[state.currentUserIndex].avatar = e; pushToCloud().then(() => { updateUI(); closeAll(); }); }
+    function removeMember(index) {
+        if(confirm("Удалить этого участника?")) {
+            appState.members.splice(index, 1);
+            saveState();
+        }
+    }
 
-    const emojis = ['🐱','🐶','🦊','🐼','🐨','🐯','🦁','🦄','🐷','🐸','🐮','🦒'];
-    document.getElementById('emoji-grid').innerHTML = emojis.map(e => `<span onclick="setAvatar('${e}')" style="font-size:35px; cursor:pointer;">${e}</span>`).join('');
+    function openAvatarPicker() {
+        document.getElementById('overlay').style.display = 'block';
+        document.getElementById('avatarModal').style.display = 'block';
+    }
 
-    syncData();
-    setTimeout(() => { posX = (view.offsetWidth - 400)/2; posY = (view.offsetHeight - 400)/2; updateTransform(); }, 500);
+    function selectAvatar(emoji) {
+        appState.currentUser.avatar = emoji;
+        const index = appState.members.findIndex(m => m.name === appState.currentUser.name);
+        if(index !== -1) {
+            appState.members[index].avatar = emoji;
+        }
+        closeAll();
+        saveState();
+    }
+
+    function initMapControls() {
+        updateTransform();
+
+        mapContainer.addEventListener('click', function(e) {
+            if (isDragging) return;
+            if (e.target.classList.contains('arrow')) return;
+
+            const rect = mapContainer.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / zoom;
+            const y = (e.clientY - rect.top) / zoom;
+
+            lastClickCoords = { x, y };
+            
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('createQuestModal').style.display = 'block';
+        });
+
+        viewport.addEventListener('mousedown', (e) => {
+            isDragging = false;
+            const target = e.target;
+            if (target.classList.contains('z-btn') || target.closest('.top-bar') || target.closest('.modal')) return;
+            isDragging = true;
+            startX = e.clientX - panX;
+            startY = e.clientY - panY;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            panX = e.clientX - startX;
+            panY = e.clientY - startY;
+            updateTransform();
+        });
+
+        window.addEventListener('mouseup', () => {
+            setTimeout(() => { isDragging = false; }, 50);
+        });
+
+        viewport.addEventListener('touchstart', (e) => {
+            if(e.touches.length === 1) {
+                isDragging = false;
+                const target = e.target;
+                if (target.classList.contains('z-btn') || target.closest('.top-bar') || target.closest('.modal')) return;
+                isDragging = true;
+                startX = e.touches[0].clientX - panX;
+                startY = e.touches[0].clientY - panY;
+            }
+        });
+
+        viewport.addEventListener('touchmove', (e) => {
+            if (!isDragging || e.touches.length !== 1) return;
+            panX = e.touches[0].clientX - startX;
+            panY = e.touches[0].clientY - startY;
+            updateTransform();
+        });
+
+        viewport.addEventListener('touchend', () => {
+            setTimeout(() => { isDragging = false; }, 50);
+        });
+    }
+
+    function btnZoom(amount) {
+        zoom = Math.max(0.3, Math.min(2.0, zoom + amount));
+        updateTransform();
+    }
+
+    function updateTransform() {
+        mapContainer.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+    }
+
+    function confirmCreateQuest() {
+        const textInput = document.getElementById('new-quest-text');
+        if(!textInput.value.trim()) {
+            alert("Введите описание задания!");
+            return;
+        }
+
+        const newQuest = {
+            id: Date.now(),
+            text: textInput.value.trim(),
+            x: lastClickCoords.x,
+            y: lastClickCoords.y
+        };
+
+        appState.quests.push(newQuest);
+        textInput.value = '';
+        closeAll();
+        saveState();
+    }
+
+    function renderQuests() {
+        const container = document.getElementById('quest-arrows');
+        container.innerHTML = '';
+
+        appState.quests.forEach(q => {
+            const arrowEl = document.createElement('div');
+            arrowEl.className = 'arrow';
+            arrowEl.style.left = `${q.x}px`;
+            arrowEl.style.top = `${q.y}px`;
+            arrowEl.innerText = '📍';
+            arrowEl.onclick = function(e) {
+                e.stopPropagation();
+                openQuestTask(q.id);
+            };
+            container.appendChild(arrowEl);
+        });
+    }
+
+    function openQuestTask(id) {
+        const quest = appState.quests.find(q => q.id === id);
+        if(quest) {
+            activeQuestId = id;
+            document.getElementById('taskText').innerText = quest.text;
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('taskModal').style.display = 'block';
+        }
+    }
+
+    function completeCurrentQuest() {
+        if(activeQuestId) {
+            appState.currentUser.score += 10;
+            const index = appState.members.findIndex(m => m.name === appState.currentUser.name);
+            if(index !== -1) {
+                appState.members[index].score = appState.currentUser.score;
+            }
+            appState.quests = appState.quests.filter(q => q.id !== activeQuestId);
+            activeQuestId = null;
+            closeAll();
+            saveState();
+            alert("Поздравляем! Вам начислено 10 очков! 🎉");
+        }
+    }
+
+    function deleteCurrentQuest() {
+        if(activeQuestId && confirm("Вы уверены, что хотите удалить это задание?")) {
+            appState.quests = appState.quests.filter(q => q.id !== activeQuestId);
+            activeQuestId = null;
+            closeAll();
+            saveState();
+        }
+    }
+
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+        if(document.getElementById('sidebar').classList.contains('active')) {
+            document.getElementById('overlay').style.display = 'block';
+        } else {
+            document.getElementById('overlay').style.display = 'none';
+        }
+    }
+
+    function closeAll() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('createQuestModal').style.display = 'none';
+        document.getElementById('taskModal').style.display = 'none';
+        document.getElementById('avatarModal').style.display = 'none';
+        document.getElementById('sidebar').classList.remove('active');
+    }
 </script>
 </body>
 </html>
