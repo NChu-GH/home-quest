@@ -3,52 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Семейный Квест - Облачная Версия</title>
+    <title>Семейный Квест - Финал</title>
     <style>
-        body { background-color: #e0f7fa; display: flex; flex-direction: column; align-items: center; padding: 0; font-family: 'Comic Sans MS', cursive, sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        body { background-color: #e0f7fa; display: flex; flex-direction: column; align-items: center; padding: 0; margin: 0; height: 100vh; overflow: hidden; font-family: 'Comic Sans MS', cursive, sans-serif; }
         .main-wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100%; }
         
+        /* ВЕРХНЯЯ ПАНЕЛЬ */
         .top-bar { display: flex; justify-content: space-between; align-items: stretch; padding: 10px; gap: 8px; z-index: 100; flex-shrink: 0; }
         .profile-card { background: white; padding: 10px; border-radius: 25px; border: 4px solid #00796b; display: flex; align-items: center; gap: 10px; flex: 2; position: relative; min-width: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .avatar-circle { width: 60px; height: 60px; background: #eee; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; border: 3px solid #00796b; background-size: cover; flex-shrink: 0; cursor: pointer; }
-        .crown-icon { position: absolute; top: -18px; left: 5px; font-size: 32px; transform: rotate(-15deg); display: none; }
+        .crown-icon { position: absolute; top: -18px; left: 5px; font-size: 32px; transform: rotate(-15deg); display: none; z-index: 10; }
         .is-admin .crown-icon { display: block; }
-
+        .avatar-circle { width: 60px; height: 60px; background: #eee; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; cursor: pointer; border: 3px solid #00796b; overflow: hidden; background-size: cover; background-position: center; flex-shrink: 0; }
+        
         .btn-group { display: flex; flex-direction: column; gap: 5px; flex: 0.8; }
         .menu-btn, .chat-btn { height: 100%; min-height: 45px; border-radius: 18px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 16px; border: 3px solid; display: flex; justify-content: center; align-items: center; }
         .menu-btn { background: #ff9800; color: white; border-color: #e65100; }
         .chat-btn { background: #4caf50; color: white; border-color: #2e7d32; }
 
+        /* ИГРОВОЕ ПОЛЕ */
         .map-viewport { flex: 1; width: 100%; position: relative; overflow: hidden; background: #cfd8dc; touch-action: none; border-top: 2px solid #004d40; }
-        #map-container { position: absolute; width: 1000px; height: 1000px; transform-origin: center center; cursor: crosshair; }
-        .layer { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; background-size: contain; background-repeat: no-repeat; pointer-events: auto; }
+        #map-container { position: absolute; width: 1000px; height: 1000px; transform-origin: 0 0; }
+        .layer { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; background-size: contain; background-repeat: no-repeat; transition: filter 0.3s; }
         
+        /* СВЕЧЕНИЕ МЕБЕЛИ */
+        .highlight { filter: drop-shadow(0 0 25px #00e5ff) brightness(1.4) !important; }
+
         #quest-arrows { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; z-index: 60; }
-        .arrow { position: absolute; width: 45px; height: 45px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); pointer-events: auto; font-size: 35px; text-shadow: 0 4px 6px rgba(0,0,0,0.2); text-align: center; }
-        @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -75%); } }
+        .arrow { position: absolute; width: 55px; height: 55px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); pointer-events: auto; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); }
+        @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -80%); } }
 
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 35px; border: 6px solid #00796b; text-align: center; width: 85%; max-width: 420px; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        /* БИРЮЗОВАЯ РАМКА 6PX И СКРУГЛЕНИЕ 35PX */
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 500; }
-        .btn-choice { width: 100%; padding: 14px; margin: 8px 0; border-radius: 20px; border: 3px solid #00796b; cursor: pointer; font-family: inherit; font-size: 18px; font-weight: bold; background: white; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 35px; border: 6px solid #00796b; text-align: center; width: 85%; max-width: 420px; z-index: 1000; box-shadow: 0 0 50px rgba(0,0,0,0.4); }
+        .btn-choice { width: 100%; padding: 16px; margin: 8px 0; border-radius: 20px; border: 3px solid #00796b; cursor: pointer; font-family: inherit; font-size: 20px; background: white; font-weight: bold; }
 
-        .sidebar { position: fixed; right: -550px; top: 0; width: 85%; max-width: 400px; height: 100%; background: white; border-left: 8px solid #ff9800; transition: 0.4s; padding: 30px; z-index: 1000; overflow-y: auto; box-sizing: border-box; }
+        .sidebar { position: fixed; right: -550px; top: 0; width: 85%; max-width: 420px; height: 100%; background: white; border-left: 8px solid #ff9800; transition: 0.4s; padding: 30px; z-index: 1000; overflow-y: auto; box-sizing: border-box; }
         .sidebar.active { right: 0; }
-        input, select { width: 100%; padding: 12px; border-radius: 15px; border: 3px solid #00796b; font-family: inherit; font-size: 16px; margin-bottom: 12px; box-sizing: border-box; }
-        
+        .member-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 2px solid #ffcc80; }
+        input { width: 100%; padding: 15px; border-radius: 15px; border: 3px solid #00796b; font-family: inherit; font-size: 18px; box-sizing: border-box; margin-bottom: 10px; }
         .zoom-controls { position: absolute; bottom: 15px; right: 15px; display: flex; flex-direction: column; gap: 8px; z-index: 110; }
-        .z-btn { width: 50px; height: 50px; border-radius: 15px; border: 4px solid #004d40; background: white; font-size: 26px; font-weight: bold; cursor: pointer; }
-        .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #00796b; }
-        
-        .member-item { display: flex; justify-content: space-between; align-items: center; background: #e0f2f1; padding: 8px 12px; border-radius: 12px; margin-bottom: 6px; font-size: 14px; cursor: pointer; transition: 0.2s; }
-        .member-item:hover { background: #b2dfdb; }
-        .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
-        .avatar-option { font-size: 30px; cursor: pointer; padding: 5px; text-align: center; border: 2px solid transparent; border-radius: 10px; }
-        .avatar-option:hover { background: #e0f7fa; border-color: #00796b; }
+        .z-btn { width: 50px; height: 50px; border-radius: 15px; border: 4px solid #004d40; background: white; font-size: 26px; font-weight: bold; color: #004d40; cursor: pointer; }
+        .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #00796b; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div id="loader" class="loading-screen">Загрузка данных... ☁️</div>
+<div id="loader" class="loading-screen">Синхронизация с облаком... ☁️</div>
 
 <div class="main-wrapper">
     <div class="top-bar">
@@ -57,7 +57,7 @@
             <div id="current-avatar" class="avatar-circle" onclick="openAvatarPicker()">👤</div>
             <div style="flex:1; min-width: 0;">
                 <b id="current-user-name">...</b>
-                <div style="color: #00796b; font-weight: bold; font-size: 18px;">⭐️ <span id="score-val">0</span> <button onclick="renameCurrentPlayer()" style="background:none; border:none; font-size:18px; cursor:pointer; padding:0; margin-left:5px;">✏️</button></div>
+                <div style="color: #00796b; font-weight: bold; font-size: 18px;">⭐️ <span id="score-val">0</span> <button onclick="renameCurrentPlayer()" style="background:none; border:none; font-size:18px; cursor:pointer;">✏️</button></div>
             </div>
         </div>
         <div class="btn-group">
@@ -68,508 +68,226 @@
 
     <div class="map-viewport" id="viewport">
         <div id="map-container">
-            <!-- Добавлены data-name для автоматического распознавания мебели и комнат -->
-            <div class="layer" data-name="Санузел 1" style="background-image: url('Sanuzel1.png');"></div>
-            <div class="layer" data-name="Коридор" style="background-image: url('Koridor.png');"></div>
-            <div class="layer" data-name="Гостиная" style="background-image: url('Gostinaya.png');"></div>
-            <div class="layer" data-name="Спальня 1" style="background-image: url('Spalnya1.png');"></div>
-            <div class="layer" data-name="Спальня 2" style="background-image: url('Spalnya2.png');"></div>
-            <div class="layer" data-name="Ванная" style="background-image: url('Vannaya.png');"></div>
-            <div class="layer" data-name="Санузел 2" style="background-image: url('Sanuzel2.png');"></div>
-            <div class="layer" data-name="Кухня" style="background-image: url('Kuhnya.png');"></div>
-            <div class="layer" data-name="Балкон" style="background-image: url('Balcon.png');"></div>
-            <div class="layer" data-name="Лапомойка" style="background-image: url('Lapomoika.png');"></div>
-            <div class="layer" data-name="Унитаз" style="background-image: url('Unitaz1.png');"></div>
-            <div class="layer" data-name="Стиральная машина" style="background-image: url('Stiralka.png');"></div>
-            <div class="layer" data-name="Корзина для белья" style="background-image: url('Korzina.png');"></div>
-            <div class="layer" data-name="Тумбочка" style="background-image: url('Tumbochka.png');"></div>
-            <div class="layer" data-name="Вешалка" style="background-image: url('Veshalka.png');"></div>
-            <div class="layer" data-name="Шкаф 1" style="background-image: url('Shkaf1.png');"></div>
-            <div class="layer" data-name="Шкаф 2" style="background-image: url('Shkaf2.png');"></div>
-            <div class="layer" data-name="Шкаф 3" style="background-image: url('Shkaf3.png');"></div>
-            <div class="layer" data-name="Шкаф 4" style="background-image: url('Shkaf4.png');"></div>
-            <div class="layer" data-name="Шкаф 5" style="background-image: url('Shkaf5.png');"></div>
+            <!-- СЛОИ КОМНАТ -->
+            <div class="layer" style="background-image: url('Sanuzel1.png');"></div>
+            <div class="layer" style="background-image: url('Koridor.png');"></div>
+            <div class="layer" style="background-image: url('Gostinaya.png');"></div>
+            <div class="layer" style="background-image: url('Spalnya1.png');"></div>
+            <div class="layer" style="background-image: url('Spalnya2.png');"></div>
+            <div class="layer" style="background-image: url('Vannaya.png');"></div>
+            <div class="layer" style="background-image: url('Sanuzel2.png');"></div>
+            <div class="layer" style="background-image: url('Kuhnya.png');"></div>
+            <div class="layer" style="background-image: url('Balcon.png');"></div>
+            <!-- СЛОИ МЕБЕЛИ С ЛОКАЛЬНЫМИ ID ДЛЯ ПОДСВЕТКИ -->
+            <div id="obj-Lapomoika" class="layer" style="background-image: url('Lapomoika.png');"></div>
+            <div id="obj-Unitaz1" class="layer" style="background-image: url('Unitaz1.png');"></div>
+            <div id="obj-Stiralka" class="layer" style="background-image: url('Stiralka.png');"></div>
+            <div id="obj-Korzina" class="layer" style="background-image: url('Korzina.png');"></div>
+            <div id="obj-Tumbochka" class="layer" style="background-image: url('Tumbochka.png');"></div>
+            <div id="obj-Veshalka" class="layer" style="background-image: url('Veshalka.png');"></div>
+            <div id="obj-Shkaf1" class="layer" style="background-image: url('Shkaf1.png');"></div>
+            <div id="obj-Shkaf2" class="layer" style="background-image: url('Shkaf2.png');"></div>
+            <div id="obj-Shkaf3" class="layer" style="background-image: url('Shkaf3.png');"></div>
+            <div id="obj-Shkaf4" class="layer" style="background-image: url('Shkaf4.png');"></div>
+            <div id="obj-Shkaf5" class="layer" style="background-image: url('Shkaf5.png');"></div>
             <div id="quest-arrows"></div>
         </div>
         <div class="zoom-controls">
-            <button class="z-btn" onclick="btnZoom(0.2, true)">+</button>
-            <button class="z-btn" onclick="btnZoom(-0.2, true)">−</button>
+            <button class="z-btn" onclick="btnZoom(0.3)">+</button>
+            <button class="z-btn" onclick="btnZoom(-0.3)">−</button>
         </div>
     </div>
 </div>
 
 <div id="overlay" onclick="closeAll()" class="overlay"></div>
 
-<!-- Настройки (Сайдбар) -->
-<div id="sidebar" class="sidebar">
-    <h2>Настройки ⚙️</h2>
-    
-    <h3>Название семьи</h3>
-    <input type="text" id="family-name-input" placeholder="Фамилия / Название">
-    <button class="btn-choice" style="background:#4caf50; color:white; font-size:16px; padding:8px;" onclick="saveFamilyName()">Сохранить название</button>
-    <hr>
-    
-    <h3>Участники (нажмите для переключения)</h3>
-    <div id="members-list"></div>
-    
-    <h4>Добавить участника</h4>
-    <input type="text" id="new-member-name" placeholder="Имя участника">
-    <select id="new-member-role">
-        <option value="member">Участник</option>
-        <option value="admin">Администратор 👑</option>
-    </select>
-    <button class="btn-choice" style="background:#00796b; color:white; font-size:16px; padding:10px;" onclick="addNewMember()">Добавить человека</button>
-    
-    <br><br>
-    <button class="btn-choice" onclick="toggleSidebar()">Закрыть настройки</button>
-</div>
-
-<!-- Модальное окно создания задания -->
+<!-- МОДАЛКИ С ТРЕБУЕМЫМ СТИЛЕМ -->
 <div id="createQuestModal" class="modal">
-    <h2 id="create-modal-title">Создать задание 📝</h2>
-    <input type="text" id="new-quest-text" placeholder="Что нужно сделать?">
+    <h2 id="modal-title">Задание 📝</h2>
+    <p id="furniture-hint" style="color:#00796b; font-weight:bold; margin-bottom:10px;"></p>
+    <input type="text" id="new-quest-text" placeholder="Какое задание хотите здесь назначить?">
     <button class="btn-choice" style="background:#4caf50; color:white;" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button>
-    <button class="btn-choice" onclick="closeAll()">ОТМЕНА ❌</button>
+    <button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button>
 </div>
 
-<!-- Модальное окно просмотра задания -->
 <div id="taskModal" class="modal">
     <h2 id="taskText">...</h2>
-    <p>Награда за выполнение: ⭐️ 10</p>
-    <button class="btn-choice" style="background:#4caf50; color:white;" onclick="completeCurrentQuest()">ВЫПОЛНЕНО 🎉</button>
-    <button class="btn-choice" style="background:#f44336; color:white; font-size:14px; padding:8px;" onclick="deleteCurrentQuest()">Удалить квест 🗑</button>
-    <button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ</button>
+    <button class="btn-choice" style="background:#00796b; color:white;" onclick="completeTask()">ГОТОВО ✅</button>
+    <button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ 🔙</button>
 </div>
 
-<!-- Модальное окно выбора аватара -->
+<div id="sidebar" class="sidebar">
+    <h2 style="color:#00796b;">🏡 Семья</h2>
+    <div id="family-list" style="background:#fff3e0; padding:15px; border-radius:20px; margin-bottom:20px;"></div>
+    <button class="btn-choice" style="background:#4caf50; color:white; border:none;" onclick="addNewMember()">➕ ДОБАВИТЬ ИГРОКА</button>
+    <div id="switch-list"></div>
+    <button class="btn-choice" onclick="closeAll()" style="margin-top:40px; background:#eee;">ЗАКРЫТЬ ❌</button>
+</div>
+
 <div id="avatarModal" class="modal">
-    <h2>Выберите аватар 👤</h2>
-    <div class="avatar-grid">
-        <div class="avatar-option" onclick="selectAvatar('🧙‍♂️')">🧙‍♂️</div>
-        <div class="avatar-option" onclick="selectAvatar('🧝‍♀️')">🧝‍♀️</div>
-        <div class="avatar-option" onclick="selectAvatar('🐱')">🐱</div>
-        <div class="avatar-option" onclick="selectAvatar('🐶')">🐶</div>
-        <div class="avatar-option" onclick="selectAvatar('🦊')">🦊</div>
-        <div class="avatar-option" onclick="selectAvatar('🦁')">🦁</div>
-        <div class="avatar-option" onclick="selectAvatar('🐼')">🐼</div>
-        <div class="avatar-option" onclick="selectAvatar('🤖')">🤖</div>
-    </div>
-    <br>
-    <button class="btn-choice" onclick="closeAll()">Закрыть</button>
+    <h2>Аватар героя 🎭</h2>
+    <div id="emoji-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:20px 0;"></div>
+    <button class="btn-choice" onclick="closeAll()">🔙 НАЗАД</button>
 </div>
 
 <script>
-    // Корректная глубокая инициализация без перезаписи профиля
-    let appState = JSON.parse(localStorage.getItem('familyQuestState')) || {};
+    const SCRIPT_URL = 'google.com';
     
-    if (!appState.familyName) appState.familyName = "Наша семья";
-    if (!appState.members || appState.members.length === 0) {
-        appState.members = [
-            { name: "Мама", role: "admin", avatar: "👩‍🦰", score: 0 },
-            { name: "Папа", role: "member", avatar: "👨", score: 0 }
-        ];
+    let state = { currentUserIndex: 0, adminIndex: 0, quests: [], members: [] };
+    const container = document.getElementById('map-container');
+    const view = document.getElementById('viewport');
+    const qBox = document.getElementById('quest-arrows');
+    
+    const furnitureZones = [
+        { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 85 }, { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 85 },
+        { id: 'Stiralka', name: '🧼 Стиральная машина', x: 865, y: 555, r: 95 }, { name: '🧺 Корзина', x: 765, y: 555, r: 85 },
+        { id: 'Veshalka', name: '🧥 Вешалка', x: 690, y: 420, r: 75 }, { name: '🗄 Тумбочка', x: 640, y: 500, r: 60 },
+        { id: 'Shkaf1', name: '👟 Шкаф для обуви', x: 505, y: 620, r: 85 }, { id: 'Shkaf2', name: '👗 Шкаф для одежды', x: 410, y: 620, r: 85 },
+        { id: 'Shkaf3', name: '🧹 Хоз. шкаф', x: 330, y: 630, r: 75 }, { id: 'Shkaf4', name: '⛺️ Шкаф спорт', x: 330, y: 710, r: 75 },
+        { id: 'Shkaf5', name: '📦 Доп. шкаф', x: 330, y: 790, r: 75 }
+    ];
+
+    let scale = 0.5, posX = 0, posY = 0, isDragging = false, startX, startY, lastTap = 0, initialDist = null, initialScale = 0, oldPos = {s: 0.5, x: 0, y: 0};
+
+    function updateTransform() { container.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`; }
+    function applyZoom(delta, clientX, clientY) {
+        const rect = view.getBoundingClientRect();
+        const newScale = Math.min(Math.max(0.1, scale + delta), 4);
+        posX = (clientX - rect.left) - (clientX - rect.left - posX) * (newScale / scale);
+        posY = (clientY - rect.top) - (clientY - rect.top - posY) * (newScale / scale);
+        scale = newScale; updateTransform();
     }
-    if (!appState.currentUser) {
-        appState.currentUser = appState.members[0];
-    }
-    if (!appState.quests) appState.quests = [];
+    function btnZoom(delta) { applyZoom(delta, view.offsetWidth / 2, view.offsetHeight / 2); }
 
-    let zoom = 0.6;
-    let panX = 0, panY = 0;
-    
-    let isDragging = false;
-    let startX, startY;
-    
-    let startDist = 0;
-    let startZoom = 0;
+    // ТАЧ И ПК СЦЕНАРИИ УПРАВЛЕНИЯ
+    view.addEventListener('touchstart', e => {
+        if (e.touches.length === 1) { isDragging = true; startX = e.touches.clientX - posX; startY = e.touches.clientY - posY; container.style.transition = 'none'; }
+        else if (e.touches.length === 2) { isDragging = false; initialDist = Math.hypot(e.touches.clientX - e.touches.clientX, e.touches.clientY - e.touches.clientY); initialScale = scale; }
+    }, {passive: false});
 
-    let lastClickCoords = { x: 0, y: 0 };
-    let activeQuestId = null;
-    let detectedLocationName = "";
+    view.addEventListener('touchmove', e => {
+        e.preventDefault();
+        if (e.touches.length === 1 && isDragging) { posX = e.touches.clientX - startX; posY = e.touches.clientY - startY; }
+        else if (e.touches.length === 2 && initialDist) {
+            const currentDist = Math.hypot(e.touches.clientX - e.touches.clientX, e.touches.clientY - e.touches.clientY);
+            applyZoom((initialScale * (currentDist / initialDist)) - scale, (e.touches.clientX + e.touches.clientX)/2, (e.touches.clientY + e.touches.clientY)/2);
+        }
+        updateTransform();
+    }, {passive: false});
 
-    const mapContainer = document.getElementById('map-container');
-    const viewport = document.getElementById('viewport');
+    view.addEventListener('touchend', () => { isDragging = false; initialDist = null; });
+    view.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX - posX; startY = e.clientY - posY; container.style.transition = 'none'; });
+    window.addEventListener('mousemove', e => { if (isDragging) { posX = e.clientX - startX; posY = e.clientY - startY; updateTransform(); } });
+    window.addEventListener('mouseup', () => isDragging = false);
+    view.addEventListener('wheel', e => { e.preventDefault(); applyZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX, e.clientY); }, {passive:false});
 
-    window.onload = function() {
+    // ТУК-ТУК КЛИК С СИЯНИЕМ И УМНЫМ МАСШТАБОМ
+    view.addEventListener('click', e => {
+        if (state.members.length > 0 && state.currentUserIndex !== state.adminIndex) return;
+        const now = Date.now();
+        if (now - lastTap < 300) {
+            const rect = container.getBoundingClientRect();
+            const mapX = (e.clientX - rect.left) / scale, mapY = (e.clientY - rect.top) / scale;
+            let found = furnitureZones.find(f => Math.hypot(f.x - mapX, f.y - mapY) < f.r);
+            
+            if(found) {
+                const el = document.getElementById('obj-' + found.id);
+                if(el) { el.classList.add('highlight'); setTimeout(() => el.classList.remove('highlight'), 1000); }
+            }
+            oldPos = {s: scale, x: posX, y: posY};
+            applyZoom(1.4 - scale, e.clientX, e.clientY);
+            container.style.transition = 'transform 0.4s ease-out';
+            window.tempCoords = { x: mapX, y: mapY };
+            setTimeout(() => {
+                document.getElementById('furniture-hint').innerText = found ? `Объект: ${found.name}` : "Пустая зона комнат";
+                document.getElementById('createQuestModal').style.display='block';
+                document.getElementById('overlay').style.display='block';
+            }, 350);
+        }
+        lastTap = now;
+    });
+
+    // СИНХРОНИЗАЦИЯ ОБЛАКА JSON С GOOGLE SHEETS
+    async function syncData() {
+        document.getElementById('loader').style.display = 'flex';
+        try {
+            const response = await fetch(SCRIPT_URL);
+            const data = await response.json();
+            state.members = []; state.quests = [];
+            
+            for(let i = 1; i < data.length; i++) {
+                const row = data[i];
+                if (!row[0]) continue;
+                if(row[0] === 'member') state.members.push({name: row[1], points: parseInt(row[2]) || 0, avatar: row[3] || '👤'});
+                if(row[0] === 'quest') state.quests.push({text: row[1], x: parseFloat(row[2]), y: parseFloat(row[3])});
+                if(row[0] === 'config') { state.adminIndex = parseInt(row[2]) || 0; state.currentUserIndex = parseInt(row[3]) || 0; }
+            }
+            if(state.members.length === 0) { state.members.push({name: "Админ", points: 0, avatar: "👤"}); }
+            updateUI();
+        } catch (e) { console.error("Ошибка сети", e); }
         document.getElementById('loader').style.display = 'none';
-        initMapControls();
-        renderAppState();
-        centerMap();
-    };
-
-    function centerMap() {
-        const vRect = viewport.getBoundingClientRect();
-        panX = (vRect.width - 1000 * zoom) / 2;
-        panY = (vRect.height - 1000 * zoom) / 2;
-        updateTransform();
     }
 
-    function saveState() {
-        localStorage.setItem('familyQuestState', JSON.stringify(appState));
-        renderAppState();
-    }
-
-    function syncData() {
-        renderAppState();
-        alert("Данные успешно обновлены! 🔄");
-    }
-
-    function renderAppState() {
-        document.getElementById('current-user-name').innerText = `${appState.familyName}: ${appState.currentUser.name}`;
-        document.getElementById('current-avatar').innerText = appState.currentUser.avatar || "👤";
-        document.getElementById('score-val').innerText = appState.currentUser.score;
-
-        if(appState.currentUser.role === 'admin') {
-            document.getElementById('p-card').classList.add('is-admin');
-        } else {
-            document.getElementById('p-card').classList.remove('is-admin');
-        }
-
-        document.getElementById('family-name-input').value = appState.familyName;
-
-        const listDiv = document.getElementById('members-list');
-        listDiv.innerHTML = '';
-        appState.members.forEach((m, idx) => {
-            const isCurrent = m.name === appState.currentUser.name;
-            listDiv.innerHTML += `
-                <div class="member-item" style="${isCurrent ? 'border: 3px solid #00796b; background: #b2dfdb;' : ''}" onclick="switchProfile(${idx})">
-                    <span>${m.avatar || '👤'} <b>${m.name}</b> (${m.role === 'admin' ? 'Админ 👑' : 'Участник'}) — ⭐️ ${m.score}</span>
-                    ${idx > 0 ? `<button onclick="event.stopPropagation(); removeMember(${idx})" style="background:none; border:none; color:red; cursor:pointer; font-size:16px;">❌</button>` : ''}
-                </div>
-            `;
-        });
-
-        renderQuests();
-    }
-
-    function switchProfile(idx) {
-        appState.currentUser = appState.members[idx];
-        saveState();
-        alert(`Вы переключились на профиль: ${appState.currentUser.name} ${appState.currentUser.role === 'admin' ? '👑' : ''}`);
-    }
-
-    function saveFamilyName() {
-        const name = document.getElementById('family-name-input').value.trim();
-        if(name) {
-            appState.familyName = name;
-            saveState();
-            alert("Название семьи изменено! 🎉");
-        }
-    }
-
-    function renameCurrentPlayer() {
-        const newName = prompt("Введите новое имя профиля:", appState.currentUser.name);
-        if(newName && newName.trim()) {
-            const oldName = appState.currentUser.name;
-            
-            const index = appState.members.findIndex(m => m.name === oldName);
-            if(index !== -1) {
-                appState.members[index].name = newName.trim();
+    async function pushToCloud() {
+        try {
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'clear'}), mode: 'no-cors' });
+            for (let m of state.members) {
+                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'member', name: m.name, val1: m.points, val2: m.avatar}), mode: 'no-cors' });
             }
-            appState.currentUser.name = newName.trim();
-            saveState();
-        }
+            for (let q of state.quests) {
+                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'quest', name: q.text, val1: q.x, val2: q.y}), mode: 'no-cors' });
+            }
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'config', val1: state.adminIndex, val2: state.currentUserIndex}), mode: 'no-cors' });
+        } catch(e) { console.error(e); }
     }
 
-    function addNewMember() {
-        const nameInput = document.getElementById('new-member-name');
-        const roleSelect = document.getElementById('new-member-role');
-        const name = nameInput.value.trim();
+    function updateUI() {
+        const user = state.members[state.currentUserIndex] || state.members[0];
+        if(!user) return;
+        document.getElementById('current-user-name').innerText = user.name;
+        document.getElementById('score-val').innerText = user.points;
+        document.getElementById('current-avatar').innerText = user.avatar;
+        document.getElementById('p-card').classList.toggle('is-admin', state.currentUserIndex === state.adminIndex);
         
-        if(!name) {
-            alert("Введите имя участника!");
-            return;
-        }
-        
-        if(appState.members.some(m => m.name.toLowerCase() === name.toLowerCase())) {
-            alert("Участник с таким именем уже существует!");
-            return;
-        }
-
-        appState.members.push({
-            name: name,
-            role: roleSelect.value,
-            avatar: "👤",
-            score: 0
+        qBox.innerHTML = '';
+        state.quests.forEach((q, i) => {
+            const img = document.createElement('img'); img.src = 'arrow.png'; img.className = 'arrow';
+            img.style.left = q.x + 'px'; img.style.top = q.y + 'px';
+            img.onclick = e => { e.stopPropagation(); openQuest(i); };
+            qBox.appendChild(img);
         });
 
-        nameInput.value = '';
-        saveState();
-        alert("Участник успешно добавлен! 👍");
-    }
-
-    function removeMember(index) {
-        if(confirm("Удалить этого участника?")) {
-            if(appState.members[index].name === appState.currentUser.name) {
-                appState.currentUser = appState.members[0];
-            }
-            appState.members.splice(index, 1);
-            saveState();
-        }
-    }
-
-    function openAvatarPicker() {
-        document.getElementById('overlay').style.display = 'block';
-        document.getElementById('avatarModal').style.display = 'block';
-    }
-
-    function selectAvatar(emoji) {
-        appState.currentUser.avatar = emoji;
-        const index = appState.members.findIndex(m => m.name === appState.currentUser.name);
-        if(index !== -1) {
-            appState.members[index].avatar = emoji;
-        }
-        closeAll();
-        saveState();
-    }
-
-    function initMapControls() {
-        updateTransform();
-
-        // Двойной клик на ПК
-        mapContainer.addEventListener('dblclick', function(e) {
-            handleCreationGesture(e.clientX, e.clientY, e.target);
+        const fList = document.getElementById('family-list'); fList.innerHTML = '';
+        const sList = document.getElementById('switch-list'); sList.innerHTML = '<h3 style="color:#e65100">🔄 Сменить героя:</h3>';
+        state.members.forEach((m, i) => {
+            fList.innerHTML += `<div class="member-item"><span>${m.avatar} ${m.name} ${i===state.adminIndex?'👑':''}</span><div><button onclick="setAdmin(${i})" style="border:none;background:none;font-size:24px;">👑</button><button onclick="renameAnyMember(${i})" style="border:none;background:none;font-size:24px;">✏️</button></div></div>`;
+            if(i !== state.currentUserIndex) sList.innerHTML += `<button class="btn-choice" onclick="switchProfile(${i})">${m.name}</button>`;
         });
-
-        // Двойной тап на смартфонах
-        let lastTap = 0;
-        mapContainer.addEventListener('touchend', function(e) {
-            if (e.touches.length > 0) return; 
-            const currentTime = new Date().getTime();
-            const tapLength = currentTime - lastTap;
-            if (tapLength < 300 && tapLength > 0) {
-                const touch = e.changedTouches[0];
-                handleCreationGesture(touch.clientX, touch.clientY, e.target);
-                e.preventDefault();
-            }
-            lastTap = currentTime;
-        });
-
-        function handleCreationGesture(clientX, clientY, target) {
-            if (appState.currentUser.role !== 'admin') {
-                alert("Только Администратор 👑 может добавлять задания!");
-                return;
-            }
-            if (target.classList.contains('arrow')) return;
-
-            const rect = mapContainer.getBoundingClientRect();
-            const x = (clientX - rect.left) / zoom;
-            const y = (clientY - rect.top) / zoom;
-
-            lastClickCoords = { x, y };
-            
-            // Распознавание имени объекта/мебели по тегу или фону
-            detectedLocationName = "произвольное место";
-            if(target.classList.contains('layer') && target.getAttribute('data-name')) {
-                detectedLocationName = target.getAttribute('data-name');
-            }
-
-            document.getElementById('create-modal-title').innerText = `Задание: ${detectedLocationName} 📝`;
-            document.getElementById('overlay').style.display = 'block';
-            document.getElementById('createQuestModal').style.display = 'block';
-        }
-
-        // Зум в точку курсора колесиком мыши (ПК)
-        viewport.addEventListener('wheel', function(e) {
-            e.preventDefault();
-            const rect = mapContainer.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-
-            const zoomFactor = 0.08;
-            const oldZoom = zoom;
-
-            if (e.deltaY < 0) {
-                zoom = Math.min(2.5, zoom + zoomFactor);
-            } else {
-                zoom = Math.max(0.2, zoom - zoomFactor);
-            }
-
-            // Корректируем панораму, чтобы точка под курсором оставалась на месте
-            panX -= (mouseX / oldZoom) * (zoom - oldZoom);
-            panY -= (mouseY / oldZoom) * (zoom - oldZoom);
-
-            updateTransform();
-        }, { passive: false });
-
-        // Перетаскивание карты мышкой (ПК)
-        viewport.addEventListener('mousedown', (e) => {
-            if (e.target.classList.contains('z-btn') || e.target.closest('.top-bar') || e.target.closest('.modal')) return;
-            isDragging = true;
-            startX = e.clientX - panX;
-            startY = e.clientY - panY;
-        });
-
-        window.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            panX = e.clientX - startX;
-            panY = e.clientY - startY;
-            updateTransform();
-        });
-
-        window.addEventListener('mouseup', () => {
-            isDragging = false;
-        });
-
-        // Мультитач тач-события на смартфоне (Скролл + Зум в центр пальцев)
-        viewport.addEventListener('touchstart', (e) => {
-            const target = e.target;
-            if (target.classList.contains('z-btn') || target.closest('.top-bar') || target.closest('.modal')) return;
-
-            if (e.touches.length === 1) {
-                isDragging = true;
-                startX = e.touches[0].clientX - panX;
-                startY = e.touches[0].clientY - panY;
-            } else if (e.touches.length === 2) {
-                isDragging = false;
-                startDist = Math.hypot(
-                    e.touches[0].clientX - e.touches[1].clientX,
-                    e.touches[0].clientY - e.touches[1].clientY
-                );
-                startZoom = zoom;
-            }
-        });
-
-        viewport.addEventListener('touchmove', (e) => {
-            if (e.touches.length === 1 && isDragging) {
-                panX = e.touches[0].clientX - startX;
-                panY = e.touches[0].clientY - startY;
-                updateTransform();
-            } else if (e.touches.length === 2) {
-                const currentDist = Math.hypot(
-                    e.touches[0].clientX - e.touches[1].clientX,
-                    e.touches[0].clientY - e.touches[1].clientY
-                );
-                
-                const rect = mapContainer.getBoundingClientRect();
-                // Находим центр между двумя пальцами
-                const touchX = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - rect.left;
-                const touchY = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top;
-                
-                const oldZoom = zoom;
-                const factor = currentDist / startDist;
-                zoom = Math.max(0.2, Math.min(2.5, startZoom * factor));
-
-                panX -= (touchX / oldZoom) * (zoom - oldZoom);
-                panY -= (touchY / oldZoom) * (zoom - oldZoom);
-
-                updateTransform();
-            }
-        });
-
-        viewport.addEventListener('touchend', (e) => {
-            if (e.touches.length === 0) {
-                isDragging = false;
-            }
-        });
-    }
-
-    function btnZoom(amount, useCenter) {
-        const oldZoom = zoom;
-        zoom = Math.max(0.2, Math.min(2.5, zoom + amount));
-        
-        if (useCenter) {
-            const vRect = viewport.getBoundingClientRect();
-            const centerX = vRect.width / 2 - panX;
-            const centerY = vRect.height / 2 - panY;
-            panX -= (centerX / oldZoom) * (zoom - oldZoom);
-            panY -= (centerY / oldZoom) * (zoom - oldZoom);
-        }
-        updateTransform();
-    }
-
-    function updateTransform() {
-        mapContainer.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
     }
 
     function confirmCreateQuest() {
-        const textInput = document.getElementById('new-quest-text');
-        if(!textInput.value.trim()) {
-            alert("Введите описание задания!");
-            return;
-        }
-
-        const newQuest = {
-            id: Date.now(),
-            text: `${detectedLocationName}: ${textInput.value.trim()}`,
-            x: lastClickCoords.x,
-            y: lastClickCoords.y
-        };
-
-        appState.quests.push(newQuest);
-        textInput.value = '';
-        closeAll();
-        saveState();
+        const txt = document.getElementById('new-quest-text').value;
+        if(txt) { state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt }); document.getElementById('new-quest-text').value = ''; pushToCloud().then(updateUI); }
+        cancelQuest();
     }
+    function completeTask() { state.members[state.currentUserIndex].points += 10; state.quests.splice(window.activeIdx, 1); pushToCloud().then(updateUI); closeAll(); }
+    function addNewMember() { let n = prompt("Имя игрока:"); if(n) { state.members.push({name:n, points:0, avatar:'👤'}); pushToCloud().then(updateUI); } }
+    function renameCurrentPlayer() { let n = prompt("Имя:", state.members[state.currentUserIndex].name); if(n) { state.members[state.currentUserIndex].name = n; pushToCloud().then(updateUI); } }
+    function renameAnyMember(i) { let n = prompt("Имя:", state.members[i].name); if(n) { state.members[i].name = n; pushToCloud().then(updateUI); } }
+    function openAvatarPicker() { document.getElementById('avatarModal').style.display='block'; document.getElementById('overlay').style.display='block'; }
+    function setAvatar(e) { state.members[state.currentUserIndex].avatar = e; pushToCloud().then(() => { updateUI(); closeAll(); }); }
+    function cancelQuest() { scale = oldPos.s; posX = oldPos.x; posY = oldPos.y; container.style.transition = 'transform 0.4s'; updateTransform(); closeAll(); }
+    function openQuest(idx) { window.activeIdx = idx; document.getElementById('taskText').innerText = state.quests[idx].text; document.getElementById('taskModal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
+    function closeAll() { document.querySelectorAll('.modal').forEach(m=>m.style.display='none'); document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').style.display='none'; }
+    function toggleSidebar() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
+    function switchProfile(i) { state.currentUserIndex = i; pushToCloud().then(updateUI); closeAll(); }
+    function setAdmin(i) { state.adminIndex = i; pushToCloud().then(updateUI); }
 
-    function renderQuests() {
-        const container = document.getElementById('quest-arrows');
-        container.innerHTML = '';
-
-        appState.quests.forEach(q => {
-            const arrowEl = document.createElement('div');
-            arrowEl.className = 'arrow';
-            arrowEl.style.left = `${q.x}px`;
-            arrowEl.style.top = `${q.y}px`;
-            arrowEl.innerText = '📍';
-            arrowEl.onclick = function(e) {
-                e.stopPropagation();
-                openQuestTask(q.id);
-            };
-            container.appendChild(arrowEl);
-        });
-    }
-
-    function openQuestTask(id) {
-        const quest = appState.quests.find(q => q.id === id);
-        if(quest) {
-            activeQuestId = id;
-            document.getElementById('taskText').innerText = quest.text;
-            document.getElementById('overlay').style.display = 'block';
-            document.getElementById('taskModal').style.display = 'block';
-        }
-    }
-
-    function completeCurrentQuest() {
-        if(activeQuestId) {
-            appState.currentUser.score += 10;
-            const index = appState.members.findIndex(m => m.name === appState.currentUser.name);
-            if(index !== -1) {
-                appState.members[index].score = appState.currentUser.score;
-            }
-            appState.quests = appState.quests.filter(q => q.id !== activeQuestId);
-            activeQuestId = null;
-            closeAll();
-            saveState();
-            alert("Поздравляем! Вам начислено 10 очков! 🎉");
-        }
-    }
-
-    function deleteCurrentQuest() {
-        if(activeQuestId && confirm("Вы уверены, что хотите удалить это задание?")) {
-            appState.quests = appState.quests.filter(q => q.id !== activeQuestId);
-            activeQuestId = null;
-            closeAll();
-            saveState();
-        }
-    }
-
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('active');
-        if(document.getElementById('sidebar').classList.contains('active')) {
-            document.getElementById('overlay').style.display = 'block';
-        } else {
-            document.getElementById('overlay').style.display = 'none';
-        }
-    }
-
-    function closeAll() {
-        document.getElementById('overlay').style.display = 'none';
-        document.getElementById('createQuestModal').style.display = 'none';
-        document.getElementById('taskModal').style.display = 'none';
-        document.getElementById('avatarModal').style.display = 'none';
-        document.getElementById('sidebar').classList.remove('active');
-    }
+    const emojis = ['🐱','🐶','🦊','🐼','🐨','🐯','🦁','🦄','🐷','🐸','🐮','🦒'];
+    document.getElementById('emoji-grid').innerHTML = emojis.map(e => `<span onclick="setAvatar('${e}')" style="font-size:35px; cursor:pointer;">${e}</span>`).join('');
+    
+    syncData();
+    setTimeout(() => { posX = (view.offsetWidth - 1000*0.4)/2; posY = (view.offsetHeight - 1000*0.4)/2; scale=0.4; updateTransform(); }, 600);
 </script>
 </body>
 </html>
