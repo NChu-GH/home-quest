@@ -20,8 +20,8 @@
         .chat-btn { background: #4caf50; color: white; border-color: #2e7d32; }
 
         .map-viewport { flex: 1; width: 100%; position: relative; overflow: hidden; background: #cfd8dc; touch-action: none; border-top: 2px solid #004d40; }
-        #map-container { position: absolute; width: 1000px; height: 1000px; transform-origin: 0 0; cursor: crosshair; }
-        .layer { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; background-size: contain; background-repeat: no-repeat; }
+        #map-container { position: absolute; width: 1000px; height: 1000px; transform-origin: center center; cursor: crosshair; }
+        .layer { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; background-size: contain; background-repeat: no-repeat; pointer-events: auto; }
         
         #quest-arrows { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; z-index: 60; }
         .arrow { position: absolute; width: 45px; height: 45px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); pointer-events: auto; font-size: 35px; text-shadow: 0 4px 6px rgba(0,0,0,0.2); text-align: center; }
@@ -39,7 +39,8 @@
         .z-btn { width: 50px; height: 50px; border-radius: 15px; border: 4px solid #004d40; background: white; font-size: 26px; font-weight: bold; cursor: pointer; }
         .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #00796b; }
         
-        .member-item { display: flex; justify-content: space-between; align-items: center; background: #e0f2f1; padding: 8px 12px; border-radius: 12px; margin-bottom: 6px; font-size: 14px; }
+        .member-item { display: flex; justify-content: space-between; align-items: center; background: #e0f2f1; padding: 8px 12px; border-radius: 12px; margin-bottom: 6px; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .member-item:hover { background: #b2dfdb; }
         .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
         .avatar-option { font-size: 30px; cursor: pointer; padding: 5px; text-align: center; border: 2px solid transparent; border-radius: 10px; }
         .avatar-option:hover { background: #e0f7fa; border-color: #00796b; }
@@ -67,31 +68,32 @@
 
     <div class="map-viewport" id="viewport">
         <div id="map-container">
-            <div class="layer" style="background-image: url('Sanuzel1.png');"></div>
-            <div class="layer" style="background-image: url('Koridor.png');"></div>
-            <div class="layer" style="background-image: url('Gostinaya.png');"></div>
-            <div class="layer" style="background-image: url('Spalnya1.png');"></div>
-            <div class="layer" style="background-image: url('Spalnya2.png');"></div>
-            <div class="layer" style="background-image: url('Vannaya.png');"></div>
-            <div class="layer" style="background-image: url('Sanuzel2.png');"></div>
-            <div class="layer" style="background-image: url('Kuhnya.png');"></div>
-            <div class="layer" style="background-image: url('Balcon.png');"></div>
-            <div class="layer" style="background-image: url('Lapomoika.png');"></div>
-            <div class="layer" style="background-image: url('Unitaz1.png');"></div>
-            <div class="layer" style="background-image: url('Stiralka.png');"></div>
-            <div class="layer" style="background-image: url('Korzina.png');"></div>
-            <div class="layer" style="background-image: url('Tumbochka.png');"></div>
-            <div class="layer" style="background-image: url('Veshalka.png');"></div>
-            <div class="layer" style="background-image: url('Shkaf1.png');"></div>
-            <div class="layer" style="background-image: url('Shkaf2.png');"></div>
-            <div class="layer" style="background-image: url('Shkaf3.png');"></div>
-            <div class="layer" style="background-image: url('Shkaf4.png');"></div>
-            <div class="layer" style="background-image: url('Shkaf5.png');"></div>
+            <!-- Добавлены data-name для автоматического распознавания мебели и комнат -->
+            <div class="layer" data-name="Санузел 1" style="background-image: url('Sanuzel1.png');"></div>
+            <div class="layer" data-name="Коридор" style="background-image: url('Koridor.png');"></div>
+            <div class="layer" data-name="Гостиная" style="background-image: url('Gostinaya.png');"></div>
+            <div class="layer" data-name="Спальня 1" style="background-image: url('Spalnya1.png');"></div>
+            <div class="layer" data-name="Спальня 2" style="background-image: url('Spalnya2.png');"></div>
+            <div class="layer" data-name="Ванная" style="background-image: url('Vannaya.png');"></div>
+            <div class="layer" data-name="Санузел 2" style="background-image: url('Sanuzel2.png');"></div>
+            <div class="layer" data-name="Кухня" style="background-image: url('Kuhnya.png');"></div>
+            <div class="layer" data-name="Балкон" style="background-image: url('Balcon.png');"></div>
+            <div class="layer" data-name="Лапомойка" style="background-image: url('Lapomoika.png');"></div>
+            <div class="layer" data-name="Унитаз" style="background-image: url('Unitaz1.png');"></div>
+            <div class="layer" data-name="Стиральная машина" style="background-image: url('Stiralka.png');"></div>
+            <div class="layer" data-name="Корзина для белья" style="background-image: url('Korzina.png');"></div>
+            <div class="layer" data-name="Тумбочка" style="background-image: url('Tumbochka.png');"></div>
+            <div class="layer" data-name="Вешалка" style="background-image: url('Veshalka.png');"></div>
+            <div class="layer" data-name="Шкаф 1" style="background-image: url('Shkaf1.png');"></div>
+            <div class="layer" data-name="Шкаф 2" style="background-image: url('Shkaf2.png');"></div>
+            <div class="layer" data-name="Шкаф 3" style="background-image: url('Shkaf3.png');"></div>
+            <div class="layer" data-name="Шкаф 4" style="background-image: url('Shkaf4.png');"></div>
+            <div class="layer" data-name="Шкаф 5" style="background-image: url('Shkaf5.png');"></div>
             <div id="quest-arrows"></div>
         </div>
         <div class="zoom-controls">
-            <button class="z-btn" onclick="btnZoom(0.2)">+</button>
-            <button class="z-btn" onclick="btnZoom(-0.2)">−</button>
+            <button class="z-btn" onclick="btnZoom(0.2, true)">+</button>
+            <button class="z-btn" onclick="btnZoom(-0.2, true)">−</button>
         </div>
     </div>
 </div>
@@ -107,7 +109,7 @@
     <button class="btn-choice" style="background:#4caf50; color:white; font-size:16px; padding:8px;" onclick="saveFamilyName()">Сохранить название</button>
     <hr>
     
-    <h3>Участники</h3>
+    <h3>Участники (нажмите для переключения)</h3>
     <div id="members-list"></div>
     
     <h4>Добавить участника</h4>
@@ -124,7 +126,7 @@
 
 <!-- Модальное окно создания задания -->
 <div id="createQuestModal" class="modal">
-    <h2>Создать задание 📝</h2>
+    <h2 id="create-modal-title">Создать задание 📝</h2>
     <input type="text" id="new-quest-text" placeholder="Что нужно сделать?">
     <button class="btn-choice" style="background:#4caf50; color:white;" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button>
     <button class="btn-choice" onclick="closeAll()">ОТМЕНА ❌</button>
@@ -157,15 +159,20 @@
 </div>
 
 <script>
-    let appState = JSON.parse(localStorage.getItem('familyQuestState')) || {
-        familyName: "Наша семья",
-        currentUser: { name: "Мама", role: "admin", avatar: "👩‍🦰", score: 0 },
-        members: [
+    // Корректная глубокая инициализация без перезаписи профиля
+    let appState = JSON.parse(localStorage.getItem('familyQuestState')) || {};
+    
+    if (!appState.familyName) appState.familyName = "Наша семья";
+    if (!appState.members || appState.members.length === 0) {
+        appState.members = [
             { name: "Мама", role: "admin", avatar: "👩‍🦰", score: 0 },
             { name: "Папа", role: "member", avatar: "👨", score: 0 }
-        ],
-        quests: []
-    };
+        ];
+    }
+    if (!appState.currentUser) {
+        appState.currentUser = appState.members[0];
+    }
+    if (!appState.quests) appState.quests = [];
 
     let zoom = 0.6;
     let panX = 0, panY = 0;
@@ -178,6 +185,7 @@
 
     let lastClickCoords = { x: 0, y: 0 };
     let activeQuestId = null;
+    let detectedLocationName = "";
 
     const mapContainer = document.getElementById('map-container');
     const viewport = document.getElementById('viewport');
@@ -186,7 +194,15 @@
         document.getElementById('loader').style.display = 'none';
         initMapControls();
         renderAppState();
+        centerMap();
     };
+
+    function centerMap() {
+        const vRect = viewport.getBoundingClientRect();
+        panX = (vRect.width - 1000 * zoom) / 2;
+        panY = (vRect.height - 1000 * zoom) / 2;
+        updateTransform();
+    }
 
     function saveState() {
         localStorage.setItem('familyQuestState', JSON.stringify(appState));
@@ -214,15 +230,22 @@
         const listDiv = document.getElementById('members-list');
         listDiv.innerHTML = '';
         appState.members.forEach((m, idx) => {
+            const isCurrent = m.name === appState.currentUser.name;
             listDiv.innerHTML += `
-                <div class="member-item">
+                <div class="member-item" style="${isCurrent ? 'border: 3px solid #00796b; background: #b2dfdb;' : ''}" onclick="switchProfile(${idx})">
                     <span>${m.avatar || '👤'} <b>${m.name}</b> (${m.role === 'admin' ? 'Админ 👑' : 'Участник'}) — ⭐️ ${m.score}</span>
-                    ${idx > 0 ? `<button onclick="removeMember(${idx})" style="background:none; border:none; color:red; cursor:pointer;">❌</button>` : ''}
+                    ${idx > 0 ? `<button onclick="event.stopPropagation(); removeMember(${idx})" style="background:none; border:none; color:red; cursor:pointer; font-size:16px;">❌</button>` : ''}
                 </div>
             `;
         });
 
         renderQuests();
+    }
+
+    function switchProfile(idx) {
+        appState.currentUser = appState.members[idx];
+        saveState();
+        alert(`Вы переключились на профиль: ${appState.currentUser.name} ${appState.currentUser.role === 'admin' ? '👑' : ''}`);
     }
 
     function saveFamilyName() {
@@ -238,12 +261,12 @@
         const newName = prompt("Введите новое имя профиля:", appState.currentUser.name);
         if(newName && newName.trim()) {
             const oldName = appState.currentUser.name;
-            appState.currentUser.name = newName.trim();
             
             const index = appState.members.findIndex(m => m.name === oldName);
             if(index !== -1) {
                 appState.members[index].name = newName.trim();
             }
+            appState.currentUser.name = newName.trim();
             saveState();
         }
     }
@@ -251,14 +274,20 @@
     function addNewMember() {
         const nameInput = document.getElementById('new-member-name');
         const roleSelect = document.getElementById('new-member-role');
+        const name = nameInput.value.trim();
         
-        if(!nameInput.value.trim()) {
+        if(!name) {
             alert("Введите имя участника!");
+            return;
+        }
+        
+        if(appState.members.some(m => m.name.toLowerCase() === name.toLowerCase())) {
+            alert("Участник с таким именем уже существует!");
             return;
         }
 
         appState.members.push({
-            name: nameInput.value.trim(),
+            name: name,
             role: roleSelect.value,
             avatar: "👤",
             score: 0
@@ -271,6 +300,9 @@
 
     function removeMember(index) {
         if(confirm("Удалить этого участника?")) {
+            if(appState.members[index].name === appState.currentUser.name) {
+                appState.currentUser = appState.members[0];
+            }
             appState.members.splice(index, 1);
             saveState();
         }
@@ -299,7 +331,7 @@
             handleCreationGesture(e.clientX, e.clientY, e.target);
         });
 
-        // Двойной тап на телефоне
+        // Двойной тап на смартфонах
         let lastTap = 0;
         mapContainer.addEventListener('touchend', function(e) {
             if (e.touches.length > 0) return; 
@@ -326,23 +358,41 @@
 
             lastClickCoords = { x, y };
             
+            // Распознавание имени объекта/мебели по тегу или фону
+            detectedLocationName = "произвольное место";
+            if(target.classList.contains('layer') && target.getAttribute('data-name')) {
+                detectedLocationName = target.getAttribute('data-name');
+            }
+
+            document.getElementById('create-modal-title').innerText = `Задание: ${detectedLocationName} 📝`;
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('createQuestModal').style.display = 'block';
         }
 
-        // Зум колесиком мыши (ПК)
+        // Зум в точку курсора колесиком мыши (ПК)
         viewport.addEventListener('wheel', function(e) {
             e.preventDefault();
-            const zoomFactor = 0.05;
+            const rect = mapContainer.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            const zoomFactor = 0.08;
+            const oldZoom = zoom;
+
             if (e.deltaY < 0) {
-                zoom = Math.min(2.0, zoom + zoomFactor);
+                zoom = Math.min(2.5, zoom + zoomFactor);
             } else {
-                zoom = Math.max(0.3, zoom - zoomFactor);
+                zoom = Math.max(0.2, zoom - zoomFactor);
             }
+
+            // Корректируем панораму, чтобы точка под курсором оставалась на месте
+            panX -= (mouseX / oldZoom) * (zoom - oldZoom);
+            panY -= (mouseY / oldZoom) * (zoom - oldZoom);
+
             updateTransform();
         }, { passive: false });
 
-        // Drag & Drop мыши (ПК)
+        // Перетаскивание карты мышкой (ПК)
         viewport.addEventListener('mousedown', (e) => {
             if (e.target.classList.contains('z-btn') || e.target.closest('.top-bar') || e.target.closest('.modal')) return;
             isDragging = true;
@@ -361,7 +411,7 @@
             isDragging = false;
         });
 
-        // Тач-события смартфона (скролл и Pinch-to-Zoom)
+        // Мультитач тач-события на смартфоне (Скролл + Зум в центр пальцев)
         viewport.addEventListener('touchstart', (e) => {
             const target = e.target;
             if (target.classList.contains('z-btn') || target.closest('.top-bar') || target.closest('.modal')) return;
@@ -390,8 +440,19 @@
                     e.touches[0].clientX - e.touches[1].clientX,
                     e.touches[0].clientY - e.touches[1].clientY
                 );
+                
+                const rect = mapContainer.getBoundingClientRect();
+                // Находим центр между двумя пальцами
+                const touchX = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - rect.left;
+                const touchY = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top;
+                
+                const oldZoom = zoom;
                 const factor = currentDist / startDist;
-                zoom = Math.max(0.3, Math.min(2.0, startZoom * factor));
+                zoom = Math.max(0.2, Math.min(2.5, startZoom * factor));
+
+                panX -= (touchX / oldZoom) * (zoom - oldZoom);
+                panY -= (touchY / oldZoom) * (zoom - oldZoom);
+
                 updateTransform();
             }
         });
@@ -403,8 +464,17 @@
         });
     }
 
-    function btnZoom(amount) {
-        zoom = Math.max(0.3, Math.min(2.0, zoom + amount));
+    function btnZoom(amount, useCenter) {
+        const oldZoom = zoom;
+        zoom = Math.max(0.2, Math.min(2.5, zoom + amount));
+        
+        if (useCenter) {
+            const vRect = viewport.getBoundingClientRect();
+            const centerX = vRect.width / 2 - panX;
+            const centerY = vRect.height / 2 - panY;
+            panX -= (centerX / oldZoom) * (zoom - oldZoom);
+            panY -= (centerY / oldZoom) * (zoom - oldZoom);
+        }
         updateTransform();
     }
 
@@ -421,7 +491,7 @@
 
         const newQuest = {
             id: Date.now(),
-            text: textInput.value.trim(),
+            text: `${detectedLocationName}: ${textInput.value.trim()}`,
             x: lastClickCoords.x,
             y: lastClickCoords.y
         };
