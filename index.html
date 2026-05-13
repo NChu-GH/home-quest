@@ -1,360 +1,63 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Home Quest 🏡</title>
-    <style>
-        /* --- Фирменный UI/UX стиль строго из ТЗ --- */
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: none;
-        }
-        
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #f0f4f8;
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .phone-container {
-            width: 100%;
-            max-width: 500px;
-            height: 100vh;
-            background-color: #ffffff;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* --- Область интерактивной карты --- */
-        .map-viewport {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            background-color: #eaeaea;
-            cursor: grab;
-        }
-        .map-viewport:active {
-            cursor: grabbing;
-        }
-
-        .map-container {
-            width: 1000px;
-            height: 1000px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            transform-origin: 0 0;
-            will-change: transform;
-        }
-
-        .layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 1000px;
-            height: 1000px;
-            pointer-events: none;
-        }
-
-        .furniture {
-            pointer-events: auto;
-            cursor: pointer;
-            transition: filter 0.2s ease;
-        }
-
-        .furniture.highlighted {
-            filter: drop-shadow(0 0 15px #00cbd6) brightness(1.3) !important;
-        }
-
-        .quest-arrow {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            pointer-events: none;
-            z-index: 10;
-            transform: translate(-50%, -50%);
-            transition: transform 0.3s ease;
-        }
-
-        /* --- Кнопки интерфейса поверх карты --- */
-        .top-ui-layer {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            right: 15px;
-            display: flex;
-            justify-content: space-between;
-            z-index: 80;
-            pointer-events: none;
-        }
-        .ui-round-btn {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            background: #00796b;
-            border: 3px solid #ffffff;
-            color: white;
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            pointer-events: auto;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            transition: transform 0.1s;
-        }
-        .ui-round-btn:active {
-            transform: scale(0.9);
-        }
-
-        /* --- Боковые выдвижные панели --- */
-        .side-panel {
-            position: absolute;
-            top: 0;
-            width: 85%;
-            max-width: 400px;
-            height: 100%;
-            background: #ffffff;
-            z-index: 95;
-            box-shadow: 0 0 20px rgba(0,0,0,0.3);
-            transition: transform 0.3s ease;
-            display: flex;
-            flex-direction: column;
-        }
-        #panelMenu { left: 0; transform: translateX(-100%); border-right: 6px solid #00796b; border-top-right-radius: 35px; border-bottom-right-radius: 35px;}
-        #panelChat { right: 0; transform: translateX(100%); border-left: 6px solid #00796b; border-top-left-radius: 35px; border-bottom-left-radius: 35px;}
-        
-        .side-panel.open {
-            transform: translateX(0) !important;
-        }
-
-        .panel-header {
-            background: #00796b;
-            color: white;
-            padding: 20px;
-            font-size: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .panel-content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            touch-action: pan-y;
-        }
-
-        /* --- Компоненты настроек профиля и семьи --- */
-        .avatar-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .avatar-img {
-            width: 90px;
-            height: 90px;
-            border: 4px solid #00796b;
-            border-radius: 50%;
-            object-fit: cover;
-            background: #eee;
-            margin-bottom: 8px;
-        }
-        .admin-badge {
-            background: #ffb300;
-            color: #000;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .bonus-badge {
-            background: #e0f2f1;
-            border: 2px solid #00796b;
-            color: #004d40;
-            padding: 10px;
-            border-radius: 15px;
-            font-size: 18px;
-            text-align: center;
-            margin: 10px 0;
-            font-weight: bold;
-        }
-        .member-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px dashed #b2dfdb;
-        }
-        .member-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .member-icon {
-            width: 32px;
-            height: 32px;
-            background: #b2dfdb;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .btn-delete {
-            background: none;
-            border: none;
-            color: #e57373;
-            cursor: pointer;
-            font-size: 16px;
-            padding: 5px;
-        }
-
-        /* --- Интерфейс Семейного Чата --- */
-        .chat-box {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        .chat-history {
-            flex: 1;
-            background: #f7f9fa;
-            border: 3px solid #b2dfdb;
-            border-radius: 20px;
-            padding: 10px;
-            overflow-y: auto;
-            margin-bottom: 10px;
-            touch-action: pan-y;
-        }
-        .chat-input-row {
-            display: flex;
-            gap: 5px;
-        }
-        .msg-bubble {
-            margin-bottom: 8px;
-            padding: 8px 12px;
-            border-radius: 15px;
-            max-width: 85%;
-            font-size: 14px;
-            word-wrap: break-word;
-        }
-        .msg-bubble.my { background: #e0f2f1; align-self: flex-end; margin-left: auto; border-bottom-right-radius: 2px;}
-        .msg-bubble.other { background: #ffffff; border: 1px solid #e0e0e0; align-self: flex-start; border-bottom-left-radius: 2px;}
-
-        /* --- Всплывающие модальные окна --- */
-        .modal-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            padding: 20px;
-        }
-
-        .modal-window {
-            background: #ffffff;
-            width: 100%;
-            max-width: 400px;
-            border: 6px solid #00796b;
-            border-radius: 35px;
-            padding: 25px;
-            text-align: center;
-            animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes popUp {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .modal-title {
-            font-size: 22px;
-            color: #00796b;
-            margin-top: 0;
-            margin-bottom: 15px;
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 12px 20px;
-            margin: 10px 0;
-            border: 3px solid #b2dfdb;
-            border-radius: 15px;
-            font-family: inherit;
-            font-size: 16px;
-            outline: none;
-        }
-        .input-field:focus {
-            border-color: #00796b;
-        }
-
-        .select-field {
-            width: 100%;
-            padding: 12px 20px;
-            margin: 10px 0;
-            border: 3px solid #b2dfdb;
-            border-radius: 15px;
-            font-family: inherit;
-            font-size: 16px;
-            background: white;
-            outline: none;
-        }
-
-        .btn {
-            background-color: #00796b;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-family: inherit;
-            margin: 5px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 0 #004d40;
-            transition: transform 0.1s, box-shadow 0.1s;
-        }
-        .btn:active { transform: translateY(4px); box-shadow: 0 0px 0 #004d40; }
-        .btn-cancel { background-color: #e57373; box-shadow: 0 4px 0 #b71c1c; }
-        .btn-sm { padding: 6px 14px; font-size: 13px; border-radius: 12px; box-shadow: 0 2px 0 #004d40; }
-        .btn-cash { background-color: #4caf50; box-shadow: 0 4px 0 #2e7d32; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Home Quest 🏡</title>
+<style>
+*{box-sizing:border-box;user-select:none;-webkit-user-select:none;touch-action:none;}
+body{margin:0;padding:0;background-color:#f0f4f8;font-family:'Comic Sans MS',cursive,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;overflow:hidden;}
+.phone-container{width:100%;max-width:500px;height:100vh;background-color:#ffffff;position:relative;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.15);display:flex;flex-direction:column;}
+.map-viewport{flex:1;position:relative;overflow:hidden;background-color:#eaeaea;cursor:grab;}
+.map-viewport:active{cursor:grabbing;}
+.map-container{width:1000px;height:1000px;position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform;}
+.layer{position:absolute;top:0;left:0;width:1000px;height:1000px;pointer-events:none;}
+.furniture{pointer-events:auto;cursor:pointer;transition:filter 0.2s ease;}
+.furniture.highlighted{filter:drop-shadow(0 0 15px #00cbd6) brightness(1.3)!important;}
+.quest-arrow{position:absolute;width:50px;height:50px;pointer-events:none;z-index:10;transform:translate(-50%,-50%);transition:transform 0.3s ease;}
+.top-ui-layer{position:absolute;top:15px;left:15px;right:15px;display:flex;justify-content:space-between;z-index:80;pointer-events:none;}
+.ui-round-btn{width:55px;height:55px;border-radius:50%;background:#00796b;border:3px solid #ffffff;color:white;font-size:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;box-shadow:0 4px 10px rgba(0,0,0,0.2);transition:transform 0.1s;}
+.ui-round-btn:active{transform:scale(0.9);}
+.side-panel{position:absolute;top:0;width:85%;max-width:400px;height:100%;background:#ffffff;z-index:95;box-shadow:0 0 20px rgba(0,0,0,0.3);transition:transform 0.3s ease;display:flex;flex-direction:column;}
+#panelMenu{left:0;transform:translateX(-100%);border-right:6px solid #00796b;border-top-right-radius:35px;border-bottom-right-radius:35px;}
+#panelChat{right:0;transform:translateX(100%);border-left:6px solid #00796b;border-top-left-radius:35px;border-bottom-left-radius:35px;}
+.side-panel.open{transform:translateX(0)!important;}
+.panel-header{background:#00796b;color:white;padding:20px;font-size:20px;display:flex;justify-content:space-between;align-items:center;}
+.panel-content{flex:1;padding:20px;overflow-y:auto;touch-action:pan-y;}
+.avatar-container{display:flex;flex-direction:column;align-items:center;margin-bottom:15px;}
+.avatar-img{width:90px;height:90px;border:4px solid #00796b;border-radius:50%;object-fit:cover;background:#eee;margin-bottom:8px;}
+.admin-badge{background:#ffb300;color:#000;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:bold;margin-bottom:10px;}
+.member-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #b2dfdb;}
+.member-info{display:flex;align-items:center;gap:10px;}
+.member-icon{width:32px;height:32px;background:#b2dfdb;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.btn-delete{background:none;border:none;color:#e57373;cursor:pointer;font-size:16px;padding:5px;}
+.chat-box{display:flex;flex-direction:column;height:100%;}
+.chat-history{flex:1;background:#f7f9fa;border:3px solid #b2dfdb;border-radius:20px;padding:10px;overflow-y:auto;margin-bottom:10px;touch-action:pan-y;}
+.chat-input-row{display:flex;gap:5px;}
+.msg-bubble{margin-bottom:8px;padding:8px 12px;border-radius:15px;max-width:85%;font-size:14px;word-wrap:break-word;}
+.msg-bubble.my{background:#e0f2f1;align-self:flex-end;margin-left:auto;border-bottom-right-radius:2px;}
+.msg-bubble.other{background:#ffffff;border:1px solid #e0e0e0;align-self:flex-start;border-bottom-left-radius:2px;}
+.modal-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:none;justify-content:center;align-items:center;z-index:100;padding:20px;}
+.modal-window{background:#ffffff;width:100%;max-width:400px;border:6px solid #00796b;border-radius:35px;padding:25px;text-align:center;animation:popUp 0.3s cubic-bezier(0.175,0.885,0.32,1.275);}
+@keyframes popUp{from{transform:scale(0.8);opacity:0;}to{transform:scale(1);opacity:1;}}
+.modal-title{font-size:22px;color:#00796b;margin-top:0;margin-bottom:15px;}
+.input-field{width:100%;padding:12px 20px;margin:10px 0;border:3px solid #b2dfdb;border-radius:15px;font-family:inherit;font-size:16px;outline:none;}
+.input-field:focus{border-color:#00796b;}
+.btn{background-color:#00796b;color:white;border:none;padding:12px 24px;font-size:16px;border-radius:20px;cursor:pointer;font-family:inherit;margin:5px;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 0 #004d40;transition:transform 0.1s,box-shadow 0.1s;}
+.btn:active{transform:translateY(4px);box-shadow:0 0px 0 #004d40;}
+.btn-cancel{background-color:#e57373;box-shadow:0 4px 0 #b71c1c;}
+.btn-sm{padding:6px 14px;font-size:13px;border-radius:12px;box-shadow:0 2px 0 #004d40;}
+</style>
 </head>
 <body>
-
 <div class="phone-container">
-
-    <!-- Кнопки управления поверх карты -->
     <div class="top-ui-layer">
-        <button class="ui-round-btn" onclick="togglePanel('panelMenu', true)">⚙️</button>
-        <div id="mainFamilyTitle" style="pointer-events:auto; background:rgba(0,121,107,0.9); color:white; padding:8px 16px; border-radius:20px; font-size:14px; align-self:center; border:2px solid white;">Наша Семья 🏡</div>
-        <button class="ui-round-btn" onclick="togglePanel('panelChat', true)">💬</button>
+        <button class="ui-round-btn" onclick="togglePanel('panelMenu',true)">⚙️</button>
+        <div id="mainFamilyTitle" style="pointer-events:auto;background:rgba(0,121,107,0.9);color:white;padding:8px 16px;border-radius:20px;font-size:14px;align-self:center;border:2px solid white;">Наша Семья 🏡</div>
+        <button class="ui-round-btn" onclick="togglePanel('panelChat',true)">💬</button>
     </div>
-
-    <!-- Область карты -->
     <div class="map-viewport" id="viewport">
         <div class="map-container" id="mapContainer">
-            
-            <!-- Базовый слой комнат (9 шт.) -->
             <img src="Sanuzel1.png" class="layer" alt="Sanuzel1">
             <img src="Koridor.png" class="layer" alt="Koridor">
             <img src="Gostinaya.png" class="layer" alt="Gostinaya">
@@ -364,8 +67,6 @@
             <img src="Sanuzel2.png" class="layer" alt="Sanuzel2">
             <img src="Kuhnya.png" class="layer" alt="Kuhnya">
             <img src="Balcon.png" class="layer" alt="Balcon">
-
-            <!-- Слой мебели (11 шт.) -->
             <img src="Lapomoika.png" class="layer furniture" id="Lapomoika" alt="Lapomoika">
             <img src="Unitaz1.png" class="layer furniture" id="Unitaz1" alt="Unitaz1">
             <img src="Stiralka.png" class="layer furniture" id="Stiralka" alt="Stiralka">
@@ -377,284 +78,225 @@
             <img src="Shkaf3.png" class="layer furniture" id="Shkaf3" alt="Shkaf3">
             <img src="Shkaf4.png" class="layer furniture" id="Shkaf4" alt="Shkaf4">
             <img src="Shkaf5.png" class="layer furniture" id="Shkaf5" alt="Shkaf5">
-
-            <!-- Квестовая стрелка -->
             <img src="arrow.png" class="quest-arrow" id="questArrow" style="display:none;" alt="arrow">
         </div>
     </div>
-
-    <!-- ВЫДВИЖНАЯ ПАНЕЛЬ СЛЕВА: НАСТРОЙКИ, ПРОФИЛЬ, БОНУСЫ И СЕМЬЯ -->
     <div id="panelMenu" class="side-panel">
         <div class="panel-header">
-            <span>Настройки и Бонусы 🏡</span>
-            <span style="cursor:pointer;" onclick="togglePanel('panelMenu', false)">❌</span>
+            <span>Настройки 🏡</span>
+            <span style="cursor:pointer;" onclick="togglePanel('panelMenu',false)">❌</span>
         </div>
         <div class="panel-content">
-            <!-- Блок Профиля и Счета Монет -->
-            <div style="background:#f0fdfa; border:3px solid #b2dfdb; border-radius:20px; padding:15px; margin-bottom:15px;">
-                <h4 style="margin:0 0 10px 0; color:#00796b;">Мой Профиль 👤</h4>
+            <div style="background:#f0fdfa;border:3px solid #b2dfdb;border-radius:20px;padding:15px;margin-bottom:15px;">
+                <h4 style="margin:0 0 10px 0;color:#00796b;">Мой Профиль 👤</h4>
                 <div class="avatar-container">
                     <div class="admin-badge">Роль: Администратор 👑</div>
                     <img src="" id="userAvatar" class="avatar-img" alt="Аватар">
                     <button class="btn btn-sm" onclick="document.getElementById('fileInput').click()">📷 Изменить фото</button>
                     <input type="file" id="fileInput" style="display:none;" accept="image/*">
                 </div>
-                
-                <!-- Монеты и Банковские операции -->
-                <div class="bonus-badge">Мои Бонусы: <span id="bonusCount">0</span> 🪙</div>
-                <div style="display: flex; justify-content: center; gap: 5px; margin-bottom: 15px;">
-                    <button class="btn btn-sm btn-cash" id="btnExchangeCash">💵 Обменять на кэш</button>
+                <div style="background:#e0f2f1;border:2px solid #00796b;border-radius:15px;padding:10px;margin:10px 0;text-align:center;">
+                    <span style="font-size:14px;color:#004d40;">Ваш баланс:</span>
+                    <div style="font-size:22px;font-weight:bold;color:#00796b;"><span id="bonusBalanceDisplay">0</span> 🪙</div>
                 </div>
-
-                <!-- Форма Передачи Бонусов -->
-                <div style="border-top: 1px dashed #b2dfdb; padding-top: 10px;">
-                    <label style="font-size:13px; color:#004d40;">Передать другому участнику:</label>
-                    <select id="transferTargetSelect" class="select-field" style="padding:6px; font-size:14px; margin:5px 0;"></select>
-                    <div style="display:flex; gap:5px;">
-                        <input type="number" id="transferAmountInput" class="input-field" style="margin:0; padding:6px;" placeholder="Сумма монеток...">
-                        <button class="btn btn-sm" id="btnSendBonuses">🚀 Послать</button>
-                    </div>
-                </div>
-
-                <label style="display:block; margin-top:15px;">Ваше Имя:</label>
+                <label>Ваше Имя:</label>
                 <input type="text" id="userNameInput" class="input-field" placeholder="Ваше имя...">
                 <button class="btn btn-sm" id="btnSaveProfile">✅ Сохранить имя</button>
+                <div style="margin-top:10px;display:flex;gap:5px;justify-content:center;">
+                    <button class="btn btn-sm" style="background:#2e7d32;" onclick="actionCashOut()">💵 В кэш</button>
+                    <button class="btn btn-sm" style="background:#0277bd;" onclick="actionTransferBonus()">🎁 Передать</button>
+                </div>
             </div>
-
-            <!-- Блок Управления Семьей -->
-            <div style="background:#f0fdfa; border:3px solid #b2dfdb; border-radius:20px; padding:15px;">
-                <h4 style="margin:0 0 10px 0; color:#00796b;">Управление Семьей 🏡</h4>
+            <div style="background:#f0fdfa;border:3px solid #b2dfdb;border-radius:20px;padding:15px;">
+                <h4 style="margin:0 0 10px 0;color:#00796b;">Управление Семьей 🏡</h4>
                 <label>Название Семьи:</label>
                 <input type="text" id="familyNameInput" class="input-field" placeholder="Название семьи...">
                 <button class="btn btn-sm" id="btnSaveFamilyName" style="margin-bottom:15px;">✅ Обновить название</button>
-                
                 <label>Список участников:</label>
                 <div id="membersContainer" style="margin-top:5px;"></div>
-                <div style="display:flex; gap:5px; margin-top:10px;">
-                    <input type="text" id="newMemberName" class="input-field" style="margin:0; padding:8px 12px; font-size:14px;" placeholder="Имя участника...">
+                <div style="display:flex;gap:5px;margin-top:10px;">
+                    <input type="text" id="newMemberName" class="input-field" style="margin:0;padding:8px 12px;font-size:14px;" placeholder="Имя участника...">
                     <button class="btn btn-sm" id="btnAddMember" style="margin:0;">➕</button>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- ВЫДВИЖНАЯ ПАНЕЛЬ СПРАВА: СЕМЕЙНЫЙ ЧАТ -->
     <div id="panelChat" class="side-panel">
         <div class="panel-header">
             <span>Семейный Чат 💬</span>
-            <span style="cursor:pointer;" onclick="togglePanel('panelChat', false)">❌</span>
+            <span style="cursor:pointer;" onclick="togglePanel('panelChat',false)">❌</span>
         </div>
         <div class="panel-content chat-box">
             <div id="chatHistory" class="chat-history"></div>
             <div class="chat-input-row">
                 <input type="text" id="chatMessageInput" class="input-field" style="margin:0;" placeholder="Сообщение...">
-                <button class="btn" id="btnSendMessage" style="margin:0; padding:0 20px;">🚀</button>
+                <button class="btn" id="btnSendMessage" style="margin:0;padding:0 20px;">🚀</button>
             </div>
         </div>
     </div>
-
-    <!-- Модальное окно администратора (Форма объекта квеста) -->
     <div class="modal-overlay" id="adminModal">
         <div class="modal-window">
             <h3 class="modal-title" id="modalTitle">Мебель 🏡</h3>
             <p>Назначить задание для этого объекта:</p>
             <input type="text" id="questInput" class="input-field" placeholder="Введите квест...">
-            <div style="margin-top: 15px;">
+            <div style="margin-top:15px;">
                 <button class="btn" id="btnSave">✅ Сохранить</button>
                 <button class="btn btn-cancel" id="btnCancel">🔙 Отмена</button>
             </div>
         </div>
     </div>
 </div>
-
 <script>
-    // --- Локальное хранилище данных ---
-    let myProfile = JSON.parse(localStorage.getItem('hq_myProfile')) || { name: "Администратор", avatar: "", bonuses: 1000 };
-    let familySettings = JSON.parse(localStorage.getItem('hq_familySettings')) || { title: "Наша Семья", members: [], memberBalances: {} };
-    let chatStorage = JSON.parse(localStorage.getItem('hq_chatStorage')) || [{ user: "Система", text: "Чат активирован! Назначайте квесты и зарабатывайте бонусы 🪙" }];
-    let questData = {};
-
-    let state = { zoom: 0.5, panX: 0, panY: 0, isDragging: false, startX: 0, startY: 0 };
-    let lastTap = 0, currentSelectedTarget = null, originalTransformBeforeZoom = null;
-
-    const viewport = document.getElementById('viewport');
-    const mapContainer = document.getElementById('mapContainer');
-    const adminModal = document.getElementById('adminModal');
-    const questInput = document.getElementById('questInput');
-    const modalTitle = document.getElementById('modalTitle');
-    const questArrow = document.getElementById('questArrow');
-
-    function togglePanel(panelId, open) {
-        document.getElementById(panelId).classList.toggle('open', open);
+let myProfile=JSON.parse(localStorage.getItem('hq_myProfile'))||{name:"Администратор",avatar:""};
+let familySettings=JSON.parse(localStorage.getItem('hq_familySettings'))||{title:"Наша Семья",members:[]};
+let chatStorage=JSON.parse(localStorage.getItem('hq_chatStorage'))||[{user:"Система",text:"Чат активирован! 🚀"}];
+let userBonuses=parseInt(localStorage.getItem('hq_userBonuses'))||150;
+let questData={};
+let state={zoom:0.5,panX:0,panY:0,isDragging:false,startX:0,startY:0};
+let lastTap=0,currentSelectedTarget=null,originalTransformBeforeZoom=null;
+const viewport=document.getElementById('viewport');
+const mapContainer=document.getElementById('mapContainer');
+const adminModal=document.getElementById('adminModal');
+const questInput=document.getElementById('questInput');
+const modalTitle=document.getElementById('modalTitle');
+const questArrow=document.getElementById('questArrow');
+function togglePanel(panelId,open){document.getElementById(panelId).classList.toggle('open',open);}
+function initMapPosition(){
+    const viewRect=viewport.getBoundingClientRect();
+    state.zoom=viewRect.width/1000;state.panX=0;state.panY=(viewRect.height-(1000*state.zoom))/2;
+    updateTransform();
+}
+function updateTransform(){mapContainer.style.transform=`translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;}
+viewport.addEventListener('click',function(e){
+    const now=Date.now();const targetFurniture=e.target.closest('.furniture');
+    if((now-lastTap)<300){
+        if(targetFurniture){
+            e.preventDefault();targetFurniture.classList.add('highlighted');
+            setTimeout(()=>targetFurniture.classList.remove('highlighted'),1000);
+            originalTransformBeforeZoom={zoom:state.zoom,panX:state.panX,panY:state.panY};
+            const rect=mapContainer.getBoundingClientRect();
+            const clickX=(e.clientX-rect.left)/state.zoom;const clickY=(e.clientY-rect.top)/state.zoom;
+            state.zoom=1.2;const viewRect=viewport.getBoundingClientRect();
+            state.panX=viewRect.width/2-clickX*state.zoom;state.panY=viewRect.height/2-clickY*state.zoom;
+            keepMapInBounds();updateTransform();currentSelectedTarget=targetFurniture.id;
+            modalTitle.innerText=`Объект: ${currentSelectedTarget} 🏡`;
+            questInput.value=questData[currentSelectedTarget]||"";
+            setTimeout(()=>adminModal.style.display='flex',300);
+        }
+    }else{if(targetFurniture&&!state.isDragging){if(questData[targetFurniture.id])alert(`Квест места: \n"${questData[targetFurniture.id]}"`);}}
+    lastTap=now;
+});
+function keepMapInBounds(){
+    const minX=-1000*state.zoom+50,maxX=viewport.clientWidth-50;
+    const minY=-1000*state.zoom+50,maxY=viewport.clientHeight-50;
+    state.panX=Math.min(Math.max(state.panX,minX),maxX);state.panY=Math.min(Math.max(state.panY,minY),maxY);
+}
+function startDrag(clientX,clientY){state.isDragging=true;state.startX=clientX-state.panX;state.startY=clientY-state.panY;}
+function moveDrag(clientX,clientY){if(!state.isDragging)return;state.panX=clientX-state.startX;state.panY=clientY-state.startY;keepMapInBounds();updateTransform();}
+function stopDrag(){state.isDragging=false;}
+viewport.addEventListener('mousedown',(e)=>startDrag(e.clientX,e.clientY));
+window.addEventListener('mousemove',(e)=>moveDrag(e.clientX,e.clientY));
+window.addEventListener('mouseup',stopDrag);
+viewport.addEventListener('touchstart',(e)=>{if(e.touches.length===1)startDrag(e.touches[0].clientX,e.touches[0].clientY);},{passive:false});
+viewport.addEventListener('touchmove',(e)=>{if(e.touches.length===1){e.preventDefault();moveDrag(e.touches[0].clientX,e.touches[0].clientY);}},{passive:false});
+viewport.addEventListener('touchend',stopDrag);
+document.getElementById('btnCancel').addEventListener('click',()=>{
+    adminModal.style.display='none';
+    if(originalTransformBeforeZoom){state.zoom=originalTransformBeforeZoom.zoom;state.panX=originalTransformBeforeZoom.panX;state.panY=originalTransformBeforeZoom.panY;updateTransform();}
+});
+document.getElementById('btnSave').addEventListener('click',()=>{
+    const text=questInput.value.trim();adminModal.style.display='none';
+    if(text)questData[currentSelectedTarget]=text;else delete questData[currentSelectedTarget];
+    if(Object.keys(questData).length>0){questArrow.style.left=`500px`;questArrow.style.top=`500px`;questArrow.style.display='block';}else{questArrow.style.display='none';}
+});
+function initProfileUI(){
+    document.getElementById('userNameInput').value=myProfile.name;
+    document.getElementById('bonusBalanceDisplay').innerText=userBonuses;
+    document.getElementById('userAvatar').src=myProfile.avatar||"data:image/svg+xml;utf8,<svg xmlns='w3.org' width='90' height='90' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2300796b'/><text x='50' y='60' font-size='40' text-anchor='middle' fill='white'>👑</text></svg>";
+}
+document.getElementById('btnSaveProfile').addEventListener('click',()=> {
+    myProfile.name=document.getElementById('userNameInput').value.trim()||"Администратор";
+    localStorage.setItem('hq_myProfile',JSON.stringify(myProfile));
+    alert("Имя профиля сохранено! ✅");initChatUI();
+});
+document.getElementById('fileInput').addEventListener('change',function(e){
+    const file=e.target.files[0];
+    if(file){
+        const reader=new FileReader();
+        reader.onload=function(event){myProfile.avatar=event.target.result;localStorage.setItem('hq_myProfile',JSON.stringify(myProfile));initProfileUI();};
+        reader.readAsDataURL(file);
     }
-
-    // --- Карта и Жесты ---
-    function initMapPosition() {
-        const viewRect = viewport.getBoundingClientRect();
-        state.zoom = viewRect.width / 1000;
-        state.panX = 0;
-        state.panY = (viewRect.height - (1000 * state.zoom)) / 2;
-        updateTransform();
+});
+function initFamilyUI(){
+    document.getElementById('mainFamilyTitle').innerText=`${familySettings.title} 🏡`;
+    document.getElementById('familyNameInput').value=familySettings.title;
+    const container=document.getElementById('membersContainer');container.innerHTML="";
+    if(familySettings.members.length===0){
+        container.innerHTML=`<div style="color:#757575;font-size:14px;padding:10px 0;">Список пуст. Добавьте участников ниже.</div>`;
+    }else{
+        familySettings.members.forEach((member,index)=>{
+            const row=document.createElement('div');row.className='member-row';
+            row.innerHTML=`<div class="member-info"><div class="member-icon">👤</div><span>${member}</span></div><div><button class="btn btn-sm" style="margin:0;padding:4px 8px;font-size:11px;background:#004d40;" onclick="switchActiveUser('${member}')">Войти 🔑</button><button class="btn-delete" style="margin-left:5px;" onclick="deleteMember(${index})">❌</button></div>`;
+            container.appendChild(row);
+        });
     }
-
-    function updateTransform() {
-        mapContainer.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
-    }
-
-    viewport.addEventListener('click', function(e) {
-        const now = Date.now();
-        const targetFurniture = e.target.closest('.furniture');
-        if ((now - lastTap) < 300) {
-            if (targetFurniture) {
-                e.preventDefault();
-                targetFurniture.classList.add('highlighted');
-                setTimeout(() => targetFurniture.classList.remove('highlighted'), 1000);
-                originalTransformBeforeZoom = { zoom: state.zoom, panX: state.panX, panY: state.panY };
-                const rect = mapContainer.getBoundingClientRect();
-                const clickX = (e.clientX - rect.left) / state.zoom;
-                const clickY = (e.clientY - rect.top) / state.zoom;
-                state.zoom = 1.2;
-                const viewRect = viewport.getBoundingClientRect();
-                state.panX = viewRect.width / 2 - clickX * state.zoom;
-                state.panY = viewRect.height / 2 - clickY * state.zoom;
-                keepMapInBounds();
-                updateTransform();
-                currentSelectedTarget = targetFurniture.id;
-                modalTitle.innerText = `Объект: ${currentSelectedTarget} 🏡`;
-                questInput.value = questData[currentSelectedTarget] || "";
-                setTimeout(() => adminModal.style.display = 'flex', 300);
-            }
-        } else {
-            if (targetFurniture && !state.isDragging) {
-                if (questData[targetFurniture.id]) alert(`Квест места: \n"${questData[targetFurniture.id]}"`);
-            }
-        }
-        lastTap = now;
+}
+document.getElementById('btnSaveFamilyName').addEventListener('click',()=>{
+    familySettings.title=document.getElementById('familyNameInput').value.trim()||"Наша Семья";
+    localStorage.setItem('hq_familySettings',JSON.stringify(familySettings));initFamilyUI();
+    alert("Название семьи успешно обновлено! ✅");
+});
+document.getElementById('btnAddMember').addEventListener('click',()=> {
+    const name=document.getElementById('newMemberName').value.trim();
+    if(name){familySettings.members.push(name);localStorage.setItem('hq_familySettings',JSON.stringify(familySettings));document.getElementById('newMemberName').value="";initFamilyUI();}
+});
+function deleteMember(index){
+    if(confirm(`Удалить участника ${familySettings.members[index]}?`)){familySettings.members.splice(index,1);localStorage.setItem('hq_familySettings',JSON.stringify(familySettings));initFamilyUI();}
+}
+function switchActiveUser(targetName){
+    myProfile.name=targetName;myProfile.avatar="";localStorage.setItem('hq_myProfile',JSON.stringify(myProfile));
+    initProfileUI();initChatUI();alert(`Вы переключились на профиль: ${targetName} 🚀`);
+}
+function initChatUI(){
+    const history=document.getElementById('chatHistory');history.innerHTML="";
+    chatStorage.forEach(m=>{
+        const isMe=m.user===myProfile.name;const bubble=document.createElement('div');
+        bubble.className=`msg-bubble ${isMe?'my':'other'}`;bubble.innerHTML=`<strong>${m.user}:</strong> ${m.text}`;
+        history.appendChild(bubble);
     });
-
-    function keepMapInBounds() {
-        const minX = -1000 * state.zoom + 50, maxX = viewport.clientWidth - 50;
-        const minY = -1000 * state.zoom + 50, maxY = viewport.clientHeight - 50;
-        state.panX = Math.min(Math.max(state.panX, minX), maxX);
-        state.panY = Math.min(Math.max(state.panY, minY), maxY);
-    }
-
-    function startDrag(clientX, clientY) { state.isDragging = true; state.startX = clientX - state.panX; state.startY = clientY - state.panY; }
-    function moveDrag(clientX, clientY) { if (!state.isDragging) return; state.panX = clientX - state.startX; state.panY = clientY - state.startY; keepMapInBounds(); updateTransform(); }
-    function stopDrag() { state.isDragging = false; }
-
-    viewport.addEventListener('mousedown', (e) => startDrag(e.clientX, e.clientY));
-    window.addEventListener('mousemove', (e) => moveDrag(e.clientX, e.clientY));
-    window.addEventListener('mouseup', stopDrag);
-    viewport.addEventListener('touchstart', (e) => { if(e.touches.length === 1) startDrag(e.touches.clientX, e.touches.clientY); }, { passive: false });
-    viewport.addEventListener('touchmove', (e) => { if(e.touches.length === 1) { e.preventDefault(); moveDrag(e.touches.clientX, e.touches.clientY); } }, { passive: false });
-    viewport.addEventListener('touchend', stopDrag);
-
-    document.getElementById('btnCancel').addEventListener('click', () => {
-        adminModal.style.display = 'none';
-        if (originalTransformBeforeZoom) { state.zoom = originalTransformBeforeZoom.zoom; state.panX = originalTransformBeforeZoom.panX; state.panY = originalTransformBeforeZoom.panY; updateTransform(); }
-    });
-    document.getElementById('btnSave').addEventListener('click', () => {
-        const text = questInput.value.trim(); adminModal.style.display = 'none';
-        if(text) questData[currentSelectedTarget] = text; else delete questData[currentSelectedTarget];
-        if (Object.keys(questData).length > 0) { questArrow.style.left = `500px`; questArrow.style.top = `500px`; questArrow.style.display = 'block'; } else { questArrow.style.display = 'none'; }
-    });
-
-    // --- Логика Профиля и Операций с Бонусами ---
-    function initProfileUI() {
-        document.getElementById('userNameInput').value = myProfile.name;
-        document.getElementById('bonusCount').innerText = myProfile.bonuses;
-        document.getElementById('userAvatar').src = myProfile.avatar || "data:image/svg+xml;utf8,<svg xmlns='w3.org' width='90' height='90' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2300796b'/><text x='50' y='60' font-size='40' text-anchor='middle' fill='white'>👑</text></svg>";
-        
-        // Обновление селектора перевода
-        const select = document.getElementById('transferTargetSelect');
-        select.innerHTML = "";
-        if(familySettings.members.length === 0) {
-            select.innerHTML = "<option value=''>Нет участников</option>";
-        } else {
-            familySettings.members.forEach(m => {
-                const opt = document.createElement('option');
-                opt.value = m;
-                opt.innerText = `${m} (${familySettings.memberBalances[m] || 0} 🪙)`;
-                select.appendChild(opt);
-            });
-        }
-    }
-
-    document.getElementById('btnSaveProfile').addEventListener('click', () => {
-        myProfile.name = document.getElementById('userNameInput').value.trim() || "Администратор";
-        localStorage.setItem('hq_myProfile', JSON.stringify(myProfile));
-        alert("Имя профиля сохранено! ✅");
-        initChatUI();
-    });
-
-    document.getElementById('fileInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                myProfile.avatar = event.target.result;
-                localStorage.setItem('hq_myProfile', JSON.stringify(myProfile));
-                initProfileUI();
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    // Передача монет другому игроку
-    document.getElementById('btnSendBonuses').addEventListener('click', () => {
-        const target = document.getElementById('transferTargetSelect').value;
-        const amount = parseInt(document.getElementById('transferAmountInput').value);
-
-        if(!target || isNaN(amount) || amount <= 0) {
-            alert("Укажите корректного получателя и сумму перевода! ❌");
-            return;
-        }
-        if(myProfile.bonuses < amount) {
-            alert("Недостаточно бонусов на балансе! ❌");
-            return;
-        }
-
-        // Проведение транзакции
-        myProfile.bonuses -= amount;
-        if(!familySettings.memberBalances[target]) familySettings.memberBalances[target] = 0;
-        familySettings.memberBalances[target] += amount;
-
-        // Фиксация
-        localStorage.setItem('hq_myProfile', JSON.stringify(myProfile));
-        localStorage.setItem('hq_familySettings', JSON.stringify(familySettings));
-        
-        // Сообщение в чат
-        chatStorage.push({ user: "Банк 🪙", text: `${myProfile.name} передал участнику ${target} ${amount} бонусов!` });
-        localStorage.setItem('hq_chatStorage', JSON.stringify(chatStorage));
-
-        document.getElementById('transferAmountInput').value = "";
-        initProfileUI();
-        initFamilyUI();
-        initChatUI();
-        alert("Монеты успешно отправлены! 🚀");
-    });
-
-    // Вывод кэша
-    document.getElementById('btnExchangeCash').addEventListener('click', () => {
-        const amount = prompt(`Сколько бонусов вы хотите обменять на реальные деньги?\nВаш баланс: ${myProfile.bonuses} 🪙`);
-        const numAmount = parseInt(amount);
-
-        if(isNaN(numAmount) || numAmount <= 0) return;
-
-        if(myProfile.bonuses < numAmount) {
-            alert("Недостаточно монет для проведения обмена! ❌");
-            return;
-        }
-
-        myProfile.bonuses -= numAmount;
-        localStorage.setItem('hq_myProfile', JSON.stringify(myProfile));
-
-        // Оповещение родителей в семейный чат
-        chatStorage.push({ user: "Запрос Кэша 💵", text: `⚠️ Участник ${myProfile.name} запросил обмен ${numAmount} бонусов на реальные деньги!` });
-        localStorage.setItem('hq_chatStorage', JSON.stringify(chatStorage));
-
-        initProfileUI();
-        initChatUI();
-        alert("Запрос отправлен в Семейный чат! Родители выдадут наличные. 💵");
-    });
+    history.scrollTop=history.scrollHeight;
+}
+document.getElementById('btnSendMessage').addEventListener('click',()=>{
+    const input=document.getElementById('chatMessageInput');const text=input.value.trim();
+    if(text){chatStorage.push({user:myProfile.name,text:text});localStorage.setItem('hq_chatStorage',JSON.stringify(chatStorage));input.value="";initChatUI();}
+});
+function actionCashOut(){
+    if(userBonuses<=0){alert("На вашем счете нет бонусов для вывода! ❌");return;}
+    const amount=prompt(`Доступно ${userBonuses} 🪙. Сколько бонусов вы хотите обменять на реальный кэш?`,userBonuses);
+    const parsedAmount=parseInt(amount);
+    if(parsedAmount>0&&parsedAmount<=userBonuses){
+        userBonuses-=parsedAmount;localStorage.setItem('hq_userBonuses',userBonuses);
+        document.getElementById('bonusBalanceDisplay').innerText=userBonuses;
+        alert(`Заявка создана! ${parsedAmount} 🪙 успешно списаны и отправлены на обмен в реальный кэш. 💵`);
+    }else if(amount!==null){alert("Некорректная сумма вывода! ❌");}
+}
+function actionTransferBonus(){
+    if(userBonuses<=0){alert("У вас нет бонусов для передачи! ❌");return;}
+    if(!familySettings.members||familySettings.members.length===0){alert("В семье нет других участников для перевода! Сначала добавьте их в список ниже. 👤");return;}
+    const targetUser=prompt(`Кому из участников перевести бонусы?\nДоступные члены семьи:\n${familySettings.members.join(', ')}`);
+    if(!targetUser)return;
+    if(!familySettings.members.includes(targetUser.trim())){alert("Такой участник не найден в вашей семье! ❌");return;}
+    const amount=prompt(`Ваш баланс: ${userBonuses} 🪙. Какую сумму перевести для ${targetUser}?`);const parsedAmount=parseInt(amount);
+    if(parsedAmount>0&&parsedAmount<=userBonuses){
+        userBonuses-=parsedAmount;localStorage.setItem('hq_userBonuses',userBonuses);
+        document.getElementById('bonusBalanceDisplay').innerText=userBonuses;
+        alert(`Успешно! ${parsedAmount} 🪙 переданы участнику ${targetUser}. 🎁`);
+        chatStorage.push({user:"Система 📢",text:`${myProfile.name} перевел ${parsedAmount} 🪙 участнику ${targetUser}.`});
+        localStorage.setItem('hq_chatStorage',JSON.stringify(chatStorage));initChatUI();
+    }else if(amount!==null){alert("Недостаточно бонусов или введена неверная сумма! ❌");}
+}
+window.addEventListener('load',()=>{initMapPosition();initProfileUI();initFamilyUI();initChatUI();});
+window.addEventListener('resize',initMapPosition);
+</script>
+</body>
+</html>
