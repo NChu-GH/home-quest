@@ -96,7 +96,7 @@
     <input type="text" id="new-quest-text" placeholder="Что нужно сделать?">
     <input type="number" id="new-quest-reward" placeholder="Количество бонусов" value="10" min="1">
     <button class="btn-choice" style="background:#4caf50;color:#fff;" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button>
-    <button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button>
+    <button class="btn-choice" onclick="closeAll()">ОТМЕНА ❌</button>
 </div>
 
 <div id="taskModal" class="modal">
@@ -131,12 +131,10 @@
 </div>
 
 <script>
-    // ВЕРНУЛ САМЫЙ ПЕРВЫЙ КЛЮЧ: Игроки подтянутся обратно из памяти браузера
     const storageKey = 'FamilyApp_Persistent_Storage';
     let state = { currentUserIndex: 0, adminIndex: 0, quests: [], messages: [], members: [] };
     const container = document.getElementById('map-container'), view = document.getElementById('viewport'), qBox = document.getElementById('quest-arrows');
     
-    // ГЕОМЕТРИЯ С УЧЕТОМ НАЗВАНИЙ ТВОИХ РИСУНКОВ (Шкафы 3,4,5 сдвинуты точно на свои места в Коридоре)
     const zones = [
         { id: 'Lapomoika', isRoom: false, name: '🐾 Лапомойка', x: 745, y: 405, r: 85 },
         { id: 'Unitaz1', isRoom: false, name: '🚽 Унитаз', x: 865, y: 405, r: 85 },
@@ -146,11 +144,9 @@
         { id: 'Tumbochka', isRoom: false, name: '🗄 Тумбочка', x: 640, y: 500, r: 60 },
         { id: 'Shkaf1', isRoom: false, name: '👟 Шкаф для обуви', x: 505, y: 620, r: 85 },
         { id: 'Shkaf2', isRoom: false, name: '👗 Шкаф для одежды', x: 410, y: 620, r: 85 },
-        // Шкафы 3, 4, 5 — координаты выравнены по вертикальной стене Коридора
         { id: 'Shkaf3', isRoom: false, isRect: true, name: '🧹 Хоз. шкаф', x1: 250, y1: 580, x2: 340, y2: 660 },
         { id: 'Shkaf4', isRoom: false, isRect: true, name: '⛺️ Шкаф спорт', x1: 250, y1: 661, x2: 340, y2: 740 },
         { id: 'Shkaf5', isRoom: false, isRect: true, name: '📦 Доп. шкаф', x1: 250, y1: 741, x2: 340, y2: 820 },
-        // ЗОНЫ КОМНАТ С НАЗВАНИЯМИ ТВОИХ ФАЙЛОВ
         { id: 'Sanuzel1', isRoom: true, name: '🧼 Санузел 1', x1: 710, y1: 330, x2: 920, y2: 590 },
         { id: 'Vannaya', isRoom: true, name: '🛁 Ванная', x1: 710, y1: 100, x2: 920, y2: 320 },
         { id: 'Sanuzel2', isRoom: true, name: '🚽 Санузел 2', x1: 580, y1: 100, x2: 709, y2: 250 },
@@ -162,7 +158,7 @@
         { id: 'Koridor', isRoom: true, name: '🚪 Коридор', x1: 431, y1: 321, x2: 709, y2: 669 }
     ];
 
-    let scale = 0.5, posX = -250, posY = -250, isDragging = false, startX, startY, lastTap = 0, initialDist = null, initialScale = 0, oldPos = {s: 0.5, x: -250, y: -250};
+    let scale = 0.5, posX = -250, posY = -250, isDragging = false, startX, startY, lastTap = 0, initialDist = null, initialScale = 0;
 
     function updateTransform() { container.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`; }
     function applyZoom(delta, clientX, clientY) {
@@ -174,18 +170,17 @@
     }
     function btnZoom(delta) { applyZoom(delta, view.offsetWidth / 2, view.offsetHeight / 2); }
 
-    // ТАЧ ПОЛНОСТЬЮ ИСПРАВЛЕН (РАЗДЕЛЕНИЕ НА 1 И 2 ПАЛЬЦА БЕЗ ЗАВИСАНИЙ)
     view.addEventListener('touchstart', e => {
-        if (e.touches.length === 1) { isDragging = true; startX = e.touches[0].clientX - posX; startY = e.touches[0].clientY - posY; container.style.transition = 'none'; }
-        else if (e.touches.length === 2) { isDragging = false; initialDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); initialScale = scale; }
+        if (e.touches.length === 1) { isDragging = true; startX = e.touches.clientX - posX; startY = e.touches.clientY - posY; container.style.transition = 'none'; }
+        else if (e.touches.length === 2) { isDragging = false; initialDist = Math.hypot(e.touches.clientX - e.touches.clientX, e.touches.clientY - e.touches.clientY); initialScale = scale; }
     }, {passive: false});
 
     view.addEventListener('touchmove', e => {
         e.preventDefault();
-        if (e.touches.length === 1 && isDragging) { posX = e.touches[0].clientX - startX; posY = e.touches[0].clientY - startY; }
+        if (e.touches.length === 1 && isDragging) { posX = e.touches.clientX - startX; posY = e.touches.clientY - startY; }
         else if (e.touches.length === 2 && initialDist) {
-            const currentDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-            applyZoom((initialScale * (currentDist / initialDist)) - scale, (e.touches[0].clientX + e.touches[1].clientX)/2, (e.touches[0].clientY + e.touches[1].clientY)/2);
+            const currentDist = Math.hypot(e.touches.clientX - e.touches.clientX, e.touches.clientY - e.touches.clientY);
+            applyZoom((initialScale * (currentDist / initialDist)) - scale, (e.touches.clientX + e.touches.clientX)/2, (e.touches.clientY + e.touches.clientY)/2);
         }
         updateTransform();
     }, {passive: false});
@@ -196,6 +191,7 @@
     window.addEventListener('mouseup', () => isDragging = false);
     view.addEventListener('wheel', e => { e.preventDefault(); applyZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX, e.clientY); }, {passive:false});
 
+    // КЛИК БЕЗ ПРИБЛИЖЕНИЯ (ТОЛЬКО СИЯНИЕ И ОКНО)
     view.addEventListener('click', e => {
         if (state.currentUserIndex !== state.adminIndex) return;
         const now = Date.now();
@@ -207,11 +203,10 @@
                 const el = document.getElementById((found.isRoom ? 'room-' : 'obj-') + found.id);
                 if(el) { el.classList.add('highlight'); setTimeout(() => el.classList.remove('highlight'), 1000); }
             }
-            oldPos = {s: scale, x: posX, y: posY}; applyZoom(1.4 - scale, e.clientX, e.clientY); container.style.transition = 'transform 0.4s ease-out'; window.tempCoords = { x: mapX, y: mapY };
-            setTimeout(() => {
-                document.getElementById('furniture-hint').innerText = found ? `${found.isRoom ? 'Комната' : 'Объект'}: ${found.name}` : "Пустая зона";
-                document.getElementById('createQuestModal').style.display='block'; document.getElementById('overlay').style.display='block';
-            }, 350);
+            // ИЗМЕНЕНО: Больше не вызываем функцию приближения applyZoom!
+            window.tempCoords = { x: mapX, y: mapY };
+            document.getElementById('furniture-hint').innerText = found ? `${found.isRoom ? 'Комната' : 'Объект'}: ${found.name}` : "Пустая зона";
+            document.getElementById('createQuestModal').style.display='block'; document.getElementById('overlay').style.display='block';
         }
         lastTap = now;
     });
@@ -234,13 +229,12 @@
     }
     
     function save() { localStorage.setItem(storageKey, JSON.stringify(state)); updateUI(); }
-    function cancelQuest() { scale = oldPos.s; posX = oldPos.x; posY = oldPos.y; container.style.transition = 'transform 0.4s'; updateTransform(); closeAll(); }
     
     function confirmCreateQuest() {
         const txt = document.getElementById('new-quest-text').value; let rwd = parseInt(document.getElementById('new-quest-reward').value);
         if (isNaN(rwd) || rwd < 1) rwd = 10;
         if(txt) state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt, reward: rwd });
-        document.getElementById('new-quest-text').value = ''; document.getElementById('new-quest-reward').value = '10'; cancelQuest(); save();
+        document.getElementById('new-quest-text').value = ''; document.getElementById('new-quest-reward').value = '10'; closeAll(); save();
     }
 
     function updateUI() {
