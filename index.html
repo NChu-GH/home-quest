@@ -93,7 +93,6 @@
 
 <div id="overlay" onclick="closeAll()" class="overlay"></div>
 
-<!-- ОКНА С НАСТРОЙКОЙ НАГРАДЫ -->
 <div id="createQuestModal" class="modal">
     <h2>Новое задание 📝</h2>
     <p id="furniture-hint" style="color:#00796b;font-weight:bold;margin-bottom:10px;"></p>
@@ -146,7 +145,7 @@
     
     const furnitureZones = [
         { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 85 }, { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 85 },
-        { id: 'Stiralka', name: '🧼 Стиральная машина', x: 865, y: 555, r: 95 }, { id: 'Korzina', name: '🧺 Корзина', x: 765, y: 555, r: 85 },
+        { id: 'Stiralka', name: '🧼 Стиральная machine', x: 865, y: 555, r: 95 }, { id: 'Korzina', name: '🧺 Корзина', x: 765, y: 555, r: 85 },
         { id: 'Veshalka', name: '🧥 Вешалка', x: 690, y: 420, r: 75 }, { id: 'Tumbochka', name: '🗄 Тумбочка', x: 640, y: 500, r: 60 },
         { id: 'Shkaf1', name: '👟 Шкаф для обуви', x: 505, y: 620, r: 85 }, { id: 'Shkaf2', name: '👗 Шкаф для одежды', x: 410, y: 620, r: 85 },
         { id: 'Shkaf3', name: '🧹 Хоз. шкаф', x: 330, y: 630, r: 75 }, { id: 'Shkaf4', name: '⛺️ Шкаф спорт', x: 330, y: 710, r: 75 },
@@ -181,7 +180,6 @@
     view.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX - posX; startY = e.clientY - posY; container.style.transition = 'none'; });
     window.addEventListener('mousemove', e => { if (isDragging) { posX = e.clientX - startX; posY = e.clientY - startY; updateTransform(); } });
     window.addEventListener('mouseup', () => isDragging = false);
-    view.addEventListener('wheel', e => { e.preventDefault(); applyZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX, e.clientY); }, {passive:false});
 
     view.addEventListener('click', e => {
         if (state.members.length > 0 && state.currentUserIndex !== state.adminIndex) return;
@@ -202,11 +200,11 @@
             const res = await fetch(SCRIPT_URL), data = await res.json();
             state.members = []; state.quests = []; state.messages = [];
             for(let i = 1; i < data.length; i++) {
-                const r = data[i]; if (!r || !r) continue;
-                if(r === 'member') state.members.push({name: r, points: parseInt(r) || 0, avatar: r || '👤'});
-                if(r === 'quest') state.quests.push({text: r, x: parseFloat(r)||0, y: parseFloat(r)||0, reward: parseInt(r)||10});
-                if(r === 'msg') state.messages.push({author: r, text: r, time: parseFloat(r)||0});
-                if(r === 'config') { state.adminIndex = parseInt(r) || 0; }
+                const r = data[i]; if (!r || !r[0]) continue;
+                if(r[0] === 'member') state.members.push({name: r[1], points: parseInt(r[2]) || 0, avatar: r[3] || '👤'});
+                if(r[0] === 'quest') state.quests.push({text: r[1], x: parseFloat(r[2])||0, y: parseFloat(r[3])||0, reward: parseInt(r[4])||10});
+                if(r[0] === 'msg') state.messages.push({author: r[1], text: r[2], time: parseFloat(r[3])||0});
+                if(r[0] === 'config') { state.adminIndex = parseInt(r[1]) || 0; }
             }
             if(state.members.length === 0) state.members.push({name: "Админ", points: 0, avatar: "👤"});
             updateUI(); renderChat();
@@ -217,17 +215,18 @@
     async function pushToCloud() {
         document.getElementById('loader').style.display = 'flex';
         try {
-            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'clear'}) });
-            for (let m of state.members) await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'member', name: m.name, val1: m.points, val2: m.avatar}) });
-            for (let q of state.quests) await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'quest', name: q.text, val1: q.x, val2: q.y, val3: q.reward}) });
-            for (let msg of state.messages) await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'msg', name: msg.author, val1: msg.text, val2: msg.time}) });
-            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'config', val1: state.adminIndex}) });
+            // Отправляем запрос методом POST в формате URL-строки, чтобы Google Apps Script гарантированно его прочитал
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'clear'}), headers: {'Content-Type': 'text/plain'} });
+            for (let m of state.members) await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'member', name: m.name, val1: m.points, val2: m.avatar}), headers: {'Content-Type': 'text/plain'} });
+            for (let q of state.quests) await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'quest', name: q.text, val1: q.x, val2: q.y, val3: q.reward}), headers: {'Content-Type': 'text/plain'} });
+            for (let msg of state.messages) await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'msg', name: msg.author, val1: msg.text, val2: msg.time}), headers: {'Content-Type': 'text/plain'} });
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'config', val1: state.adminIndex}), headers: {'Content-Type': 'text/plain'} });
         } catch(e) { console.error(e); }
         document.getElementById('loader').style.display = 'none';
     }
 
     function updateUI() {
-        const user = state.members[state.currentUserIndex] || state.members; if(!user) return;
+        const user = state.members[state.currentUserIndex] || state.members[0]; if(!user) return;
         document.getElementById('current-user-name').innerText = user.name; document.getElementById('score-val').innerText = user.points; document.getElementById('current-avatar').innerText = user.avatar;
         document.getElementById('p-card').classList.toggle('is-admin', state.currentUserIndex === state.adminIndex);
         qBox.innerHTML = '';
@@ -258,7 +257,6 @@
     function cancelQuest() { scale = oldPos.s; posX = oldPos.x; posY = oldPos.y; container.style.transition = 'transform 0.4s'; updateTransform(); closeAll(); }
     function openQuest(idx) { window.activeIdx = idx; document.getElementById('taskText').innerText = state.quests[idx].text; document.getElementById('taskRewardText').innerText = "Награда: ⭐️ " + state.quests[idx].reward; document.getElementById('taskModal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
     
-    // ЛОГИКА СЕМЕЙНОГО ЧАТА
     function openChat() { state.lastReadChatTime = Date.now(); localStorage.setItem('last_read_chat', state.lastReadChatTime); document.getElementById('chatModal').style.display='block'; document.getElementById('overlay').style.display='block'; renderChat(); updateChatBadge(); }
     function renderChat() { const box = document.getElementById('chat-box'); box.innerHTML = state.messages.map(m => `<div class="chat-msg"><b>${m.author}:</b> ${m.text}</div>`).reverse().join(''); }
     function sendChat() { const inp = document.getElementById('chat-input'); if(!inp.value.trim()) return; state.messages.push({ author: state.members[state.currentUserIndex].name, text: inp.value, time: Date.now() }); inp.value = ''; renderChat(); pushToCloud(); }
