@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Семейный Квест — финал</title>
+    <title>Семейный Квест</title>
     <style>
         *{box-sizing:border-box}
         body{background:#e0f7fa;font-family:'Comic Sans MS',cursive,sans-serif;margin:0;padding:0;height:100vh;overflow:hidden;font-size:18px}
@@ -75,6 +75,7 @@
         </div>
     </div>
     <div class="map-viewport" id="viewport"><div id="map-container">
+        <!-- КОМНАТЫ -->
         <div class="layer" style="background-image:url('Sanuzel1.png')"></div>
         <div class="layer" style="background-image:url('Koridor.png')"></div>
         <div class="layer" style="background-image:url('Gostinaya.png')"></div>
@@ -84,8 +85,10 @@
         <div class="layer" style="background-image:url('Sanuzel2.png')"></div>
         <div class="layer" style="background-image:url('Kuhnya.png')"></div>
         <div class="layer" style="background-image:url('Balcon.png')"></div>
+        <!-- МЕБЕЛЬ (новая и старая) -->
         <div id="obj-Lapomoika" class="layer" style="background-image:url('Lapomoika.png')"></div>
         <div id="obj-Unitaz1" class="layer" style="background-image:url('Unitaz1.png')"></div>
+        <div id="obj-Unitaz2" class="layer" style="background-image:url('Unitaz2.png')"></div>
         <div id="obj-Stiralka" class="layer" style="background-image:url('Stiralka.png')"></div>
         <div id="obj-Korzina" class="layer" style="background-image:url('Korzina.png')"></div>
         <div id="obj-Tumbochka" class="layer" style="background-image:url('Tumbochka.png')"></div>
@@ -95,6 +98,36 @@
         <div id="obj-Shkaf3" class="layer" style="background-image:url('Shkaf3.png')"></div>
         <div id="obj-Shkaf4" class="layer" style="background-image:url('Shkaf4.png')"></div>
         <div id="obj-Shkaf5" class="layer" style="background-image:url('Shkaf5.png')"></div>
+        <!-- НОВАЯ МЕБЕЛЬ -->
+        <div id="obj-Divan_gost" class="layer" style="background-image:url('Divan_gost.png')"></div>
+        <div id="obj-Dukh_Mikrovoln" class="layer" style="background-image:url('Dukh_Mikrovoln.png')"></div>
+        <div id="obj-Garderob" class="layer" style="background-image:url('Garderob.png')"></div>
+        <div id="obj-Glad_doska" class="layer" style="background-image:url('Glad_doska.png')"></div>
+        <div id="obj-Holodilnik" class="layer" style="background-image:url('Holodilnik.png')"></div>
+        <div id="obj-KaminTV" class="layer" style="background-image:url('KaminTV.png')"></div>
+        <div id="obj-Kosh_lot" class="layer" style="background-image:url('Kosh_lot.png')"></div>
+        <div id="obj-Kover_gost" class="layer" style="background-image:url('Kover_gost.png')"></div>
+        <div id="obj-Krovat" class="layer" style="background-image:url('Krovat.png')"></div>
+        <div id="obj-Let_mebel" class="layer" style="background-image:url('Let_mebel.png')"></div>
+        <div id="obj-Moika" class="layer" style="background-image:url('Moika.png')"></div>
+        <div id="obj-Ostrov" class="layer" style="background-image:url('Ostrov.png')"></div>
+        <div id="obj-Posudomoika" class="layer" style="background-image:url('Posudomoika.png')"></div>
+        <div id="obj-Rakovina1" class="layer" style="background-image:url('Rakovina1.png')"></div>
+        <div id="obj-Rakovina2" class="layer" style="background-image:url('Rakovina2.png')"></div>
+        <div id="obj-Shkaf_balk" class="layer" style="background-image:url('Shkaf_balk.png')"></div>
+        <div id="obj-Shkaf_gost1" class="layer" style="background-image:url('Shkaf_gost1.png')"></div>
+        <div id="obj-Shkaf_gost2" class="layer" style="background-image:url('Shkaf_gost2.png')"></div>
+        <div id="obj-Shkaf_kuh1" class="layer" style="background-image:url('Shkaf_kuh1.png')"></div>
+        <div id="obj-Sofa_gost" class="layer" style="background-image:url('Sofa_gost.png')"></div>
+        <div id="obj-Stol" class="layer" style="background-image:url('Stol.png')"></div>
+        <div id="obj-Stol_stol" class="layer" style="background-image:url('Stol_stol.png')"></div>
+        <div id="obj-Sushilka" class="layer" style="background-image:url('Sushilka.png')"></div>
+        <div id="obj-Tscveti_gost" class="layer" style="background-image:url('Tscveti_gost.png')"></div>
+        <div id="obj-Vanna" class="layer" style="background-image:url('Vanna.png')"></div>
+        <div id="obj-divana_det" class="layer" style="background-image:url('divan_det.png')"></div>
+        <div id="obj-krovat_det" class="layer" style="background-image:url('krovat_det.png')"></div>
+        <div id="obj-shkaf_det" class="layer" style="background-image:url('shkaf_det.png')"></div>
+        <div id="obj-stol_det" class="layer" style="background-image:url('stol_det.png')"></div>
         <div id="quest-arrows"></div>
     </div><div class="zoom-controls"><button class="z-btn" onclick="btnZoom(0.3)">+</button><button class="z-btn" onclick="btnZoom(-0.3)">−</button></div></div>
 </div>
@@ -115,6 +148,52 @@ let state={members:[],adminId:null,currentUserId:null,quests:[],messages:{genera
 let unreadCounts={general:0,tech:0};
 const container=document.getElementById('map-container'),view=document.getElementById('viewport'),qBox=document.getElementById('quest-arrows');
 
+// ВСЯ МЕБЕЛЬ С КООРДИНАТАМИ (обновлено под новые объекты)
+const furnitureZones = [
+    { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 48 },
+    { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 45 },
+    { id: 'Unitaz2', name: '🚽 Унитаз 2', x: 910, y: 450, r: 40 },
+    { id: 'Stiralka', name: '🧼 Стиральная машина', x: 865, y: 555, r: 50 },
+    { id: 'Korzina', name: '🧺 Корзина', x: 765, y: 555, r: 42 },
+    { id: 'Veshalka', name: '🧥 Вешалка', x: 690, y: 420, r: 40 },
+    { id: 'Tumbochka', name: '🗄 Тумбочка', x: 640, y: 500, r: 38 },
+    { id: 'Shkaf1', name: '👟 Шкаф обуви', x: 505, y: 620, r: 48 },
+    { id: 'Shkaf2', name: '👗 Шкаф одежды', x: 410, y: 620, r: 50 },
+    { id: 'Shkaf3', name: '🧹 Хозяйственный шкаф', x: 305, y: 628, r: 52 },
+    { id: 'Shkaf4', name: '⛺️ Спортивный шкаф', x: 305, y: 710, r: 52 },
+    { id: 'Shkaf5', name: '📦 Дополнительный шкаф', x: 305, y: 790, r: 52 },
+    // НОВАЯ МЕБЕЛЬ
+    { id: 'Divan_gost', name: '🛋 Диван', x: 450, y: 580, r: 55 },
+    { id: 'Dukh_Mikrovoln', name: '🔥 Духовка/Микроволновка', x: 780, y: 650, r: 35 },
+    { id: 'Garderob', name: '👔 Гардероб', x: 200, y: 550, r: 50 },
+    { id: 'Glad_doska', name: '🧺 Гладильная доска', x: 720, y: 520, r: 35 },
+    { id: 'Holodilnik', name: '🧊 Холодильник', x: 820, y: 680, r: 45 },
+    { id: 'KaminTV', name: '📺 Камин/TV', x: 500, y: 520, r: 50 },
+    { id: 'Kosh_lot', name: '🐱 Кошачий лоток', x: 700, y: 500, r: 30 },
+    { id: 'Kover_gost', name: '🧶 Ковёр', x: 450, y: 620, r: 60 },
+    { id: 'Krovat', name: '🛏 Кровать', x: 220, y: 750, r: 55 },
+    { id: 'Let_mebel', name: '🪑 Летняя мебель', x: 800, y: 800, r: 45 },
+    { id: 'Moika', name: '🚰 Мойка', x: 750, y: 650, r: 40 },
+    { id: 'Ostrov', name: '🏝 Остров', x: 700, y: 680, r: 45 },
+    { id: 'Posudomoika', name: '🍽 Посудомойка', x: 800, y: 620, r: 38 },
+    { id: 'Rakovina1', name: '🚰 Раковина 1', x: 850, y: 380, r: 35 },
+    { id: 'Rakovina2', name: '🚰 Раковина 2', x: 880, y: 500, r: 35 },
+    { id: 'Shkaf_balk', name: '📦 Шкаф на балконе', x: 750, y: 820, r: 45 },
+    { id: 'Shkaf_gost1', name: '📚 Шкаф гостиная 1', x: 380, y: 540, r: 45 },
+    { id: 'Shkaf_gost2', name: '📚 Шкаф гостиная 2', x: 330, y: 580, r: 45 },
+    { id: 'Shkaf_kuh1', name: '🍽 Кухонный шкаф', x: 720, y: 620, r: 45 },
+    { id: 'Sofa_gost', name: '🛋 Софа', x: 480, y: 600, r: 50 },
+    { id: 'Stol', name: '🍽 Стол', x: 650, y: 700, r: 45 },
+    { id: 'Stol_stol', name: '🍽 Обеденный стол', x: 600, y: 650, r: 48 },
+    { id: 'Sushilka', name: '🧺 Сушилка', x: 740, y: 480, r: 35 },
+    { id: 'Tscveti_gost', name: '🌺 Цветы', x: 520, y: 540, r: 30 },
+    { id: 'Vanna', name: '🛁 Ванна', x: 890, y: 320, r: 45 },
+    { id: 'divan_det', name: '🛋 Детский диван', x: 180, y: 650, r: 40 },
+    { id: 'krovat_det', name: '🛏 Детская кровать', x: 150, y: 750, r: 45 },
+    { id: 'shkaf_det', name: '📦 Детский шкаф', x: 250, y: 680, r: 40 },
+    { id: 'stol_det', name: '📚 Детский стол', x: 280, y: 720, r: 35 }
+];
+
 const roomZones = [
     { name: "Санузел1", x1: 700, y1: 300, x2: 950, y2: 500 },
     { name: "Коридор", x1: 500, y1: 300, x2: 700, y2: 500 },
@@ -125,20 +204,6 @@ const roomZones = [
     { name: "Балкон", x1: 700, y1: 750, x2: 920, y2: 880 },
     { name: "Ванная", x1: 750, y1: 200, x2: 900, y2: 350 },
     { name: "Санузел2", x1: 850, y1: 480, x2: 950, y2: 580 }
-];
-
-const furnitureZones = [
-    { id: 'Lapomoika', name: 'Лапомойка', x: 745, y: 405, r: 48 },
-    { id: 'Unitaz1', name: 'Унитаз', x: 865, y: 405, r: 45 },
-    { id: 'Stiralka', name: 'Стиральная машина', x: 865, y: 555, r: 50 },
-    { id: 'Korzina', name: 'Корзина', x: 765, y: 555, r: 42 },
-    { id: 'Veshalka', name: 'Вешалка', x: 690, y: 420, r: 40 },
-    { id: 'Tumbochka', name: 'Тумбочка', x: 640, y: 500, r: 38 },
-    { id: 'Shkaf1', name: 'Шкаф обуви', x: 505, y: 620, r: 48 },
-    { id: 'Shkaf2', name: 'Шкаф одежды', x: 410, y: 620, r: 50 },
-    { id: 'Shkaf3', name: 'Хозяйственный шкаф', x: 305, y: 628, r: 52 },
-    { id: 'Shkaf4', name: 'Спортивный шкаф', x: 305, y: 710, r: 52 },
-    { id: 'Shkaf5', name: 'Дополнительный шкаф', x: 305, y: 790, r: 52 }
 ];
 
 let scale=0.5,posX=0,posY=0,isDragging=false,startX,startY,lastTap=0,initialDist=null,initialScale=0,oldPos={s:0.5,x:0,y:0};
