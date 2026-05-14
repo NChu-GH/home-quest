@@ -125,7 +125,7 @@
 
 <script>
     // ======================== ВАША ССЫЛКА НА СКРИПТ ========================
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzz4tLNf6jdU85F_IZVE0xBpdyxiu4TGJlDEGXVop3WSTOFKJp4Alh_NdRSMZuDN1fQ/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzjJPxddxFMw9D2eg9HkZnb8Dc_3hw3hSYoEkcIssgX__2nlofS25COHTm0UhLBCniX/exec';
     // =====================================================================
 
     let state = { currentUserId: null, adminId: null, quests: [], members: [] };
@@ -204,32 +204,41 @@
         try {
             const response = await fetch(SCRIPT_URL);
             const data = await response.json();
-            state.members = []; state.quests = [];
-            let adminId = null, currentUserId = null;
+            state.members = [];
+            state.quests = [];
+            let adminId = null;
+            let currentUserId = null;
             
-            for(let i = 0; i < data.length; i++) {
-                const row = data[i];
-                if (!row[0]) continue;
-                if(row[0] === 'member') {
-                    state.members.push({
-                        id: row[1],
-                        name: row[2],
-                        points: parseInt(row[3]) || 0,
-                        avatar: row[4] || '👤'
-                    });
-                }
-                if(row[0] === 'quest') state.quests.push({text: row[1], x: parseFloat(row[2]), y: parseFloat(row[3])});
-                if(row[0] === 'config') {
-                    adminId = row[1];
-                    currentUserId = row[2];
+            // Проверяем, есть ли данные
+            if (Array.isArray(data) && data.length > 0) {
+                for(let i = 0; i < data.length; i++) {
+                    const row = data[i];
+                    if (!row[0]) continue;
+                    if(row[0] === 'member') {
+                        state.members.push({
+                            id: row[1],
+                            name: row[2],
+                            points: parseInt(row[3]) || 0,
+                            avatar: row[4] || '👤'
+                        });
+                    }
+                    if(row[0] === 'quest') {
+                        state.quests.push({text: row[1], x: parseFloat(row[2]), y: parseFloat(row[3])});
+                    }
+                    if(row[0] === 'config') {
+                        adminId = row[1];
+                        currentUserId = row[2];
+                    }
                 }
             }
             
+            // Если игроков нет — создаём Админа и сохраняем
             if(state.members.length === 0) {
                 const defaultId = Date.now().toString();
-                state.members.push({id: defaultId, name: "Админ", points: 0, avatar: "👤"});
+                state.members = [{id: defaultId, name: "Админ", points: 0, avatar: "👤"}];
                 state.adminId = defaultId;
                 state.currentUserId = defaultId;
+                // Сохраняем в облако
                 await pushToCloud();
             } else {
                 state.adminId = adminId || state.members[0].id;
@@ -238,21 +247,57 @@
                 if(!state.members.find(m => m.id === state.adminId)) state.adminId = state.members[0].id;
             }
             updateUI();
-        } catch (e) { console.error("Ошибка загрузки", e); alert("Ошибка загрузки: " + e.message); }
+        } catch (e) { 
+            console.error("Ошибка загрузки", e); 
+            alert("Ошибка загрузки: " + e.message);
+            // При ошибке сети тоже создаём локального админа
+            if(state.members.length === 0) {
+                state.members = [{id: Date.now().toString(), name: "Админ", points: 0, avatar: "👤"}];
+                state.adminId = state.members[0].id;
+                state.currentUserId = state.members[0].id;
+                updateUI();
+            }
+        }
         document.getElementById('loader').style.display = 'none';
     }
 
     async function pushToCloud() {
         try {
-            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'clear'}), headers: {'Content-Type': 'application/json'} });
+            // Очищаем таблицу
+            await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({action: 'clear'}), 
+                headers: {'Content-Type': 'application/json'} 
+            });
+            
+            // Сохраняем игроков
             for (let m of state.members) {
-                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'member', id: m.id, name: m.name, points: m.points, avatar: m.avatar}), headers: {'Content-Type': 'application/json'} });
+                await fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({type: 'member', id: m.id, name: m.name, points: m.points, avatar: m.avatar}), 
+                    headers: {'Content-Type': 'application/json'} 
+                });
             }
+            
+            // Сохраняем задания
             for (let q of state.quests) {
-                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'quest', text: q.text, x: q.x, y: q.y}), headers: {'Content-Type': 'application/json'} });
+                await fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({type: 'quest', text: q.text, x: q.x, y: q.y}), 
+                    headers: {'Content-Type': 'application/json'} 
+                });
             }
-            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'config', adminId: state.adminId, currentUserId: state.currentUserId}), headers: {'Content-Type': 'application/json'} });
-        } catch(e) { console.error(e); }
+            
+            // Сохраняем конфигурацию
+            await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({type: 'config', adminId: state.adminId, currentUserId: state.currentUserId}), 
+                headers: {'Content-Type': 'application/json'} 
+            });
+        } catch(e) { 
+            console.error("Ошибка сохранения", e);
+            alert("Ошибка сохранения: " + e.message);
+        }
     }
 
     function updateUI() {
@@ -265,23 +310,36 @@
         
         qBox.innerHTML = '';
         state.quests.forEach((q, i) => {
-            const img = document.createElement('img'); img.src = 'arrow.png'; img.className = 'arrow';
-            img.style.left = q.x + 'px'; img.style.top = q.y + 'px';
+            const img = document.createElement('img'); 
+            img.src = 'arrow.png'; 
+            img.className = 'arrow';
+            img.style.left = q.x + 'px'; 
+            img.style.top = q.y + 'px';
             img.onclick = e => { e.stopPropagation(); openQuest(i); };
             qBox.appendChild(img);
         });
 
-        const fList = document.getElementById('family-list'); fList.innerHTML = '';
-        const sList = document.getElementById('switch-list'); sList.innerHTML = '<h3 style="color:#e65100">🔄 Сменить героя:</h3>';
+        const fList = document.getElementById('family-list'); 
+        fList.innerHTML = '';
+        const sList = document.getElementById('switch-list'); 
+        sList.innerHTML = '<h3 style="color:#e65100">🔄 Сменить героя:</h3>';
+        
         state.members.forEach((m) => {
             fList.innerHTML += `<div class="member-item"><span>${m.avatar} ${m.name} ${m.id === state.adminId ? '👑' : ''}</span><div><button onclick="setAdmin('${m.id}')" style="border:none;background:none;font-size:24px;">👑</button><button onclick="renameAnyMember('${m.id}')" style="border:none;background:none;font-size:24px;">✏️</button></div></div>`;
-            if(m.id !== state.currentUserId) sList.innerHTML += `<button class="btn-choice" onclick="switchProfile('${m.id}')">${m.name}</button>`;
+            if(m.id !== state.currentUserId) {
+                sList.innerHTML += `<button class="btn-choice" onclick="switchProfile('${m.id}')">${m.name}</button>`;
+            }
         });
     }
 
     function confirmCreateQuest() {
         const txt = document.getElementById('new-quest-text').value;
-        if(txt) { state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt }); document.getElementById('new-quest-text').value = ''; pushToCloud().then(() => updateUI()); }
+        if(txt) { 
+            state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt }); 
+            document.getElementById('new-quest-text').value = ''; 
+            pushToCloud(); 
+            updateUI(); 
+        }
         cancelQuest();
     }
     
@@ -324,20 +382,45 @@
         } 
     }
     
-    function openAvatarPicker() { document.getElementById('avatarModal').style.display='block'; document.getElementById('overlay').style.display='block'; }
+    function openAvatarPicker() { 
+        document.getElementById('avatarModal').style.display='block'; 
+        document.getElementById('overlay').style.display='block'; 
+    }
     
-    async function setAvatar(e) { 
+    async function setAvatar(emoji) { 
         const user = state.members.find(m => m.id === state.currentUserId);
-        if(user) user.avatar = e;
+        if(user) user.avatar = emoji;
         await pushToCloud();
         updateUI();
         closeAll();
     }
     
-    function cancelQuest() { scale = oldPos.s; posX = oldPos.x; posY = oldPos.y; container.style.transition = 'transform 0.4s'; updateTransform(); closeAll(); }
-    function openQuest(idx) { window.activeIdx = idx; document.getElementById('taskText').innerText = state.quests[idx].text; document.getElementById('taskModal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
-    function closeAll() { document.querySelectorAll('.modal').forEach(m=>m.style.display='none'); document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').style.display='none'; }
-    function toggleSidebar() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
+    function cancelQuest() { 
+        scale = oldPos.s; 
+        posX = oldPos.x; 
+        posY = oldPos.y; 
+        container.style.transition = 'transform 0.4s'; 
+        updateTransform(); 
+        closeAll(); 
+    }
+    
+    function openQuest(idx) { 
+        window.activeIdx = idx; 
+        document.getElementById('taskText').innerText = state.quests[idx].text; 
+        document.getElementById('taskModal').style.display = 'block'; 
+        document.getElementById('overlay').style.display = 'block'; 
+    }
+    
+    function closeAll() { 
+        document.querySelectorAll('.modal').forEach(m=>m.style.display='none'); 
+        document.getElementById('sidebar').classList.remove('active'); 
+        document.getElementById('overlay').style.display='none'; 
+    }
+    
+    function toggleSidebar() { 
+        document.getElementById('sidebar').classList.add('active'); 
+        document.getElementById('overlay').style.display = 'block'; 
+    }
     
     async function switchProfile(id) { 
         state.currentUserId = id; 
@@ -355,8 +438,14 @@
     const emojis = ['🐱','🐶','🦊','🐼','🐨','🐯','🦁','🦄','🐷','🐸','🐮','🦒'];
     document.getElementById('emoji-grid').innerHTML = emojis.map(e => `<span onclick="setAvatar('${e}')" style="font-size:35px; cursor:pointer;">${e}</span>`).join('');
     
+    // Запуск
     syncData();
-    setTimeout(() => { posX = (view.offsetWidth - 1000*0.4)/2; posY = (view.offsetHeight - 1000*0.4)/2; scale=0.4; updateTransform(); }, 600);
+    setTimeout(() => { 
+        posX = (view.offsetWidth - 1000*0.4)/2; 
+        posY = (view.offsetHeight - 1000*0.4)/2; 
+        scale = 0.4; 
+        updateTransform(); 
+    }, 600);
 </script>
 </body>
 </html>
