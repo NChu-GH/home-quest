@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Семейный Квест — Навигация по комнатам</title>
+    <title>Семейный Квест</title>
     <style>
         *{box-sizing:border-box}
         body{background:#e0f7fa;font-family:'Comic Sans MS',cursive,sans-serif;margin:0;padding:0;height:100vh;overflow:hidden;font-size:18px}
@@ -23,7 +23,7 @@
         .bonus-line{display:flex;align-items:center;gap:4px;font-size:16px;color:#00796b}
         .bonus-line button{background:none;border:none;font-size:18px;cursor:pointer;padding:0 4px}
         .map-viewport{flex:1;position:relative;overflow:hidden;background:#cfd8dc;touch-action:none}
-        #map-container{position:absolute;width:1000px;height:1000px;transform-origin:0 0;transition:transform 0.5s ease-out}
+        #map-container{position:absolute;width:1000px;height:1000px;transform-origin:0 0}
         .layer{position:absolute;top:0;left:0;width:1000px;height:1000px;pointer-events:none;background-size:contain;background-repeat:no-repeat}
         .highlight{filter:drop-shadow(0 0 18px #00e5ff)brightness(1.3)!important}
         #quest-arrows{position:absolute;top:0;left:0;width:1000px;height:1000px;pointer-events:none;z-index:60}
@@ -51,14 +51,6 @@
         .profile-actions{margin-top:15px;display:flex;flex-direction:column;gap:10px}
         .profile-btn{background:#f0f0f0;border:2px solid #00796b;border-radius:40px;padding:12px;font-size:18px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
         .player-selector-title{font-size:20px;margin:15px 0 10px;color:#e65100}
-        .rooms-nav{display:flex;gap:6px;overflow-x:auto;padding:8px;background:rgba(255,255,255,0.9);border-radius:30px;margin-bottom:5px;flex-shrink:0}
-        .room-btn{background:#b2dfdb;border:none;border-radius:30px;padding:8px 16px;font-size:14px;font-weight:bold;cursor:pointer;white-space:nowrap}
-        .room-btn.active{background:#00796b;color:white}
-        .quests-panel{position:absolute;bottom:60px;left:10px;right:10px;background:white;border-radius:30px;padding:12px;box-shadow:0 4px 15px rgba(0,0,0,0.2);z-index:100;max-height:200px;overflow-y:auto;display:none}
-        .quest-item{background:#fff3e0;padding:10px;margin:8px 0;border-radius:20px;display:flex;justify-content:space-between;align-items:center}
-        .quest-text{flex:1;font-size:14px}
-        .quest-reward{background:gold;padding:4px 10px;border-radius:20px;margin:0 8px}
-        .quest-complete{background:#4caf50;color:white;border:none;border-radius:30px;padding:6px 12px;cursor:pointer}
         input,button{font-family:inherit}
     </style>
 </head>
@@ -82,42 +74,61 @@
             <button class="menu-btn" onclick="toggleSidebar()">⚙️</button>
         </div>
     </div>
-    <div class="rooms-nav" id="roomsNav"></div>
-    <div class="map-viewport" id="viewport">
-        <div id="map-container">
-            <!-- КОМНАТЫ -->
-            <div id="room-Sanuzel1" class="layer" style="background-image:url('Sanuzel1.png')" data-room="Санузел1" data-center-x="825" data-center-y="400"></div>
-            <div id="room-Koridor" class="layer" style="background-image:url('Koridor.png')" data-room="Коридор" data-center-x="600" data-center-y="400"></div>
-            <div id="room-Gostinaya" class="layer" style="background-image:url('Gostinaya.png')" data-room="Гостиная" data-center-x="450" data-center-y="600"></div>
-            <div id="room-Spalnya1" class="layer" style="background-image:url('Spalnya1.png')" data-room="Спальня1" data-center-x="220" data-center-y="600"></div>
-            <div id="room-Spalnya2" class="layer" style="background-image:url('Spalnya2.png')" data-room="Спальня2" data-center-x="220" data-center-y="790"></div>
-            <div id="room-Kuhnya" class="layer" style="background-image:url('Kuhnya.png')" data-room="Кухня" data-center-x="780" data-center-y="650"></div>
-            <div id="room-Balcon" class="layer" style="background-image:url('Balcon.png')" data-room="Балкон" data-center-x="810" data-center-y="815"></div>
-            <div id="room-Vannaya" class="layer" style="background-image:url('Vannaya.png')" data-room="Ванная" data-center-x="825" data-center-y="275"></div>
-            <div id="room-Sanuzel2" class="layer" style="background-image:url('Sanuzel2.png')" data-room="Санузел2" data-center-x="900" data-center-y="530"></div>
-            <!-- МЕБЕЛЬ (ID для подсветки) -->
-            <div id="obj-Lapomoika" class="layer" style="background-image:url('Lapomoika.png')"></div>
-            <div id="obj-Unitaz1" class="layer" style="background-image:url('Unitaz1.png')"></div>
-            <div id="obj-Unitaz2" class="layer" style="background-image:url('Unitaz2.png')"></div>
-            <div id="obj-Stiralka" class="layer" style="background-image:url('Stiralka.png')"></div>
-            <div id="obj-Korzina" class="layer" style="background-image:url('Korzina.png')"></div>
-            <div id="obj-Tumbochka" class="layer" style="background-image:url('Tumbochka.png')"></div>
-            <div id="obj-Veshalka" class="layer" style="background-image:url('Veshalka.png')"></div>
-            <div id="obj-Shkaf1" class="layer" style="background-image:url('Shkaf1.png')"></div>
-            <div id="obj-Shkaf2" class="layer" style="background-image:url('Shkaf2.png')"></div>
-            <div id="obj-Shkaf3" class="layer" style="background-image:url('Shkaf3.png')"></div>
-            <div id="obj-Shkaf4" class="layer" style="background-image:url('Shkaf4.png')"></div>
-            <div id="obj-Shkaf5" class="layer" style="background-image:url('Shkaf5.png')"></div>
-            <div id="obj-Divan_gost" class="layer" style="background-image:url('Divan_gost.png')"></div>
-            <div id="obj-Holodilnik" class="layer" style="background-image:url('Holodilnik.png')"></div>
-            <div id="obj-Krovat" class="layer" style="background-image:url('Krovat.png')"></div>
-            <div id="obj-Moika" class="layer" style="background-image:url('Moika.png')"></div>
-            <div id="obj-Vanna" class="layer" style="background-image:url('Vanna.png')"></div>
-            <div id="quest-arrows"></div>
-        </div>
-        <div class="zoom-controls"><button class="z-btn" onclick="btnZoom(0.3)">+</button><button class="z-btn" onclick="btnZoom(-0.3)">−</button></div>
-    </div>
-    <div id="questsPanel" class="quests-panel"><h4 style="margin:0 0 8px">📋 Задания в комнате</h4><div id="roomQuestsList"></div></div>
+    <div class="map-viewport" id="viewport"><div id="map-container">
+        <!-- КОМНАТЫ -->
+        <div class="layer" style="background-image:url('Sanuzel1.png')"></div>
+        <div class="layer" style="background-image:url('Koridor.png')"></div>
+        <div class="layer" style="background-image:url('Gostinaya.png')"></div>
+        <div class="layer" style="background-image:url('Spalnya1.png')"></div>
+        <div class="layer" style="background-image:url('Spalnya2.png')"></div>
+        <div class="layer" style="background-image:url('Vannaya.png')"></div>
+        <div class="layer" style="background-image:url('Sanuzel2.png')"></div>
+        <div class="layer" style="background-image:url('Kuhnya.png')"></div>
+        <div class="layer" style="background-image:url('Balcon.png')"></div>
+        <!-- МЕБЕЛЬ (ВСЯ ИЗ РЕПОЗИТОРИЯ) -->
+        <div id="obj-Lapomoika" class="layer" style="background-image:url('Lapomoika.png')"></div>
+        <div id="obj-Unitaz1" class="layer" style="background-image:url('Unitaz1.png')"></div>
+        <div id="obj-Unitaz2" class="layer" style="background-image:url('Unitaz2.png')"></div>
+        <div id="obj-Stiralka" class="layer" style="background-image:url('Stiralka.png')"></div>
+        <div id="obj-Korzina" class="layer" style="background-image:url('Korzina.png')"></div>
+        <div id="obj-Tumbochka" class="layer" style="background-image:url('Tumbochka.png')"></div>
+        <div id="obj-Veshalka" class="layer" style="background-image:url('Veshalka.png')"></div>
+        <div id="obj-Shkaf1" class="layer" style="background-image:url('Shkaf1.png')"></div>
+        <div id="obj-Shkaf2" class="layer" style="background-image:url('Shkaf2.png')"></div>
+        <div id="obj-Shkaf3" class="layer" style="background-image:url('Shkaf3.png')"></div>
+        <div id="obj-Shkaf4" class="layer" style="background-image:url('Shkaf4.png')"></div>
+        <div id="obj-Shkaf5" class="layer" style="background-image:url('Shkaf5.png')"></div>
+        <div id="obj-Divan_gost" class="layer" style="background-image:url('Divan_gost.png')"></div>
+        <div id="obj-Dukh_Mikrovoln" class="layer" style="background-image:url('Dukh_Mikrovoln.png')"></div>
+        <div id="obj-Garderob" class="layer" style="background-image:url('Garderob.png')"></div>
+        <div id="obj-Glad_doska" class="layer" style="background-image:url('Glad_doska.png')"></div>
+        <div id="obj-Holodilnik" class="layer" style="background-image:url('Holodilnik.png')"></div>
+        <div id="obj-KaminTV" class="layer" style="background-image:url('KaminTV.png')"></div>
+        <div id="obj-Kosh_lot" class="layer" style="background-image:url('Kosh_lot.png')"></div>
+        <div id="obj-Kover_gost" class="layer" style="background-image:url('Kover_gost.png')"></div>
+        <div id="obj-Krovat" class="layer" style="background-image:url('Krovat.png')"></div>
+        <div id="obj-Let_mebel" class="layer" style="background-image:url('Let_mebel.png')"></div>
+        <div id="obj-Moika" class="layer" style="background-image:url('Moika.png')"></div>
+        <div id="obj-Ostrov" class="layer" style="background-image:url('Ostrov.png')"></div>
+        <div id="obj-Posudomoika" class="layer" style="background-image:url('Posudomoika.png')"></div>
+        <div id="obj-Rakovina1" class="layer" style="background-image:url('Rakovina1.png')"></div>
+        <div id="obj-Rakovina2" class="layer" style="background-image:url('Rakovina2.png')"></div>
+        <div id="obj-Shkaf_balk" class="layer" style="background-image:url('Shkaf_balk.png')"></div>
+        <div id="obj-Shkaf_gost1" class="layer" style="background-image:url('Shkaf_gost1.png')"></div>
+        <div id="obj-Shkaf_gost2" class="layer" style="background-image:url('Shkaf_gost2.png')"></div>
+        <div id="obj-Shkaf_kuh1" class="layer" style="background-image:url('Shkaf_kuh1.png')"></div>
+        <div id="obj-Sofa_gost" class="layer" style="background-image:url('Sofa_gost.png')"></div>
+        <div id="obj-Stol" class="layer" style="background-image:url('Stol.png')"></div>
+        <div id="obj-Stol_stol" class="layer" style="background-image:url('Stol_stol.png')"></div>
+        <div id="obj-Sushilka" class="layer" style="background-image:url('Sushilka.png')"></div>
+        <div id="obj-Tscveti_gost" class="layer" style="background-image:url('Tscveti_gost.png')"></div>
+        <div id="obj-Vanna" class="layer" style="background-image:url('Vanna.png')"></div>
+        <div id="obj-divan_det" class="layer" style="background-image:url('divan_det.png')"></div>
+        <div id="obj-krovat_det" class="layer" style="background-image:url('krovat_det.png')"></div>
+        <div id="obj-shkaf_det" class="layer" style="background-image:url('shkaf_det.png')"></div>
+        <div id="obj-stol_det" class="layer" style="background-image:url('stol_det.png')"></div>
+        <div id="quest-arrows"></div>
+    </div><div class="zoom-controls"><button class="z-btn" onclick="btnZoom(0.3)">+</button><button class="z-btn" onclick="btnZoom(-0.3)">−</button></div></div>
 </div>
 
 <div id="overlay" onclick="closeAll()" class="overlay"></div>
@@ -132,74 +143,73 @@
 
 <script>
 const REPO_OWNER='NChu-GH',REPO_NAME='home-quest',DATA_FILE='family-data.json';
-let state={members:[],adminId:null,currentUserId:null,quests:[],messages:{general:[],tech:[]}},githubToken=null,currentTaskIndex=null,currentChatTab='general',currentRoom=null;
+let state={members:[],adminId:null,currentUserId:null,quests:[],messages:{general:[],tech:[]}},githubToken=null,currentTaskIndex=null,currentChatTab='general';
 let unreadCounts={general:0,tech:0};
 const container=document.getElementById('map-container'),view=document.getElementById('viewport'),qBox=document.getElementById('quest-arrows');
-const roomsList=['Санузел1','Коридор','Гостиная','Спальня1','Спальня2','Кухня','Балкон','Ванная','Санузел2'];
 
-function focusOnRoom(roomName){
-    const layer=document.querySelector(`#map-container .layer[data-room="${roomName}"]`);
-    if(layer){
-        const cx=parseFloat(layer.getAttribute('data-center-x'));
-        const cy=parseFloat(layer.getAttribute('data-center-y'));
-        if(!isNaN(cx) && !isNaN(cy)){
-            const viewRect=view.getBoundingClientRect();
-            const targetX=(viewRect.width/2)-cx*scale;
-            const targetY=(viewRect.height/2)-cy*scale;
-            posX=targetX; posY=targetY;
-            updateTransform();
-        }
+// ========== ВСЯ МЕБЕЛЬ С КООРДИНАТАМИ ==========
+const furnitureZones = [
+    { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 45 },
+    { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 40 },
+    { id: 'Unitaz2', name: '🚽 Унитаз 2', x: 910, y: 450, r: 38 },
+    { id: 'Stiralka', name: '🧼 Стиральная машина', x: 865, y: 555, r: 45 },
+    { id: 'Korzina', name: '🧺 Корзина', x: 765, y: 555, r: 38 },
+    { id: 'Veshalka', name: '🧥 Вешалка', x: 690, y: 420, r: 38 },
+    { id: 'Tumbochka', name: '🗄 Тумбочка', x: 640, y: 500, r: 35 },
+    { id: 'Shkaf1', name: '👟 Шкаф обуви', x: 505, y: 620, r: 45 },
+    { id: 'Shkaf2', name: '👗 Шкаф одежды', x: 410, y: 620, r: 48 },
+    { id: 'Shkaf3', name: '🧹 Хозяйственный шкаф', x: 305, y: 628, r: 48 },
+    { id: 'Shkaf4', name: '⛺️ Спортивный шкаф', x: 305, y: 710, r: 48 },
+    { id: 'Shkaf5', name: '📦 Дополнительный шкаф', x: 305, y: 790, r: 48 },
+    { id: 'Divan_gost', name: '🛋 Диван', x: 450, y: 580, r: 52 },
+    { id: 'Dukh_Mikrovoln', name: '🔥 Духовка/Микроволновка', x: 780, y: 650, r: 35 },
+    { id: 'Garderob', name: '👔 Гардероб', x: 200, y: 550, r: 48 },
+    { id: 'Glad_doska', name: '🧺 Гладильная доска', x: 720, y: 520, r: 32 },
+    { id: 'Holodilnik', name: '🧊 Холодильник', x: 820, y: 680, r: 42 },
+    { id: 'KaminTV', name: '📺 Камин/TV', x: 500, y: 520, r: 48 },
+    { id: 'Kosh_lot', name: '🐱 Кошачий лоток', x: 700, y: 500, r: 30 },
+    { id: 'Kover_gost', name: '🧶 Ковёр', x: 450, y: 620, r: 58 },
+    { id: 'Krovat', name: '🛏 Кровать', x: 220, y: 750, r: 52 },
+    { id: 'Let_mebel', name: '🪑 Летняя мебель', x: 800, y: 800, r: 42 },
+    { id: 'Moika', name: '🚰 Мойка', x: 750, y: 650, r: 38 },
+    { id: 'Ostrov', name: '🏝 Остров', x: 700, y: 680, r: 42 },
+    { id: 'Posudomoika', name: '🍽 Посудомойка', x: 800, y: 620, r: 36 },
+    { id: 'Rakovina1', name: '🚰 Раковина 1', x: 850, y: 380, r: 34 },
+    { id: 'Rakovina2', name: '🚰 Раковина 2', x: 880, y: 500, r: 34 },
+    { id: 'Shkaf_balk', name: '📦 Шкаф на балконе', x: 750, y: 820, r: 42 },
+    { id: 'Shkaf_gost1', name: '📚 Шкаф гостиная 1', x: 380, y: 540, r: 42 },
+    { id: 'Shkaf_gost2', name: '📚 Шкаф гостиная 2', x: 330, y: 580, r: 42 },
+    { id: 'Shkaf_kuh1', name: '🍽 Кухонный шкаф', x: 720, y: 620, r: 42 },
+    { id: 'Sofa_gost', name: '🛋 Софа', x: 480, y: 600, r: 48 },
+    { id: 'Stol', name: '🍽 Стол', x: 650, y: 700, r: 42 },
+    { id: 'Stol_stol', name: '🍽 Обеденный стол', x: 600, y: 650, r: 45 },
+    { id: 'Sushilka', name: '🧺 Сушилка', x: 740, y: 480, r: 32 },
+    { id: 'Tscveti_gost', name: '🌺 Цветы', x: 520, y: 540, r: 30 },
+    { id: 'Vanna', name: '🛁 Ванна', x: 890, y: 320, r: 42 },
+    { id: 'divan_det', name: '🛋 Детский диван', x: 180, y: 650, r: 38 },
+    { id: 'krovat_det', name: '🛏 Детская кровать', x: 150, y: 750, r: 42 },
+    { id: 'shkaf_det', name: '📦 Детский шкаф', x: 250, y: 680, r: 38 },
+    { id: 'stol_det', name: '📚 Детский стол', x: 280, y: 720, r: 32 }
+];
+
+// ========== ЗОНЫ КОМНАТ (для пустых мест) ==========
+const roomZones = [
+    { name: "Санузел1", x1: 700, y1: 300, x2: 950, y2: 500 },
+    { name: "Коридор", x1: 500, y1: 300, x2: 700, y2: 500 },
+    { name: "Гостиная", x1: 300, y1: 500, x2: 600, y2: 700 },
+    { name: "Спальня1", x1: 100, y1: 500, x2: 350, y2: 700 },
+    { name: "Спальня2", x1: 100, y1: 700, x2: 350, y2: 880 },
+    { name: "Кухня", x1: 600, y1: 550, x2: 950, y2: 750 },
+    { name: "Балкон", x1: 700, y1: 750, x2: 920, y2: 880 },
+    { name: "Ванная", x1: 750, y1: 200, x2: 900, y2: 350 },
+    { name: "Санузел2", x1: 850, y1: 480, x2: 950, y2: 580 }
+];
+
+function getZoneName(x,y){
+    for(let z of roomZones){
+        if(x>=z.x1 && x<=z.x2 && y>=z.y1 && y<=z.y2) return z.name;
     }
-    currentRoom=roomName;
-    document.querySelectorAll('.room-btn').forEach(btn=>{if(btn.innerText===roomName)btn.classList.add('active');else btn.classList.remove('active');});
-    showRoomQuests(roomName);
-}
-
-function showRoomQuests(roomName){
-    const panel=document.getElementById('questsPanel');
-    const container=document.getElementById('roomQuestsList');
-    const roomQuests=state.quests.filter(q=>q.room===roomName);
-    if(roomQuests.length===0){
-        container.innerHTML='<div style="text-align:center;padding:10px;color:#666">✨ Нет заданий в этой комнате</div>';
-        panel.style.display='block';
-        setTimeout(()=>{panel.style.display='none';},3000);
-        return;
-    }
-    container.innerHTML='';
-    roomQuests.forEach((q,i)=>{
-        const idx=state.quests.findIndex(original=>original.id===q.id);
-        const div=document.createElement('div');
-        div.className='quest-item';
-        div.innerHTML=`
-            <div class="quest-text">${q.text}</div>
-            <div class="quest-reward">+${q.reward}⭐️</div>
-            <button class="quest-complete" data-idx="${idx}">✅</button>
-        `;
-        container.appendChild(div);
-    });
-    document.querySelectorAll('.quest-complete').forEach(btn=>{
-        btn.addEventListener('click',async(e)=>{
-            const idx=parseInt(e.target.getAttribute('data-idx'));
-            if(!isNaN(idx) && state.quests[idx]){
-                currentTaskIndex=idx;
-                await completeTask();
-            }
-        });
-    });
-    panel.style.display='block';
-    setTimeout(()=>{panel.style.display='none';},5000);
-}
-
-function buildRoomsNav(){
-    const nav=document.getElementById('roomsNav');
-    nav.innerHTML='';
-    roomsList.forEach(room=>{
-        const btn=document.createElement('button');
-        btn.innerText=room;
-        btn.className='room-btn';
-        btn.onclick=()=>focusOnRoom(room);
-        nav.appendChild(btn);
-    });
+    return "Комната";
 }
 
 let scale=0.5,posX=0,posY=0,isDragging=false,startX,startY,lastTap=0,initialDist=null,initialScale=0,oldPos={s:0.5,x:0,y:0};
@@ -214,47 +224,48 @@ window.addEventListener('mousemove',e=>{if(isDragging){posX=e.clientX-startX;pos
 window.addEventListener('mouseup',()=>isDragging=false);
 view.addEventListener('wheel',e=>{e.preventDefault();applyZoom(e.deltaY<0?0.1:-0.1,e.clientX,e.clientY);},{passive:false});
 
-function getRoomNameByPoint(mapX,mapY){
-    const layers=document.querySelectorAll('#map-container .layer[data-room]');
-    for(let layer of layers){
-        const rect=layer.getBoundingClientRect();
-        const containerRect=container.getBoundingClientRect();
-        const left=(rect.left-containerRect.left)/scale;
-        const top=(rect.top-containerRect.top)/scale;
-        const w=rect.width/scale;
-        const h=rect.height/scale;
-        if(mapX>=left && mapX<=left+w && mapY>=top && mapY<=top+h){
-            return layer.getAttribute('data-room');
-        }
-    }
-    return null;
-}
-
+// ГЛАВНЫЙ КЛИК: СНАЧАЛА МЕБЕЛЬ, ПОТОМ КОМНАТА
 view.addEventListener('click',e=>{
     if(state.members.length>0 && state.currentUserId !== state.adminId) return;
     let now=Date.now();
     if(now-lastTap<300){
         let rect=container.getBoundingClientRect();
         let mapX=(e.clientX-rect.left)/scale, mapY=(e.clientY-rect.top)/scale;
-        let roomName=getRoomNameByPoint(mapX,mapY);
-        if(roomName){
-            oldPos={s:scale,x:posX,y:posY};
-            applyZoom(1.2-scale,e.clientX,e.clientY);
-            container.style.transition='transform 0.4s ease-out';
-            setTimeout(()=>{
-                document.getElementById('furniture-hint').innerHTML=`📍 ${roomName}`;
-                window.tempCoords={x:mapX,y:mapY,room:roomName};
-                document.getElementById('createQuestModal').style.display='block';
-                document.getElementById('overlay').style.display='block';
-            },350);
+        let foundFurniture=null;
+        for(let f of furnitureZones){
+            let dx=f.x-mapX, dy=f.y-mapY;
+            let dist=Math.sqrt(dx*dx+dy*dy);
+            if(dist<f.r){
+                foundFurniture=f;
+                break;
+            }
         }
+        let zoneName = "";
+        if(foundFurniture){
+            let el=document.getElementById('obj-'+foundFurniture.id);
+            if(el){el.classList.add('highlight');setTimeout(()=>el.classList.remove('highlight'),800);}
+            zoneName = foundFurniture.name;
+            showStatus(`📍 ${zoneName}`, false);
+        } else {
+            zoneName = getZoneName(mapX, mapY);
+            showStatus(`📍 ${zoneName}`, false);
+        }
+        oldPos={s:scale,x:posX,y:posY};
+        applyZoom(1.4-scale,e.clientX,e.clientY);
+        container.style.transition='transform 0.4s ease-out';
+        window.tempCoords={x:mapX,y:mapY,room:zoneName};
+        setTimeout(()=>{
+            document.getElementById('furniture-hint').innerHTML = `📍 ${zoneName}`;
+            document.getElementById('createQuestModal').style.display='block';
+            document.getElementById('overlay').style.display='block';
+        },350);
     }
     lastTap=now;
 });
 
 function updateBadges(){
-    const total=unreadCounts.general+unreadCounts.tech;
-    const chatBadge=document.getElementById('chatBadge');
+    const total = unreadCounts.general + unreadCounts.tech;
+    const chatBadge = document.getElementById('chatBadge');
     if(total>0){chatBadge.style.display='flex';chatBadge.innerText=total>99?'99+':total;}
     else chatBadge.style.display='none';
     const gb=document.getElementById('generalBadge'), tb=document.getElementById('techBadge');
@@ -263,6 +274,7 @@ function updateBadges(){
     if(unreadCounts.tech>0){tb.style.display='flex';tb.innerText=unreadCounts.tech>99?'99+':unreadCounts.tech;}
     else tb.style.display='none';
 }
+
 function showStatus(m,e){let el=document.getElementById('statusMsg');el.innerHTML=m;el.style.background=e?'rgba(255,0,0,0.8)':'rgba(0,0,0,0.7)';setTimeout(()=>el.innerHTML='',3000);}
 function loadToken(){let t=localStorage.getItem('githubToken');if(t&&t.startsWith('ghp_')){githubToken=t;return true;}return false;}
 function saveToken(){let t=document.getElementById('tokenInput').value.trim();if(t&&t.startsWith('ghp_')){githubToken=t;localStorage.setItem('githubToken',t);showStatus('✅ Токен сохранён');closeModal();loadFromGitHub();}else showStatus('❌ Неверный токен',true);}
@@ -287,8 +299,8 @@ function openTransferBonus(){let cp=state.members.find(m=>m.id===state.currentUs
 let html='';op.forEach(p=>{html+=`<div class="member-item" style="cursor:pointer" onclick="transferToPlayer('${p.id}')"><span>${p.avatar} ${p.name}</span><span>⭐️ ${p.points}</span></div>`;});document.getElementById('transfer-list').innerHTML=html;document.getElementById('transferModal').style.display='block';document.getElementById('overlay').style.display='block';}
 async function transferToPlayer(id){let cp=state.members.find(m=>m.id===state.currentUserId);let target=state.members.find(m=>m.id===id);let amt=prompt(`Сколько бонусов передать ${target.name}? (У тебя ${cp.points})`,'10');if(amt&&!isNaN(parseInt(amt))){let a=parseInt(amt);if(a>cp.points){showStatus(`❌ У тебя только ${cp.points} бонусов`,true);return;}if(a<=0){showStatus('❌ Сумма >0',true);return;}
 cp.points-=a;target.points+=a;await saveToGitHub();updateUI();await addTechMessage(`💰 ${cp.name} передал(а) ${a}⭐️ игроку ${target.name}!`);showStatus(`✅ Передано ${a}⭐️`);closeModal();closeModal();}}
-async function confirmCreateQuest(){let txt=document.getElementById('new-quest-text').value,reward=parseInt(document.getElementById('quest-reward').value)||10;if(txt&&window.tempCoords){state.quests.push({id:Date.now().toString(),x:window.tempCoords.x,y:window.tempCoords.y,text:txt,reward:reward,room:window.tempCoords.room});document.getElementById('new-quest-text').value='';document.getElementById('quest-reward').value='10';await saveToGitHub();renderQuestsOnMap();let author=state.members.find(m=>m.id===state.currentUserId);await addTechMessage(`📋 ${author?.name} создал(а) задание: "${txt}" (+${reward}⭐️) в ${window.tempCoords.room}`);}cancelQuest();}
-async function completeTask(){if(currentTaskIndex!==null&&state.quests[currentTaskIndex]){let q=state.quests[currentTaskIndex],p=state.members.find(m=>m.id===state.currentUserId);if(p){p.points+=q.reward;state.quests.splice(currentTaskIndex,1);await saveToGitHub();renderQuestsOnMap();updateUI();showStatus(`✅ +${q.reward} бонусов!`);await addTechMessage(`🎉 ${p.name} выполнил(а) задание "${q.text}" и получил(а) +${q.reward}⭐️`);if(currentRoom===q.room)showRoomQuests(currentRoom);}}closeAll();}
+async function confirmCreateQuest(){let txt=document.getElementById('new-quest-text').value,reward=parseInt(document.getElementById('quest-reward').value)||10;if(txt&&window.tempCoords){state.quests.push({id:Date.now().toString(),x:window.tempCoords.x,y:window.tempCoords.y,text:txt,reward:reward});document.getElementById('new-quest-text').value='';document.getElementById('quest-reward').value='10';await saveToGitHub();renderQuestsOnMap();let author=state.members.find(m=>m.id===state.currentUserId);await addTechMessage(`📋 ${author?.name} создал(а) задание: "${txt}" (+${reward}⭐️) в зоне ${window.tempCoords.room}`);}cancelQuest();}
+async function completeTask(){if(currentTaskIndex!==null&&state.quests[currentTaskIndex]){let q=state.quests[currentTaskIndex],p=state.members.find(m=>m.id===state.currentUserId);if(p){p.points+=q.reward;state.quests.splice(currentTaskIndex,1);await saveToGitHub();renderQuestsOnMap();updateUI();showStatus(`✅ +${q.reward} бонусов!`);await addTechMessage(`🎉 ${p.name} выполнил(а) задание "${q.text}" и получил(а) +${q.reward}⭐️`);}}closeAll();}
 async function addTechMessage(t){let s=state.members.find(m=>m.id===state.currentUserId);let isAdminMsg=t.includes('ЗАПРАШИВАЕТ')||t.includes('админа');state.messages.tech.push({id:Date.now().toString(),sender:"⚙️ Система",text:t,time:new Date().toLocaleTimeString()});if(state.messages.tech.length>200)state.messages.tech=state.messages.tech.slice(-200);await saveToGitHub();
 if(currentChatTab!=='tech'){unreadCounts.tech++;updateBadges();}
 if(currentChatTab==='tech'&&document.getElementById('chatMessages')){let cd=document.getElementById('chatMessages');let msgDiv=document.createElement('div');msgDiv.className='chat-message';if(isAdminMsg)msgDiv.classList.add('admin-notice');msgDiv.innerHTML=`<span class="chat-sender">⚙️ Система:</span> ${t}`;cd.appendChild(msgDiv);cd.scrollTop=cd.scrollHeight;}}
@@ -318,7 +330,6 @@ async function switchProfile(id){state.currentUserId=id;localStorage.setItem('cu
 async function setAdmin(id){state.adminId=id;await saveToGitHub();updateUI();await addTechMessage(`👑 Права администратора переданы ${state.members.find(m=>m.id===id)?.name}`);}
 const emojis=['🐱','🐶','🦊','🐼','🐨','🐯','🦁','🦄','🐷','🐸','🐮','🦒'];
 document.getElementById('emoji-grid').innerHTML=emojis.map(e=>`<span onclick="setAvatar('${e}')" style="font-size:38px;cursor:pointer;">${e}</span>`).join('');
-buildRoomsNav();
 if(!loadToken()){document.getElementById('tokenModal').style.display='block';document.getElementById('overlay').style.display='block';}else loadFromGitHub();
 setTimeout(()=>{posX=(view.offsetWidth-1000*0.4)/2;posY=(view.offsetHeight-1000*0.4)/2;scale=0.4;updateTransform();},600);
 </script>
