@@ -74,28 +74,26 @@
         </div>
     </div>
     <div class="map-viewport" id="viewport"><div id="map-container">
-        <!-- КОМНАТЫ С ПРАВИЛЬНЫМИ НАЗВАНИЯМИ из файлов -->
-        <div id="room-Balcon" class="layer" style="background-image:url('Balcon.png')" data-room="Балкон"></div>
-        <div id="room-Kuhnya" class="layer" style="background-image:url('Kuhnya.png')" data-room="Кухня"></div>
-        <div id="room-Sanuzel2" class="layer" style="background-image:url('Sanuzel2.png')" data-room="Санузел2"></div>
-        <div id="room-Vannaya" class="layer" style="background-image:url('Vannaya.png')" data-room="Ванная"></div>
-        <div id="room-Spalnya2" class="layer" style="background-image:url('Spalnya2.png')" data-room="Спальня2"></div>
-        <div id="room-Spalnya1" class="layer" style="background-image:url('Spalnya1.png')" data-room="Спальня1"></div>
-        <div id="room-Gostinaya" class="layer" style="background-image:url('Gostinaya.png')" data-room="Гостиная"></div>
-        <div id="room-Koridor" class="layer" style="background-image:url('Koridor.png')" data-room="Коридор"></div>
-        <div id="room-Sanuzel1" class="layer" style="background-image:url('Sanuzel1.png')" data-room="Санузел1"></div>
-        <!-- МЕБЕЛЬ -->
-        <div id="obj-Lapomoika" class="layer" style="background-image:url('Lapomoika.png')" data-room="Лапомойка"></div>
-        <div id="obj-Unitaz1" class="layer" style="background-image:url('Unitaz1.png')" data-room="Унитаз"></div>
-        <div id="obj-Stiralka" class="layer" style="background-image:url('Stiralka.png')" data-room="Стиральная машина"></div>
-        <div id="obj-Korzina" class="layer" style="background-image:url('Korzina.png')" data-room="Корзина"></div>
-        <div id="obj-Tumbochka" class="layer" style="background-image:url('Tumbochka.png')" data-room="Тумбочка"></div>
-        <div id="obj-Veshalka" class="layer" style="background-image:url('Veshalka.png')" data-room="Вешалка"></div>
-        <div id="obj-Shkaf1" class="layer" style="background-image:url('Shkaf1.png')" data-room="Шкаф обуви"></div>
-        <div id="obj-Shkaf2" class="layer" style="background-image:url('Shkaf2.png')" data-room="Шкаф одежды"></div>
-        <div id="obj-Shkaf3" class="layer" style="background-image:url('Shkaf3.png')" data-room="Хозяйственный шкаф"></div>
-        <div id="obj-Shkaf4" class="layer" style="background-image:url('Shkaf4.png')" data-room="Спортивный шкаф"></div>
-        <div id="obj-Shkaf5" class="layer" style="background-image:url('Shkaf5.png')" data-room="Дополнительный шкаф"></div>
+        <div class="layer" style="background-image:url('Sanuzel1.png')"></div>
+        <div class="layer" style="background-image:url('Koridor.png')"></div>
+        <div class="layer" style="background-image:url('Gostinaya.png')"></div>
+        <div class="layer" style="background-image:url('Spalnya1.png')"></div>
+        <div class="layer" style="background-image:url('Spalnya2.png')"></div>
+        <div class="layer" style="background-image:url('Vannaya.png')"></div>
+        <div class="layer" style="background-image:url('Sanuzel2.png')"></div>
+        <div class="layer" style="background-image:url('Kuhnya.png')"></div>
+        <div class="layer" style="background-image:url('Balcon.png')"></div>
+        <div id="obj-Lapomoika" class="layer" style="background-image:url('Lapomoika.png')"></div>
+        <div id="obj-Unitaz1" class="layer" style="background-image:url('Unitaz1.png')"></div>
+        <div id="obj-Stiralka" class="layer" style="background-image:url('Stiralka.png')"></div>
+        <div id="obj-Korzina" class="layer" style="background-image:url('Korzina.png')"></div>
+        <div id="obj-Tumbochka" class="layer" style="background-image:url('Tumbochka.png')"></div>
+        <div id="obj-Veshalka" class="layer" style="background-image:url('Veshalka.png')"></div>
+        <div id="obj-Shkaf1" class="layer" style="background-image:url('Shkaf1.png')"></div>
+        <div id="obj-Shkaf2" class="layer" style="background-image:url('Shkaf2.png')"></div>
+        <div id="obj-Shkaf3" class="layer" style="background-image:url('Shkaf3.png')"></div>
+        <div id="obj-Shkaf4" class="layer" style="background-image:url('Shkaf4.png')"></div>
+        <div id="obj-Shkaf5" class="layer" style="background-image:url('Shkaf5.png')"></div>
         <div id="quest-arrows"></div>
     </div><div class="zoom-controls"><button class="z-btn" onclick="btnZoom(0.3)">+</button><button class="z-btn" onclick="btnZoom(-0.3)">−</button></div></div>
 </div>
@@ -116,18 +114,32 @@ let state={members:[],adminId:null,currentUserId:null,quests:[],messages:{genera
 let unreadCounts={general:0,tech:0};
 const container=document.getElementById('map-container'),view=document.getElementById('viewport'),qBox=document.getElementById('quest-arrows');
 
+// ========== ПРАВИЛЬНЫЕ НАЗВАНИЯ КОМНАТ ПО КООРДИНАТАМ ==========
+const roomZones = [
+    { name: "Санузел1", x1: 700, y1: 300, x2: 950, y2: 500 },
+    { name: "Коридор", x1: 500, y1: 300, x2: 700, y2: 500 },
+    { name: "Гостиная", x1: 300, y1: 500, x2: 600, y2: 700 },
+    { name: "Спальня1", x1: 100, y1: 500, x2: 350, y2: 700 },
+    { name: "Спальня2", x1: 100, y1: 700, x2: 350, y2: 880 },
+    { name: "Кухня", x1: 600, y1: 550, x2: 950, y2: 750 },
+    { name: "Балкон", x1: 700, y1: 750, x2: 920, y2: 880 },
+    { name: "Ванная", x1: 750, y1: 200, x2: 900, y2: 350 },
+    { name: "Санузел2", x1: 850, y1: 480, x2: 950, y2: 580 }
+];
+
+// Мебель
 const furnitureZones = [
-    { id: 'Lapomoika', x: 745, y: 405, r: 48 },
-    { id: 'Unitaz1', x: 865, y: 405, r: 45 },
-    { id: 'Stiralka', x: 865, y: 555, r: 50 },
-    { id: 'Korzina', x: 765, y: 555, r: 42 },
-    { id: 'Veshalka', x: 690, y: 420, r: 40 },
-    { id: 'Tumbochka', x: 640, y: 500, r: 38 },
-    { id: 'Shkaf1', x: 505, y: 620, r: 48 },
-    { id: 'Shkaf2', x: 410, y: 620, r: 50 },
-    { id: 'Shkaf3', x: 305, y: 628, r: 52 },
-    { id: 'Shkaf4', x: 305, y: 710, r: 52 },
-    { id: 'Shkaf5', x: 305, y: 790, r: 52 }
+    { id: 'Lapomoika', name: 'Лапомойка', x: 745, y: 405, r: 48 },
+    { id: 'Unitaz1', name: 'Унитаз', x: 865, y: 405, r: 45 },
+    { id: 'Stiralka', name: 'Стиральная машина', x: 865, y: 555, r: 50 },
+    { id: 'Korzina', name: 'Корзина', x: 765, y: 555, r: 42 },
+    { id: 'Veshalka', name: 'Вешалка', x: 690, y: 420, r: 40 },
+    { id: 'Tumbochka', name: 'Тумбочка', x: 640, y: 500, r: 38 },
+    { id: 'Shkaf1', name: 'Шкаф обуви', x: 505, y: 620, r: 48 },
+    { id: 'Shkaf2', name: 'Шкаф одежды', x: 410, y: 620, r: 50 },
+    { id: 'Shkaf3', name: 'Хозяйственный шкаф', x: 305, y: 628, r: 52 },
+    { id: 'Shkaf4', name: 'Спортивный шкаф', x: 305, y: 710, r: 52 },
+    { id: 'Shkaf5', name: 'Дополнительный шкаф', x: 305, y: 790, r: 52 }
 ];
 
 let scale=0.5,posX=0,posY=0,isDragging=false,startX,startY,lastTap=0,initialDist=null,initialScale=0,oldPos={s:0.5,x:0,y:0};
@@ -142,29 +154,11 @@ window.addEventListener('mousemove',e=>{if(isDragging){posX=e.clientX-startX;pos
 window.addEventListener('mouseup',()=>isDragging=false);
 view.addEventListener('wheel',e=>{e.preventDefault();applyZoom(e.deltaY<0?0.1:-0.1,e.clientX,e.clientY);},{passive:false});
 
-// Определение комнаты по точке (перебор слоёв)
-function getRoomNameByPoint(mapX, mapY){
-    const layers = document.querySelectorAll('#map-container .layer');
-    let bestMatch = null;
-    let maxDepth = -1;
-    for(let layer of layers){
-        const room = layer.getAttribute('data-room');
-        if(!room) continue;
-        const rect = layer.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        const layerLeft = (rect.left - containerRect.left) / scale;
-        const layerTop = (rect.top - containerRect.top) / scale;
-        const layerWidth = rect.width / scale;
-        const layerHeight = rect.height / scale;
-        if(mapX >= layerLeft && mapX <= layerLeft+layerWidth && mapY >= layerTop && mapY <= layerTop+layerHeight){
-            const zIndex = parseInt(getComputedStyle(layer).zIndex) || 0;
-            if(zIndex > maxDepth){
-                maxDepth = zIndex;
-                bestMatch = room;
-            }
-        }
+function getZoneName(x,y){
+    for(let z of roomZones){
+        if(x>=z.x1 && x<=z.x2 && y>=z.y1 && y<=z.y2) return z.name;
     }
-    return bestMatch || "Комната";
+    return "Комната";
 }
 
 view.addEventListener('click',e=>{
@@ -173,23 +167,23 @@ view.addEventListener('click',e=>{
     if(now-lastTap<300){
         let rect=container.getBoundingClientRect();
         let mapX=(e.clientX-rect.left)/scale, mapY=(e.clientY-rect.top)/scale;
-        let found=null;
+        let foundFurniture=null;
         for(let f of furnitureZones){
             let dx=f.x-mapX, dy=f.y-mapY;
             let dist=Math.sqrt(dx*dx+dy*dy);
             if(dist<f.r){
-                found=f;
+                foundFurniture=f;
                 break;
             }
         }
         let zoneName = "";
-        if(found){
-            let el=document.getElementById('obj-'+found.id);
+        if(foundFurniture){
+            let el=document.getElementById('obj-'+foundFurniture.id);
             if(el){el.classList.add('highlight');setTimeout(()=>el.classList.remove('highlight'),800);}
-            zoneName = document.getElementById('obj-'+found.id)?.getAttribute('data-room') || found.id;
+            zoneName = foundFurniture.name;
             showStatus(`📍 ${zoneName}`, false);
         } else {
-            zoneName = getRoomNameByPoint(mapX, mapY);
+            zoneName = getZoneName(mapX, mapY);
             showStatus(`📍 ${zoneName}`, false);
         }
         oldPos={s:scale,x:posX,y:posY};
