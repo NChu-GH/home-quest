@@ -2,428 +2,291 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Семейный Квест — общая таблица</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Семейный Квест - Финал</title>
     <style>
-        * {
-            box-sizing: border-box;
-            user-select: none;
-        }
+        body { background-color: #e0f7fa; display: flex; flex-direction: column; align-items: center; padding: 0; margin: 0; height: 100vh; overflow: hidden; font-family: 'Comic Sans MS', cursive, sans-serif; }
+        .main-wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100%; }
+        
+        /* ВЕРХНЯЯ ПАНЕЛЬ */
+        .top-bar { display: flex; justify-content: space-between; align-items: stretch; padding: 10px; gap: 8px; z-index: 100; flex-shrink: 0; }
+        .profile-card { background: white; padding: 10px; border-radius: 25px; border: 4px solid #00796b; display: flex; align-items: center; gap: 10px; flex: 2; position: relative; min-width: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .crown-icon { position: absolute; top: -18px; left: 5px; font-size: 32px; transform: rotate(-15deg); display: none; z-index: 10; }
+        .is-admin .crown-icon { display: block; }
+        .avatar-circle { width: 60px; height: 60px; background: #eee; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; cursor: pointer; border: 3px solid #00796b; overflow: hidden; background-size: cover; background-position: center; flex-shrink: 0; }
+        
+        .btn-group { display: flex; flex-direction: column; gap: 5px; flex: 0.8; }
+        .menu-btn, .chat-btn { height: 100%; min-height: 45px; border-radius: 18px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 16px; border: 3px solid; display: flex; justify-content: center; align-items: center; }
+        .menu-btn { background: #ff9800; color: white; border-color: #e65100; }
+        .chat-btn { background: #4caf50; color: white; border-color: #2e7d32; }
 
-        body {
-            background: linear-gradient(145deg, #2e5f4b 0%, #1e3e31 100%);
-            font-family: 'Segoe UI', 'Comic Neue', 'Chalkboard SE', 'Comic Sans MS', cursive, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
+        /* ИГРОВОЕ ПОЛЕ */
+        .map-viewport { flex: 1; width: 100%; position: relative; overflow: hidden; background: #cfd8dc; touch-action: none; border-top: 2px solid #004d40; }
+        #map-container { position: absolute; width: 1000px; height: 1000px; transform-origin: 0 0; }
+        .layer { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; background-size: contain; background-repeat: no-repeat; transition: filter 0.3s; }
+        
+        /* СВЕЧЕНИЕ МЕБЕЛИ */
+        .highlight { filter: drop-shadow(0 0 25px #00e5ff) brightness(1.4) !important; }
 
-        .app {
-            max-width: 1000px;
-            width: 100%;
-            background: #fdf8e7;
-            border-radius: 70px 70px 50px 50px;
-            box-shadow: 0 20px 35px rgba(0,0,0,0.3);
-            overflow: hidden;
-            padding: 20px 20px 30px;
-        }
+        #quest-arrows { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; z-index: 60; }
+        .arrow { position: absolute; width: 55px; height: 55px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); pointer-events: auto; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); }
+        @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -80%); } }
 
-        .header {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            background: #ffd966;
-            padding: 12px 20px;
-            border-radius: 60px;
-            margin-bottom: 25px;
-        }
-        h1 { margin: 0; font-size: 1.5rem; color: #3b2a1f; }
-        .player-selector {
-            background: white;
-            padding: 5px 12px;
-            border-radius: 40px;
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        select, input {
-            font-size: 1rem;
-            padding: 6px;
-            border-radius: 30px;
-            font-family: inherit;
-            border: 1px solid #ccc;
-        }
-        button {
-            background: #ffb142;
-            border: none;
-            font-weight: bold;
-            padding: 8px 16px;
-            border-radius: 40px;
-            cursor: pointer;
-        }
-        .bonus-box {
-            background: #2c2b28;
-            padding: 6px 18px;
-            border-radius: 40px;
-            color: #ffd966;
-            font-weight: bold;
-            font-size: 1.4rem;
-        }
-        .floorplan {
-            background: #ecd9b4;
-            border-radius: 50px;
-            padding: 20px;
-        }
-        .rooms-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 18px;
-            justify-content: center;
-        }
-        .room-card {
-            flex: 1;
-            min-width: 160px;
-            background: #fffaf0;
-            border-radius: 35px;
-            padding: 15px 10px 20px;
-            text-align: center;
-            cursor: pointer;
-            box-shadow: 0 8px 0 #bba88a;
-            transition: 0.1s linear;
-        }
-        .room-card:active { transform: translateY(3px); box-shadow: 0 4px 0 #bba88a; }
-        .room-name {
-            font-size: 1.3rem;
-            font-weight: bold;
-            background: #ffb882;
-            display: inline-block;
-            padding: 4px 16px;
-            border-radius: 40px;
-            margin-bottom: 12px;
-        }
-        .task-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto;
-            background: #ffe1a0;
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: 2px solid #ffb347;
-        }
-        .task-icon img { width: 60px; height: 60px; }
-        .task-status {
-            margin-top: 10px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            background: #e9e0cf;
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 50px;
-        }
-        .reset-btn, .add-player-btn {
-            background: #6c4f2e;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 40px;
-            color: white;
-            font-weight: bold;
-            margin-top: 20px;
-            width: 100%;
-            cursor: pointer;
-        }
-        .add-player-btn {
-            background: #3d8f40;
-            margin-top: 10px;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .modal-card {
-            background: #fff6e8;
-            border-radius: 50px;
-            max-width: 320px;
-            width: 85%;
-            padding: 20px;
-            text-align: center;
-        }
-        .close-btn { background: #b0aa9a; padding: 6px 18px; border-radius: 40px; border: none; cursor: pointer; }
-        .loading {
-            text-align: center;
-            padding: 40px;
-            font-size: 1.3rem;
-        }
-        .add-player-form {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 20px;
-        }
+        /* БИРЮЗОВАЯ РАМКА 6PX И СКРУГЛЕНИЕ 35PX */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 500; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 35px; border: 6px solid #00796b; text-align: center; width: 85%; max-width: 420px; z-index: 1000; box-shadow: 0 0 50px rgba(0,0,0,0.4); }
+        .btn-choice { width: 100%; padding: 16px; margin: 8px 0; border-radius: 20px; border: 3px solid #00796b; cursor: pointer; font-family: inherit; font-size: 20px; background: white; font-weight: bold; }
+
+        .sidebar { position: fixed; right: -550px; top: 0; width: 85%; max-width: 420px; height: 100%; background: white; border-left: 8px solid #ff9800; transition: 0.4s; padding: 30px; z-index: 1000; overflow-y: auto; box-sizing: border-box; }
+        .sidebar.active { right: 0; }
+        .member-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 2px solid #ffcc80; }
+        input { width: 100%; padding: 15px; border-radius: 15px; border: 3px solid #00796b; font-family: inherit; font-size: 18px; box-sizing: border-box; margin-bottom: 10px; }
+        .zoom-controls { position: absolute; bottom: 15px; right: 15px; display: flex; flex-direction: column; gap: 8px; z-index: 110; }
+        .z-btn { width: 50px; height: 50px; border-radius: 15px; border: 4px solid #004d40; background: white; font-size: 26px; font-weight: bold; color: #004d40; cursor: pointer; }
+        .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #00796b; font-weight: bold; }
     </style>
 </head>
 <body>
-<div class="app" id="app">
-    <div class="loading">Загрузка данных из таблицы... 🔄</div>
-</div>
 
-<div id="taskModal" class="modal">
-    <div class="modal-card">
-        <h3 id="modalRoomName"></h3>
-        <div id="modalTaskImg" style="font-size: 4rem;"></div>
-        <p id="modalTaskDesc"></p>
-        <p>Награда: +<span id="modalReward"></span> ⭐️</p>
-        <button class="get-bonus-btn" id="completeTaskBtn" style="background:#ffb142;">✅ Выполнить!</button>
-        <button class="close-btn" id="closeModalBtn">Закрыть</button>
+<div id="loader" class="loading-screen">Синхронизация с облаком... ☁️</div>
+
+<div class="main-wrapper">
+    <div class="top-bar">
+        <div id="p-card" class="profile-card">
+            <div class="crown-icon">👑</div>
+            <div id="current-avatar" class="avatar-circle" onclick="openAvatarPicker()">👤</div>
+            <div style="flex:1; min-width: 0;">
+                <b id="current-user-name">...</b>
+                <div style="color: #00796b; font-weight: bold; font-size: 18px;">⭐️ <span id="score-val">0</span> <button onclick="renameCurrentPlayer()" style="background:none; border:none; font-size:18px; cursor:pointer;">✏️</button></div>
+            </div>
+        </div>
+        <div class="btn-group">
+            <button class="chat-btn" onclick="syncData()">🔄</button>
+            <button class="menu-btn" onclick="toggleSidebar()">⚙️</button>
+        </div>
     </div>
-</div>
 
-<!-- Модалка добавления игрока -->
-<div id="addPlayerModal" class="modal">
-    <div class="modal-card">
-        <h3>✨ Новый игрок</h3>
-        <div class="add-player-form">
-            <input type="text" id="newPlayerName" placeholder="Имя игрока" autocomplete="off">
-            <input type="text" id="newPlayerAvatar" placeholder="Эмодзи (🐶 🐱 🦊)" autocomplete="off" value="🐣">
-            <button id="confirmAddPlayerBtn">➕ Добавить</button>
-            <button class="close-btn" id="closeAddPlayerBtn">Отмена</button>
+    <div class="map-viewport" id="viewport">
+        <div id="map-container">
+            <!-- СЛОИ КОМНАТ -->
+            <div class="layer" style="background-image: url('Sanuzel1.png');"></div>
+            <div class="layer" style="background-image: url('Koridor.png');"></div>
+            <div class="layer" style="background-image: url('Gostinaya.png');"></div>
+            <div class="layer" style="background-image: url('Spalnya1.png');"></div>
+            <div class="layer" style="background-image: url('Spalnya2.png');"></div>
+            <div class="layer" style="background-image: url('Vannaya.png');"></div>
+            <div class="layer" style="background-image: url('Sanuzel2.png');"></div>
+            <div class="layer" style="background-image: url('Kuhnya.png');"></div>
+            <div class="layer" style="background-image: url('Balcon.png');"></div>
+            <!-- СЛОИ МЕБЕЛИ С ЛОКАЛЬНЫМИ ID ДЛЯ ПОДСВЕТКИ -->
+            <div id="obj-Lapomoika" class="layer" style="background-image: url('Lapomoika.png');"></div>
+            <div id="obj-Unitaz1" class="layer" style="background-image: url('Unitaz1.png');"></div>
+            <div id="obj-Stiralka" class="layer" style="background-image: url('Stiralka.png');"></div>
+            <div id="obj-Korzina" class="layer" style="background-image: url('Korzina.png');"></div>
+            <div id="obj-Tumbochka" class="layer" style="background-image: url('Tumbochka.png');"></div>
+            <div id="obj-Veshalka" class="layer" style="background-image: url('Veshalka.png');"></div>
+            <div id="obj-Shkaf1" class="layer" style="background-image: url('Shkaf1.png');"></div>
+            <div id="obj-Shkaf2" class="layer" style="background-image: url('Shkaf2.png');"></div>
+            <div id="obj-Shkaf3" class="layer" style="background-image: url('Shkaf3.png');"></div>
+            <div id="obj-Shkaf4" class="layer" style="background-image: url('Shkaf4.png');"></div>
+            <div id="obj-Shkaf5" class="layer" style="background-image: url('Shkaf5.png');"></div>
+            <div id="quest-arrows"></div>
+        </div>
+        <div class="zoom-controls">
+            <button class="z-btn" onclick="btnZoom(0.3)">+</button>
+            <button class="z-btn" onclick="btnZoom(-0.3)">−</button>
         </div>
     </div>
 </div>
 
+<div id="overlay" onclick="closeAll()" class="overlay"></div>
+<!-- МОДАЛКИ С ТРЕБУЕМЫМ СТИЛЕМ -->
+<div id="createQuestModal" class="modal">
+    <h2 id="modal-title">Задание 📝</h2>
+    <p id="furniture-hint" style="color:#00796b; font-weight:bold; margin-bottom:10px;"></p>
+    <input type="text" id="new-quest-text" placeholder="Какое задание хотите здесь назначить?">
+    <button class="btn-choice" style="background:#4caf50; color:white;" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button>
+    <button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button>
+</div>
+
+<div id="taskModal" class="modal">
+    <h2 id="taskText">...</h2>
+    <button class="btn-choice" style="background:#00796b; color:white;" onclick="completeTask()">ГОТОВО ✅</button>
+    <button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ 🔙</button>
+</div>
+
+<div id="sidebar" class="sidebar">
+    <h2 style="color:#00796b;">🏡 Семья</h2>
+    <div id="family-list" style="background:#fff3e0; padding:15px; border-radius:20px; margin-bottom:20px;"></div>
+    <button class="btn-choice" style="background:#4caf50; color:white; border:none;" onclick="addNewMember()">➕ ДОБАВИТЬ ИГРОКА</button>
+    <div id="switch-list"></div>
+    <button class="btn-choice" onclick="closeAll()" style="margin-top:40px; background:#eee;">ЗАКРЫТЬ ❌</button>
+</div>
+
+<div id="avatarModal" class="modal">
+    <h2>Аватар героя 🎭</h2>
+    <div id="emoji-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:20px 0;"></div>
+    <button class="btn-choice" onclick="closeAll()">🔙 НАЗАД</button>
+</div>
+
 <script>
-    // ======================== ВАШИ ССЫЛКИ ========================
-    const PLAYERS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5LxPN-yeR88dl3gavERiHxE3XifP1IbupLaiHTjuRhQ9LJBkw9FnInodu0AuQKMWZz0wQ-Ai5UiVR/pub?gid=0&single=true&output=csv";
-    const TASKS_CSV_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5LxPN-yeR88dl3gavERiHxE3XifP1IbupLaiHTjuRhQ9LJBkw9FnInodu0AuQKMWZz0wQ-Ai5UiVR/pub?gid=1230357202&single=true&output=csv";
-    const COMPLETIONS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5LxPN-yeR88dl3gavERiHxE3XifP1IbupLaiHTjuRhQ9LJBkw9FnInodu0AuQKMWZz0wQ-Ai5UiVR/pub?gid=1681233988&single=true&output=csv";
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzz4tLNf6jdU85F_IZVE0xBpdyxiu4TGJlDEGXVop3WSTOFKJp4Alh_NdRSMZuDN1fQ/exec";
-    // =============================================================
-
-    let players = [], tasks = [], completions = [];
-    let currentPlayerId = null, currentTask = null;
-    const appDiv = document.getElementById("app");
-
-    async function fetchCSV(url) {
-        try {
-            const resp = await fetch(url, { cache: "no-store" });
-            if (!resp.ok) return [];
-            const text = await resp.text();
-            const rows = text.split("\n").filter(r => r.trim() !== "");
-            if (rows.length < 2) return [];
-            const headers = rows[0].split(",").map(h => h.trim());
-            const data = [];
-            for (let i = 1; i < rows.length; i++) {
-                const values = rows[i].split(",");
-                let obj = {};
-                headers.forEach((h, idx) => { obj[h] = values[idx]?.trim() || ""; });
-                data.push(obj);
-            }
-            return data;
-        } catch (e) { return []; }
-    }
-
-    async function loadAllData() {
-        const [playersRaw, tasksRaw, completionsRaw] = await Promise.all([
-            fetchCSV(PLAYERS_CSV_URL),
-            fetchCSV(TASKS_CSV_URL),
-            fetchCSV(COMPLETIONS_CSV_URL)
-        ]);
-        players = playersRaw.map(p => ({ ...p, total_bonus: Number(p.total_bonus) || 0, id: String(p.id) }));
-        tasks = tasksRaw.map(t => ({ ...t, reward: Number(t.reward) || 5, id: String(t.id) }));
-        completions = completionsRaw.map(c => ({ task_id: String(c.task_id), player_id: String(c.player_id) }));
-        
-        if (players.length === 0) {
-            // Если нет игроков, показываем пустое состояние, но с кнопкой добавления
-            renderEmptyWithAddButton();
-        } else {
-            if (!currentPlayerId || !players.find(p => p.id === currentPlayerId)) {
-                currentPlayerId = players[0].id;
-            }
-            renderApp();
-        }
-    }
-
-    function renderEmptyWithAddButton() {
-        appDiv.innerHTML = `
-            <div class="empty-state" style="text-align:center; padding:40px;">
-                <h2>🏠 Семейный Квест</h2>
-                <p>Нет игроков. Нажмите кнопку, чтобы добавить первого.</p>
-                <button id="showAddPlayerBtn" style="margin-top:20px;">➕ Добавить игрока</button>
-            </div>
-        `;
-        document.getElementById("showAddPlayerBtn").addEventListener("click", () => {
-            openAddPlayerModal();
-        });
-    }
-
-    function openAddPlayerModal() {
-        document.getElementById("addPlayerModal").style.display = "flex";
-    }
-
-    async function addPlayerToSheet(name, avatar) {
-        try {
-            const params = new URLSearchParams();
-            params.append("action", "addPlayer");
-            params.append("name", name);
-            params.append("avatar", avatar);
-            const response = await fetch(WEBAPP_URL, { 
-                method: "POST", 
-                body: params, 
-                headers: { "Content-Type": "application/x-www-form-urlencoded" } 
-            });
-            const text = await response.text();
-            if (!response.ok || text !== "OK") throw new Error("Сервер вернул: " + text);
-            
-            alert(`Игрок ${name} добавлен!`);
-            closeAddPlayerModal();
-            await loadAllData(); // перезагружаем всё
-        } catch (err) {
-            alert("Ошибка при добавлении: " + err.message);
-        }
-    }
-
-    function closeAddPlayerModal() {
-        document.getElementById("addPlayerModal").style.display = "none";
-        document.getElementById("newPlayerName").value = "";
-        document.getElementById("newPlayerAvatar").value = "🐣";
-    }
-
-    function isTaskCompletedByPlayer(taskId) {
-        return completions.some(c => c.task_id === taskId && c.player_id === currentPlayerId);
-    }
-
-    async function sendCompletion(taskId, playerId, reward) {
-        const params = new URLSearchParams();
-        params.append("task_id", taskId);
-        params.append("player_id", playerId);
-        params.append("reward", reward);
-        const response = await fetch(WEBAPP_URL, { 
-            method: "POST", 
-            body: params, 
-            headers: { "Content-Type": "application/x-www-form-urlencoded" } 
-        });
-        if (!response.ok) throw new Error("Ошибка записи");
-        return await response.text();
-    }
-
-    async function onCompleteTask() {
-        if (!currentTask || !currentPlayerId) return;
-        if (isTaskCompletedByPlayer(currentTask.id)) {
-            alert("Вы уже получали бонус за это задание!");
-            closeModal();
-            return;
-        }
-        try {
-            await sendCompletion(currentTask.id, currentPlayerId, currentTask.reward);
-            completions.push({ task_id: currentTask.id, player_id: currentPlayerId });
-            const player = players.find(p => p.id === currentPlayerId);
-            if (player) player.total_bonus += currentTask.reward;
-            renderApp();
-            closeModal();
-            alert(`🎉 +${currentTask.reward} бонусов! Задание выполнено.`);
-        } catch (err) {
-            alert("Ошибка: " + err.message);
-        }
-    }
-
-    function showTaskModal(task) {
-        currentTask = task;
-        document.getElementById("modalRoomName").innerText = task.room;
-        document.getElementById("modalTaskImg").innerHTML = task.icon_url ? `<img src="${task.icon_url}" width="80">` : "🧹";
-        document.getElementById("modalTaskDesc").innerText = task.description;
-        document.getElementById("modalReward").innerText = task.reward;
-        document.getElementById("taskModal").style.display = "flex";
-    }
-
-    function closeModal() { 
-        document.getElementById("taskModal").style.display = "none"; 
-        currentTask = null; 
-    }
-
-    function renderApp() {
-        const currentPlayer = players.find(p => p.id === currentPlayerId);
-        if (!currentPlayer) return;
-        
-        const roomsMap = new Map();
-        tasks.forEach(task => { 
-            if (!roomsMap.has(task.room)) roomsMap.set(task.room, []); 
-            roomsMap.get(task.room).push(task); 
-        });
-        
-        const playerOptions = players.map(p => 
-            `<option value="${p.id}" ${p.id === currentPlayerId ? "selected" : ""}>${p.name} ${p.avatar || "🐣"} (⭐️ ${p.total_bonus})</option>`
-        ).join("");
-        
-        const roomsHtml = Array.from(roomsMap.entries()).map(([roomName, roomTasks]) => `
-            <div class="room-card">
-                <div class="room-name">${roomName}</div>
-                ${roomTasks.map(task => `
-                    <div class="task-icon" data-task-id="${task.id}">${task.icon_url ? `<img src="${task.icon_url}">` : "📋"}</div>
-                    <div class="task-status" style="background:${isTaskCompletedByPlayer(task.id) ? "#c8e6b5" : "#fff0c0"}">
-                        ${isTaskCompletedByPlayer(task.id) ? "✅ Выполнено" : "⭐️ Ждёт"}
-                    </div>
-                `).join("")}
-            </div>
-        `).join("");
-        
-        appDiv.innerHTML = `
-            <div class="header">
-                <h1>🏠 Семейный Квест</h1>
-                <div class="player-selector">👤 <select id="playerSelect">${playerOptions}</select></div>
-                <div class="bonus-box">⭐️ ${currentPlayer.total_bonus}</div>
-            </div>
-            <div class="floorplan">
-                <div class="rooms-grid">${roomsHtml}</div>
-                <button id="addPlayerMainBtn" class="add-player-btn">➕ Добавить игрока</button>
-                <button id="resetLocalHint" class="reset-btn">🔄 Обновить</button>
-            </div>
-        `;
-        
-        document.querySelectorAll(".task-icon").forEach(el => {
-            const task = tasks.find(t => t.id === el.dataset.taskId);
-            if (task) el.addEventListener("click", (e) => { e.stopPropagation(); showTaskModal(task); });
-        });
-        
-        document.getElementById("playerSelect").addEventListener("change", (e) => { 
-            currentPlayerId = e.target.value; 
-            renderApp(); 
-        });
-        
-        document.getElementById("resetLocalHint").addEventListener("click", () => loadAllData());
-        document.getElementById("addPlayerMainBtn").addEventListener("click", () => openAddPlayerModal());
-    }
-
-    // Обработчики модалок
-    document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("completeTaskBtn").addEventListener("click", onCompleteTask);
-        document.getElementById("closeModalBtn").addEventListener("click", closeModal);
-        document.getElementById("confirmAddPlayerBtn").addEventListener("click", async () => {
-            const name = document.getElementById("newPlayerName").value.trim();
-            if (!name) { alert("Введите имя"); return; }
-            const avatar = document.getElementById("newPlayerAvatar").value.trim() || "🐣";
-            await addPlayerToSheet(name, avatar);
-        });
-        document.getElementById("closeAddPlayerBtn").addEventListener("click", closeAddPlayerModal);
-        window.onclick = (e) => { 
-            if (e.target === document.getElementById("taskModal")) closeModal();
-            if (e.target === document.getElementById("addPlayerModal")) closeAddPlayerModal();
-        };
-    });
+    const SCRIPT_URL = 'google.com';
     
-    loadAllData();
+    let state = { currentUserIndex: 0, adminIndex: 0, quests: [], members: [] };
+    const container = document.getElementById('map-container');
+    const view = document.getElementById('viewport');
+    const qBox = document.getElementById('quest-arrows');
+    
+    const furnitureZones = [
+        { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 85 }, { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 85 },
+        { id: 'Stiralka', name: '🧼 Стиральная машина', x: 865, y: 555, r: 95 }, { name: '🧺 Корзина', x: 765, y: 555, r: 85 },
+        { id: 'Veshalka', name: '🧥 Вешалка', x: 690, y: 420, r: 75 }, { name: '🗄 Тумбочка', x: 640, y: 500, r: 60 },
+        { id: 'Shkaf1', name: '👟 Шкаф для обуви', x: 505, y: 620, r: 85 }, { id: 'Shkaf2', name: '👗 Шкаф для одежды', x: 410, y: 620, r: 85 },
+        { id: 'Shkaf3', name: '🧹 Хоз. шкаф', x: 330, y: 630, r: 75 }, { id: 'Shkaf4', name: '⛺️ Шкаф спорт', x: 330, y: 710, r: 75 },
+        { id: 'Shkaf5', name: '📦 Доп. шкаф', x: 330, y: 790, r: 75 }
+    ];
+
+    let scale = 0.5, posX = 0, posY = 0, isDragging = false, startX, startY, lastTap = 0, initialDist = null, initialScale = 0, oldPos = {s: 0.5, x: 0, y: 0};
+
+    function updateTransform() { container.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`; }
+    function applyZoom(delta, clientX, clientY) {
+        const rect = view.getBoundingClientRect();
+        const newScale = Math.min(Math.max(0.1, scale + delta), 4);
+        posX = (clientX - rect.left) - (clientX - rect.left - posX) * (newScale / scale);
+        posY = (clientY - rect.top) - (clientY - rect.top - posY) * (newScale / scale);
+        scale = newScale; updateTransform();
+    }
+    function btnZoom(delta) { applyZoom(delta, view.offsetWidth / 2, view.offsetHeight / 2); }
+
+    // ТАЧ И ПК СЦЕНАРИИ УПРАВЛЕНИЯ
+    view.addEventListener('touchstart', e => {
+        if (e.touches.length === 1) { isDragging = true; startX = e.touches.clientX - posX; startY = e.touches.clientY - posY; container.style.transition = 'none'; }
+        else if (e.touches.length === 2) { isDragging = false; initialDist = Math.hypot(e.touches.clientX - e.touches.clientX, e.touches.clientY - e.touches.clientY); initialScale = scale; }
+    }, {passive: false});
+
+    view.addEventListener('touchmove', e => {
+        e.preventDefault();
+        if (e.touches.length === 1 && isDragging) { posX = e.touches.clientX - startX; posY = e.touches.clientY - startY; }
+        else if (e.touches.length === 2 && initialDist) {
+            const currentDist = Math.hypot(e.touches.clientX - e.touches.clientX, e.touches.clientY - e.touches.clientY);
+            applyZoom((initialScale * (currentDist / initialDist)) - scale, (e.touches.clientX + e.touches.clientX)/2, (e.touches.clientY + e.touches.clientY)/2);
+        }
+        updateTransform();
+    }, {passive: false});
+
+    view.addEventListener('touchend', () => { isDragging = false; initialDist = null; });
+    view.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX - posX; startY = e.clientY - posY; container.style.transition = 'none'; });
+    window.addEventListener('mousemove', e => { if (isDragging) { posX = e.clientX - startX; posY = e.clientY - startY; updateTransform(); } });
+    window.addEventListener('mouseup', () => isDragging = false);
+    view.addEventListener('wheel', e => { e.preventDefault(); applyZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX, e.clientY); }, {passive:false});
+
+    // ТУК-ТУК КЛИК С СИЯНИЕМ И УМНЫМ МАСШТАБОМ
+    view.addEventListener('click', e => {
+        if (state.members.length > 0 && state.currentUserIndex !== state.adminIndex) return;
+        const now = Date.now();
+        if (now - lastTap < 300) {
+            const rect = container.getBoundingClientRect();
+            const mapX = (e.clientX - rect.left) / scale, mapY = (e.clientY - rect.top) / scale;
+            let found = furnitureZones.find(f => Math.hypot(f.x - mapX, f.y - mapY) < f.r);
+            
+            if(found) {
+                const el = document.getElementById('obj-' + found.id);
+                if(el) { el.classList.add('highlight'); setTimeout(() => el.classList.remove('highlight'), 1000); }
+            }
+            oldPos = {s: scale, x: posX, y: posY};
+            applyZoom(1.4 - scale, e.clientX, e.clientY);
+            container.style.transition = 'transform 0.4s ease-out';
+            window.tempCoords = { x: mapX, y: mapY };
+            setTimeout(() => {
+                document.getElementById('furniture-hint').innerText = found ? `Объект: ${found.name}` : "Пустая зона комнат";
+                document.getElementById('createQuestModal').style.display='block';
+                document.getElementById('overlay').style.display='block';
+            }, 350);
+        }
+        lastTap = now;
+    });
+
+    // СИНХРОНИЗАЦИЯ ОБЛАКА JSON С GOOGLE SHEETS
+    async function syncData() {
+        document.getElementById('loader').style.display = 'flex';
+        try {
+            const response = await fetch(SCRIPT_URL);
+            const data = await response.json();
+            state.members = []; state.quests = [];
+            
+            for(let i = 1; i < data.length; i++) {
+                const row = data[i];
+                if (!row[0]) continue;
+                if(row[0] === 'member') state.members.push({name: row[1], points: parseInt(row[2]) || 0, avatar: row[3] || '👤'});
+                if(row[0] === 'quest') state.quests.push({text: row[1], x: parseFloat(row[2]), y: parseFloat(row[3])});
+                if(row[0] === 'config') { state.adminIndex = parseInt(row[2]) || 0; state.currentUserIndex = parseInt(row[3]) || 0; }
+            }
+            if(state.members.length === 0) { state.members.push({name: "Админ", points: 0, avatar: "👤"}); }
+            updateUI();
+        } catch (e) { console.error("Ошибка сети", e); }
+        document.getElementById('loader').style.display = 'none';
+    }
+
+    async function pushToCloud() {
+        try {
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'clear'}), mode: 'no-cors' });
+            for (let m of state.members) {
+                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'member', name: m.name, val1: m.points, val2: m.avatar}), mode: 'no-cors' });
+            }
+            for (let q of state.quests) {
+                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'quest', name: q.text, val1: q.x, val2: q.y}), mode: 'no-cors' });
+            }
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'config', val1: state.adminIndex, val2: state.currentUserIndex}), mode: 'no-cors' });
+        } catch(e) { console.error(e); }
+    }
+
+    function updateUI() {
+        const user = state.members[state.currentUserIndex] || state.members[0];
+        if(!user) return;
+        document.getElementById('current-user-name').innerText = user.name;
+        document.getElementById('score-val').innerText = user.points;
+        document.getElementById('current-avatar').innerText = user.avatar;
+        document.getElementById('p-card').classList.toggle('is-admin', state.currentUserIndex === state.adminIndex);
+        
+        qBox.innerHTML = '';
+        state.quests.forEach((q, i) => {
+            const img = document.createElement('img'); img.src = 'arrow.png'; img.className = 'arrow';
+            img.style.left = q.x + 'px'; img.style.top = q.y + 'px';
+            img.onclick = e => { e.stopPropagation(); openQuest(i); };
+            qBox.appendChild(img);
+        });
+
+        const fList = document.getElementById('family-list'); fList.innerHTML = '';
+        const sList = document.getElementById('switch-list'); sList.innerHTML = '<h3 style="color:#e65100">🔄 Сменить героя:</h3>';
+        state.members.forEach((m, i) => {
+            fList.innerHTML += `<div class="member-item"><span>${m.avatar} ${m.name} ${i===state.adminIndex?'👑':''}</span><div><button onclick="setAdmin(${i})" style="border:none;background:none;font-size:24px;">👑</button><button onclick="renameAnyMember(${i})" style="border:none;background:none;font-size:24px;">✏️</button></div></div>`;
+            if(i !== state.currentUserIndex) sList.innerHTML += `<button class="btn-choice" onclick="switchProfile(${i})">${m.name}</button>`;
+        });
+    }
+
+    function confirmCreateQuest() {
+        const txt = document.getElementById('new-quest-text').value;
+        if(txt) { state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt }); document.getElementById('new-quest-text').value = ''; pushToCloud().then(updateUI); }
+        cancelQuest();
+    }
+    function completeTask() { state.members[state.currentUserIndex].points += 10; state.quests.splice(window.activeIdx, 1); pushToCloud().then(updateUI); closeAll(); }
+    function addNewMember() { let n = prompt("Имя игрока:"); if(n) { state.members.push({name:n, points:0, avatar:'👤'}); pushToCloud().then(updateUI); } }
+    function renameCurrentPlayer() { let n = prompt("Имя:", state.members[state.currentUserIndex].name); if(n) { state.members[state.currentUserIndex].name = n; pushToCloud().then(updateUI); } }
+    function renameAnyMember(i) { let n = prompt("Имя:", state.members[i].name); if(n) { state.members[i].name = n; pushToCloud().then(updateUI); } }
+    function openAvatarPicker() { document.getElementById('avatarModal').style.display='block'; document.getElementById('overlay').style.display='block'; }
+    function setAvatar(e) { state.members[state.currentUserIndex].avatar = e; pushToCloud().then(() => { updateUI(); closeAll(); }); }
+    function cancelQuest() { scale = oldPos.s; posX = oldPos.x; posY = oldPos.y; container.style.transition = 'transform 0.4s'; updateTransform(); closeAll(); }
+    function openQuest(idx) { window.activeIdx = idx; document.getElementById('taskText').innerText = state.quests[idx].text; document.getElementById('taskModal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
+    function closeAll() { document.querySelectorAll('.modal').forEach(m=>m.style.display='none'); document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').style.display='none'; }
+    function toggleSidebar() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
+    function switchProfile(i) { state.currentUserIndex = i; pushToCloud().then(updateUI); closeAll(); }
+    function setAdmin(i) { state.adminIndex = i; pushToCloud().then(updateUI); }
+
+    const emojis = ['🐱','🐶','🦊','🐼','🐨','🐯','🦁','🦄','🐷','🐸','🐮','🦒'];
+    document.getElementById('emoji-grid').innerHTML = emojis.map(e => `<span onclick="setAvatar('${e}')" style="font-size:35px; cursor:pointer;">${e}</span>`).join('');
+    
+    syncData();
+    setTimeout(() => { posX = (view.offsetWidth - 1000*0.4)/2; posY = (view.offsetHeight - 1000*0.4)/2; scale=0.4; updateTransform(); }, 600);
 </script>
 </body>
 </html>
