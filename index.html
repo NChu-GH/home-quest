@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Семейный Квест — с синхронизацией</title>
+    <title>Семейный Квест — общая таблица</title>
     <style>
-        * { box-sizing: border-box; user-select: none; }
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
         body {
             background: linear-gradient(145deg, #2e5f4b 0%, #1e3e31 100%);
             font-family: 'Segoe UI', 'Comic Neue', 'Chalkboard SE', 'Comic Sans MS', cursive, sans-serif;
@@ -16,15 +20,17 @@
             margin: 0;
             padding: 20px;
         }
+
         .app {
             max-width: 1000px;
             width: 100%;
             background: #fdf8e7;
-            border-radius: 70px;
+            border-radius: 70px 70px 50px 50px;
             box-shadow: 0 20px 35px rgba(0,0,0,0.3);
             overflow: hidden;
-            padding: 20px;
+            padding: 20px 20px 30px;
         }
+
         .header {
             display: flex;
             flex-wrap: wrap;
@@ -88,6 +94,7 @@
             text-align: center;
             cursor: pointer;
             box-shadow: 0 8px 0 #bba88a;
+            transition: 0.1s linear;
         }
         .room-card:active { transform: translateY(3px); box-shadow: 0 4px 0 #bba88a; }
         .room-name {
@@ -121,6 +128,21 @@
             padding: 4px 12px;
             border-radius: 50px;
         }
+        .reset-btn, .add-player-btn {
+            background: #6c4f2e;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            margin-top: 20px;
+            width: 100%;
+            cursor: pointer;
+        }
+        .add-player-btn {
+            background: #3d8f40;
+            margin-top: 10px;
+        }
         .modal {
             display: none;
             position: fixed;
@@ -140,20 +162,16 @@
             text-align: center;
         }
         .close-btn { background: #b0aa9a; padding: 6px 18px; border-radius: 40px; border: none; cursor: pointer; }
-        .loading, .empty-state {
+        .loading {
             text-align: center;
             padding: 40px;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
         }
         .add-player-form {
             display: flex;
             flex-direction: column;
             gap: 12px;
             margin-top: 20px;
-        }
-        .add-player-form input, .add-player-form button {
-            padding: 12px;
-            font-size: 1rem;
         }
     </style>
 </head>
@@ -168,8 +186,21 @@
         <div id="modalTaskImg" style="font-size: 4rem;"></div>
         <p id="modalTaskDesc"></p>
         <p>Награда: +<span id="modalReward"></span> ⭐️</p>
-        <button id="completeTaskBtn" style="background:#ffb142;">✅ Выполнить!</button>
+        <button class="get-bonus-btn" id="completeTaskBtn" style="background:#ffb142;">✅ Выполнить!</button>
         <button class="close-btn" id="closeModalBtn">Закрыть</button>
+    </div>
+</div>
+
+<!-- Модалка добавления игрока -->
+<div id="addPlayerModal" class="modal">
+    <div class="modal-card">
+        <h3>✨ Новый игрок</h3>
+        <div class="add-player-form">
+            <input type="text" id="newPlayerName" placeholder="Имя игрока" autocomplete="off">
+            <input type="text" id="newPlayerAvatar" placeholder="Эмодзи (🐶 🐱 🦊)" autocomplete="off" value="🐣">
+            <button id="confirmAddPlayerBtn">➕ Добавить</button>
+            <button class="close-btn" id="closeAddPlayerBtn">Отмена</button>
+        </div>
     </div>
 </div>
 
@@ -214,10 +245,9 @@
         tasks = tasksRaw.map(t => ({ ...t, reward: Number(t.reward) || 5, id: String(t.id) }));
         completions = completionsRaw.map(c => ({ task_id: String(c.task_id), player_id: String(c.player_id) }));
         
-        console.log("Загружено игроков:", players.length);
-        
         if (players.length === 0) {
-            renderEmptyState();
+            // Если нет игроков, показываем пустое состояние, но с кнопкой добавления
+            renderEmptyWithAddButton();
         } else {
             if (!currentPlayerId || !players.find(p => p.id === currentPlayerId)) {
                 currentPlayerId = players[0].id;
@@ -226,28 +256,21 @@
         }
     }
 
-    function renderEmptyState() {
+    function renderEmptyWithAddButton() {
         appDiv.innerHTML = `
-            <div class="empty-state">
-                <h2>🏠 Добро пожаловать в Семейный Квест!</h2>
-                <p>Пока нет ни одного игрока. Создайте первого (например, себя):</p>
-                <div class="add-player-form">
-                    <input type="text" id="newPlayerName" placeholder="Имя игрока" autocomplete="off">
-                    <input type="text" id="newPlayerAvatar" placeholder="Эмодзи (🐶 🐱 🦊)" autocomplete="off" value="🐣">
-                    <button id="createFirstPlayerBtn">✨ Создать первого игрока</button>
-                </div>
-                <p style="margin-top:20px; font-size:0.9rem;">После создания можно будет добавлять остальных.</p>
+            <div class="empty-state" style="text-align:center; padding:40px;">
+                <h2>🏠 Семейный Квест</h2>
+                <p>Нет игроков. Нажмите кнопку, чтобы добавить первого.</p>
+                <button id="showAddPlayerBtn" style="margin-top:20px;">➕ Добавить игрока</button>
             </div>
         `;
-        const btn = document.getElementById("createFirstPlayerBtn");
-        if (btn) {
-            btn.addEventListener("click", async () => {
-                const name = document.getElementById("newPlayerName").value.trim();
-                if (!name) { alert("Введите имя"); return; }
-                const avatar = document.getElementById("newPlayerAvatar").value.trim() || "🐣";
-                await addPlayerToSheet(name, avatar);
-            });
-        }
+        document.getElementById("showAddPlayerBtn").addEventListener("click", () => {
+            openAddPlayerModal();
+        });
+    }
+
+    function openAddPlayerModal() {
+        document.getElementById("addPlayerModal").style.display = "flex";
     }
 
     async function addPlayerToSheet(name, avatar) {
@@ -265,29 +288,17 @@
             if (!response.ok || text !== "OK") throw new Error("Сервер вернул: " + text);
             
             alert(`Игрок ${name} добавлен!`);
-            
-            // ВРЕМЕННО: создаём игрока локально, чтобы интерфейс сразу переключился
-            const newId = String(players.length + 1);
-            const newPlayer = {
-                id: newId,
-                name: name,
-                avatar: avatar,
-                total_bonus: 0
-            };
-            players = [newPlayer];
-            currentPlayerId = newId;
-            
-            // Перерисовываем основной интерфейс
-            renderApp();
-            
-            // Фоновый опрос таблицы (через 3 секунды, чтобы обновить данные из облака)
-            setTimeout(() => {
-                loadAllData();
-            }, 3000);
-            
+            closeAddPlayerModal();
+            await loadAllData(); // перезагружаем всё
         } catch (err) {
             alert("Ошибка при добавлении: " + err.message);
         }
+    }
+
+    function closeAddPlayerModal() {
+        document.getElementById("addPlayerModal").style.display = "none";
+        document.getElementById("newPlayerName").value = "";
+        document.getElementById("newPlayerAvatar").value = "🐣";
     }
 
     function isTaskCompletedByPlayer(taskId) {
@@ -376,7 +387,8 @@
             </div>
             <div class="floorplan">
                 <div class="rooms-grid">${roomsHtml}</div>
-                <button id="resetLocalHint" style="width:100%; margin-top:20px;">🔄 Обновить</button>
+                <button id="addPlayerMainBtn" class="add-player-btn">➕ Добавить игрока</button>
+                <button id="resetLocalHint" class="reset-btn">🔄 Обновить</button>
             </div>
         `;
         
@@ -385,27 +397,30 @@
             if (task) el.addEventListener("click", (e) => { e.stopPropagation(); showTaskModal(task); });
         });
         
-        const playerSelect = document.getElementById("playerSelect");
-        if (playerSelect) {
-            playerSelect.addEventListener("change", (e) => { 
-                currentPlayerId = e.target.value; 
-                renderApp(); 
-            });
-        }
+        document.getElementById("playerSelect").addEventListener("change", (e) => { 
+            currentPlayerId = e.target.value; 
+            renderApp(); 
+        });
         
-        const resetBtn = document.getElementById("resetLocalHint");
-        if (resetBtn) {
-            resetBtn.addEventListener("click", () => loadAllData());
-        }
+        document.getElementById("resetLocalHint").addEventListener("click", () => loadAllData());
+        document.getElementById("addPlayerMainBtn").addEventListener("click", () => openAddPlayerModal());
     }
 
-    // Навешиваем обработчики модалки после загрузки DOM
+    // Обработчики модалок
     document.addEventListener("DOMContentLoaded", () => {
-        const completeBtn = document.getElementById("completeTaskBtn");
-        const closeBtn = document.getElementById("closeModalBtn");
-        if (completeBtn) completeBtn.addEventListener("click", onCompleteTask);
-        if (closeBtn) closeBtn.addEventListener("click", closeModal);
-        window.onclick = (e) => { if (e.target === document.getElementById("taskModal")) closeModal(); };
+        document.getElementById("completeTaskBtn").addEventListener("click", onCompleteTask);
+        document.getElementById("closeModalBtn").addEventListener("click", closeModal);
+        document.getElementById("confirmAddPlayerBtn").addEventListener("click", async () => {
+            const name = document.getElementById("newPlayerName").value.trim();
+            if (!name) { alert("Введите имя"); return; }
+            const avatar = document.getElementById("newPlayerAvatar").value.trim() || "🐣";
+            await addPlayerToSheet(name, avatar);
+        });
+        document.getElementById("closeAddPlayerBtn").addEventListener("click", closeAddPlayerModal);
+        window.onclick = (e) => { 
+            if (e.target === document.getElementById("taskModal")) closeModal();
+            if (e.target === document.getElementById("addPlayerModal")) closeAddPlayerModal();
+        };
     });
     
     loadAllData();
