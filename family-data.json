@@ -1,13 +1,14 @@
 {
-  "players": [
+  "members": [
     {
-      "id": "1778767580284",
+      "id": "1778768074759",
       "name": "Я",
       "points": 0,
       "avatar": "👤"
     }
   ],
-  "adminId": "1778767580284",
-  "currentPlayerId": "1778767580284",
-  "updated": "2026-05-14T14:06:20.285Z"
+  "quests": [],
+  "adminId": "1778768074759",
+  "currentUserId": "1778768074759",
+  "updated": "2026-05-14T14:14:34.759Z"
 }
