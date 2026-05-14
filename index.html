@@ -74,15 +74,17 @@
         </div>
     </div>
     <div class="map-viewport" id="viewport"><div id="map-container">
-        <div id="room-Sanuzel1" class="layer" style="background-image:url('Sanuzel1.png')" data-room="Санузел1"></div>
-        <div id="room-Koridor" class="layer" style="background-image:url('Koridor.png')" data-room="Коридор"></div>
-        <div id="room-Gostinaya" class="layer" style="background-image:url('Gostinaya.png')" data-room="Гостиная"></div>
-        <div id="room-Spalnya1" class="layer" style="background-image:url('Spalnya1.png')" data-room="Спальня1"></div>
-        <div id="room-Spalnya2" class="layer" style="background-image:url('Spalnya2.png')" data-room="Спальня2"></div>
-        <div id="room-Vannaya" class="layer" style="background-image:url('Vannaya.png')" data-room="Ванная"></div>
-        <div id="room-Sanuzel2" class="layer" style="background-image:url('Sanuzel2.png')" data-room="Санузел2"></div>
-        <div id="room-Kuhnya" class="layer" style="background-image:url('Kuhnya.png')" data-room="Кухня"></div>
+        <!-- КОМНАТЫ С ПРАВИЛЬНЫМИ НАЗВАНИЯМИ из файлов -->
         <div id="room-Balcon" class="layer" style="background-image:url('Balcon.png')" data-room="Балкон"></div>
+        <div id="room-Kuhnya" class="layer" style="background-image:url('Kuhnya.png')" data-room="Кухня"></div>
+        <div id="room-Sanuzel2" class="layer" style="background-image:url('Sanuzel2.png')" data-room="Санузел2"></div>
+        <div id="room-Vannaya" class="layer" style="background-image:url('Vannaya.png')" data-room="Ванная"></div>
+        <div id="room-Spalnya2" class="layer" style="background-image:url('Spalnya2.png')" data-room="Спальня2"></div>
+        <div id="room-Spalnya1" class="layer" style="background-image:url('Spalnya1.png')" data-room="Спальня1"></div>
+        <div id="room-Gostinaya" class="layer" style="background-image:url('Gostinaya.png')" data-room="Гостиная"></div>
+        <div id="room-Koridor" class="layer" style="background-image:url('Koridor.png')" data-room="Коридор"></div>
+        <div id="room-Sanuzel1" class="layer" style="background-image:url('Sanuzel1.png')" data-room="Санузел1"></div>
+        <!-- МЕБЕЛЬ -->
         <div id="obj-Lapomoika" class="layer" style="background-image:url('Lapomoika.png')" data-room="Лапомойка"></div>
         <div id="obj-Unitaz1" class="layer" style="background-image:url('Unitaz1.png')" data-room="Унитаз"></div>
         <div id="obj-Stiralka" class="layer" style="background-image:url('Stiralka.png')" data-room="Стиральная машина"></div>
@@ -112,10 +114,8 @@
 const REPO_OWNER='NChu-GH',REPO_NAME='home-quest',DATA_FILE='family-data.json';
 let state={members:[],adminId:null,currentUserId:null,quests:[],messages:{general:[],tech:[]}},githubToken=null,currentTaskIndex=null,currentChatTab='general';
 let unreadCounts={general:0,tech:0};
-let lastMessageCount={general:0,tech:0};
 const container=document.getElementById('map-container'),view=document.getElementById('viewport'),qBox=document.getElementById('quest-arrows');
 
-// Координаты мебели
 const furnitureZones = [
     { id: 'Lapomoika', x: 745, y: 405, r: 48 },
     { id: 'Unitaz1', x: 865, y: 405, r: 45 },
@@ -142,6 +142,7 @@ window.addEventListener('mousemove',e=>{if(isDragging){posX=e.clientX-startX;pos
 window.addEventListener('mouseup',()=>isDragging=false);
 view.addEventListener('wheel',e=>{e.preventDefault();applyZoom(e.deltaY<0?0.1:-0.1,e.clientX,e.clientY);},{passive:false});
 
+// Определение комнаты по точке (перебор слоёв)
 function getRoomNameByPoint(mapX, mapY){
     const layers = document.querySelectorAll('#map-container .layer');
     let bestMatch = null;
@@ -163,8 +164,7 @@ function getRoomNameByPoint(mapX, mapY){
             }
         }
     }
-    if(bestMatch) return bestMatch;
-    return "Комната";
+    return bestMatch || "Комната";
 }
 
 view.addEventListener('click',e=>{
@@ -206,16 +206,15 @@ view.addEventListener('click',e=>{
 });
 
 function updateBadges(){
+    const total = unreadCounts.general + unreadCounts.tech;
     const chatBadge = document.getElementById('chatBadge');
-    const totalUnread = unreadCounts.general + unreadCounts.tech;
-    if(totalUnread>0){chatBadge.style.display='flex';chatBadge.innerText=totalUnread>99?'99+':totalUnread;}
+    if(total>0){chatBadge.style.display='flex';chatBadge.innerText=total>99?'99+':total;}
     else chatBadge.style.display='none';
-    const generalBadge = document.getElementById('generalBadge');
-    const techBadge = document.getElementById('techBadge');
-    if(unreadCounts.general>0){generalBadge.style.display='flex';generalBadge.innerText=unreadCounts.general>99?'99+':unreadCounts.general;}
-    else generalBadge.style.display='none';
-    if(unreadCounts.tech>0){techBadge.style.display='flex';techBadge.innerText=unreadCounts.tech>99?'99+':unreadCounts.tech;}
-    else techBadge.style.display='none';
+    const gb=document.getElementById('generalBadge'), tb=document.getElementById('techBadge');
+    if(unreadCounts.general>0){gb.style.display='flex';gb.innerText=unreadCounts.general>99?'99+':unreadCounts.general;}
+    else gb.style.display='none';
+    if(unreadCounts.tech>0){tb.style.display='flex';tb.innerText=unreadCounts.tech>99?'99+':unreadCounts.tech;}
+    else tb.style.display='none';
 }
 
 function showStatus(m,e){let el=document.getElementById('statusMsg');el.innerHTML=m;el.style.background=e?'rgba(255,0,0,0.8)':'rgba(0,0,0,0.7)';setTimeout(()=>el.innerHTML='',3000);}
@@ -224,11 +223,7 @@ function saveToken(){let t=document.getElementById('tokenInput').value.trim();if
 function skipToken(){showStatus('⚠️ Режим просмотра',true);closeModal();loadFromGitHub();}
 async function loadFromGitHub(){document.getElementById('loader').style.display='flex';try{let res=await fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${DATA_FILE}?t=${Date.now()}`);if(res.ok){let d=await res.json();state.members=d.members||[];state.quests=d.quests||[];state.messages=d.messages||{general:[],tech:[]};state.adminId=d.adminId||(state.members[0]?.id||null);state.currentUserId=d.currentUserId||(state.members[0]?.id||null);if(!state.messages.general)state.messages.general=[];if(!state.messages.tech)state.messages.tech=[];}else{state.members=[];state.quests=[];state.messages={general:[],tech:[]};state.adminId=null;state.currentUserId=null;}}catch(e){state.members=[];state.quests=[];state.messages={general:[],tech:[]};state.adminId=null;state.currentUserId=null;}
 let sid=localStorage.getItem('currentUserId');if(sid&&state.members.find(m=>m.id===sid))state.currentUserId=sid;else if(state.members.length>0){state.currentUserId=state.members[0].id;localStorage.setItem('currentUserId',state.currentUserId);}
-updateUI();renderQuestsOnMap();
-lastMessageCount.general=state.messages.general.length;
-lastMessageCount.tech=state.messages.tech.length;
-updateBadges();
-document.getElementById('loader').style.display='none';}
+updateUI();renderQuestsOnMap();updateBadges();document.getElementById('loader').style.display='none';}
 async function saveToGitHub(){if(!githubToken){showStatus('⚠️ Нет токена',true);return false;}
 let data={members:state.members,quests:state.quests,messages:state.messages,adminId:state.adminId,currentUserId:state.currentUserId,updated:new Date().toISOString()};
 try{let content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2)))),url=`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_FILE}`;
@@ -256,7 +251,7 @@ if(currentChatTab!=='general'){unreadCounts.general++;updateBadges();}
 if(currentChatTab==='general'&&document.getElementById('chatMessages')){let cd=document.getElementById('chatMessages');let msgDiv=document.createElement('div');msgDiv.className='chat-message';msgDiv.innerHTML=`<span class="chat-sender">${s?.name||"Система"}:</span> ${t}`;cd.appendChild(msgDiv);cd.scrollTop=cd.scrollHeight;}}
 async function sendChatMessage(){let inp=document.getElementById('chatInput'),t=inp.value.trim();if(t){await addGeneralMessage(t);inp.value='';await openChat();}}
 async function openChat(){await loadFromGitHub();let cd=document.getElementById('chatMessages');if(cd){cd.innerHTML='';let msgs=currentChatTab==='general'?state.messages.general:state.messages.tech;msgs.slice(-50).forEach(m=>{cd.innerHTML+=`<div class="chat-message"><span class="chat-sender">${m.sender}:</span> ${m.text}</div>`;});cd.scrollTop=cd.scrollHeight;}
-if(currentChatTab==='general'){unreadCounts.general=0;}else{unreadCounts.tech=0;}
+if(currentChatTab==='general')unreadCounts.general=0;else unreadCounts.tech=0;
 updateBadges();
 document.getElementById('chatModal').style.display='flex';document.getElementById('overlay').style.display='block';}
 function switchChatTab(tab){currentChatTab=tab;document.querySelectorAll('.chat-tab').forEach((t,i)=>{if((tab==='general'&&i===0)||(tab==='tech'&&i===1))t.classList.add('active');else t.classList.remove('active');});openChat();}
