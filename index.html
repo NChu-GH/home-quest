@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Семейный Квест - Живая синхронизация</title>
+    <title>Семейный Квест - Supabase</title>
     <style>
         * { box-sizing: border-box; user-select: none; }
         body { background-color: #e0f7fa; display: flex; flex-direction: column; align-items: center; padding: 0; margin: 0; height: 100vh; overflow: hidden; font-family: 'Comic Sans MS', cursive, sans-serif; }
@@ -42,7 +42,7 @@
         .z-btn { width: 50px; height: 50px; border-radius: 15px; border: 4px solid #004d40; background: white; font-size: 26px; font-weight: bold; color: #004d40; cursor: pointer; }
         .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #00796b; font-weight: bold; }
         
-        .chat-messages { flex: 1; overflow-y: auto; background: #f5f5f5; border-radius: 20px; padding: 10px; margin-bottom: 10px; text-align: left; }
+        .chat-messages { flex: 1; overflow-y: auto; background: #f5f5f5; border-radius: 20px; padding: 10px; margin-bottom: 10px; text-align: left; max-height: 300px; }
         .chat-message { padding: 8px; border-bottom: 1px solid #ddd; font-size: 14px; }
         .chat-sender { font-weight: bold; color: #00796b; }
     </style>
@@ -70,7 +70,6 @@
 
     <div class="map-viewport" id="viewport">
         <div id="map-container">
-            <!-- СЛОИ КАРТЫ (оставлены как в вашем примере, замените пути к файлам, если нужно) -->
             <div class="layer" style="background-image: url('Sanuzel1.png');"></div>
             <div class="layer" style="background-image: url('Koridor.png');"></div>
             <div class="layer" style="background-image: url('Gostinaya.png');"></div>
@@ -102,7 +101,6 @@
 
 <div id="overlay" onclick="closeAll()" class="overlay"></div>
 
-<!-- МОДАЛЬНЫЕ ОКНА -->
 <div id="createQuestModal" class="modal">
     <h2>Задание 📝</h2>
     <p id="furniture-hint" style="color:#00796b; font-weight:bold;"></p>
@@ -132,7 +130,7 @@
     <button class="btn-choice" style="background:#4caf50; color:white;" onclick="createFirstPlayer()">СОЗДАТЬ 👑</button>
 </div>
 
-<div id="chatModal" class="modal" style="max-width: 500px; width: 90%; height: 70vh; display: none; flex-direction: column;">
+<div id="chatModal" class="modal" style="max-width: 500px; width: 90%; height: 60vh; display: none; flex-direction: column;">
     <h2>💬 Семейный чат</h2>
     <div id="chatMessages" style="flex:1; overflow-y: auto; background:#f5f5f5; border-radius:20px; padding:15px; margin:10px 0; text-align:left;"></div>
     <div style="display:flex; gap:10px;">
@@ -163,9 +161,8 @@
         adminId: null
     };
     let currentTaskIndex = null;
-    let subscriptions = [];
 
-    // --- ЭЛЕМЕНТЫ УПРАВЛЕНИЯ КАРТОЙ (ваша логика из оригинального кода) ---
+    // --- УПРАВЛЕНИЕ КАРТОЙ ---
     const container = document.getElementById('map-container');
     const view = document.getElementById('viewport');
     const qBox = document.getElementById('quest-arrows');
@@ -184,6 +181,7 @@
     ];
 
     let scale = 0.5, posX = 0, posY = 0, isDragging = false, startX, startY, lastTap = 0, initialDist = null, initialScale = 0, oldPos = {s: 0.5, x: 0, y: 0};
+    
     function updateTransform() { container.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`; }
     function applyZoom(delta, clientX, clientY) {
         const rect = view.getBoundingClientRect();
@@ -193,10 +191,12 @@
         scale = newScale; updateTransform();
     }
     function btnZoom(delta) { applyZoom(delta, view.offsetWidth / 2, view.offsetHeight / 2); }
+    
     view.addEventListener('touchstart', e => {
         if (e.touches.length === 1) { isDragging = true; startX = e.touches[0].clientX - posX; startY = e.touches[0].clientY - posY; container.style.transition = 'none'; }
         else if (e.touches.length === 2) { isDragging = false; initialDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); initialScale = scale; }
     }, {passive: false});
+    
     view.addEventListener('touchmove', e => {
         e.preventDefault();
         if (e.touches.length === 1 && isDragging) { posX = e.touches[0].clientX - startX; posY = e.touches[0].clientY - startY; updateTransform(); }
@@ -205,11 +205,13 @@
             applyZoom((initialScale * (currentDist / initialDist)) - scale, (e.touches[0].clientX + e.touches[1].clientX)/2, (e.touches[0].clientY + e.touches[1].clientY)/2);
         }
     }, {passive: false});
+    
     view.addEventListener('touchend', () => { isDragging = false; initialDist = null; });
     view.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX - posX; startY = e.clientY - posY; container.style.transition = 'none'; });
     window.addEventListener('mousemove', e => { if (isDragging) { posX = e.clientX - startX; posY = e.clientY - startY; updateTransform(); } });
     window.addEventListener('mouseup', () => isDragging = false);
     view.addEventListener('wheel', e => { e.preventDefault(); applyZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX, e.clientY); }, {passive:false});
+    
     view.addEventListener('click', e => {
         if (appData.players.length === 0) return;
         if (appData.currentPlayerId !== appData.adminId) return;
@@ -235,15 +237,17 @@
         lastTap = now;
     });
 
-    // --- ОСНОВНЫЕ ФУНКЦИИ ПРИЛОЖЕНИЯ ---
+    // --- ОСНОВНЫЕ ФУНКЦИИ ---
     async function loadAllData() {
-        document.getElementById('loader').style.display = 'flex';
         try {
+            document.getElementById('loader').style.display = 'flex';
+            
             const [playersRes, questsRes, messagesRes] = await Promise.all([
                 supabase.from('players').select('*').order('created_at', { ascending: true }),
                 supabase.from('quests').select('*'),
                 supabase.from('messages').select('*').order('created_at', { ascending: false }).limit(50)
             ]);
+            
             if (playersRes.error) throw playersRes.error;
             if (questsRes.error) throw questsRes.error;
             if (messagesRes.error) throw messagesRes.error;
@@ -261,26 +265,17 @@
                 document.getElementById('p-card').style.opacity = '1';
                 updateUI();
                 renderQuestsOnMap();
-                setupRealtimeSubscriptions();
             } else {
                 document.getElementById('p-card').style.opacity = '0.5';
                 document.getElementById('createFamilyModal').style.display = 'block';
                 document.getElementById('overlay').style.display = 'block';
             }
         } catch (error) {
-            console.error("Ошибка загрузки:", error);
-            alert("Ошибка загрузки: " + error.message);
+            console.error("Ошибка:", error);
+            alert("Ошибка: " + error.message + "\n\nПроверьте, созданы ли таблицы в Supabase (SQL Editor)");
+        } finally {
+            document.getElementById('loader').style.display = 'none';
         }
-        document.getElementById('loader').style.display = 'none';
-    }
-
-    function setupRealtimeSubscriptions() {
-        subscriptions.forEach(sub => supabase.removeSubscription(sub));
-        subscriptions = [];
-        const playersSub = supabase.channel('players-channel').on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadAllData()).subscribe();
-        const questsSub = supabase.channel('quests-channel').on('postgres_changes', { event: '*', schema: 'public', table: 'quests' }, () => loadAllData()).subscribe();
-        const messagesSub = supabase.channel('messages-channel').on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => loadAllData()).subscribe();
-        subscriptions.push(playersSub, questsSub, messagesSub);
     }
 
     function renderQuestsOnMap() {
@@ -337,59 +332,7 @@
         if (newName && player) {
             const { error } = await supabase.from('players').update({ name: newName }).eq('id', id);
             if (error) alert("Ошибка: " + error.message);
-        }
-    }
-
-    async function setAdmin(id) {
-        const { error: resetError } = await supabase.from('players').update({ is_admin: false }).neq('id', 'none');
-        if (resetError) { alert("Ошибка: " + resetError.message); return; }
-        const { error } = await supabase.from('players').update({ is_admin: true }).eq('id', id);
-        if (error) alert("Ошибка: " + error.message);
-        else await loadAllData();
-    }
-
-    async function confirmCreateQuest() {
-        const text = document.getElementById('new-quest-text').value.trim();
-        if (text && window.tempCoords) {
-            const { error } = await supabase.from('quests').insert([{ id: Date.now().toString(), text: text, x_coord: window.tempCoords.x, y_coord: window.tempCoords.y, created_by: appData.currentPlayerId }]);
-            if (error) alert("Ошибка: " + error.message);
-        }
-        cancelQuest();
-    }
-
-    async function completeTask() {
-        if (currentTaskIndex !== null && appData.quests[currentTaskIndex]) {
-            const quest = appData.quests[currentTaskIndex];
-            const player = appData.players.find(p => p.id === appData.currentPlayerId);
-            if (player) {
-                const { error: updateError } = await supabase.from('players').update({ points: player.points + 10 }).eq('id', player.id);
-                if (updateError) { alert("Ошибка: " + updateError.message); return; }
-                const { error: deleteError } = await supabase.from('quests').delete().eq('id', quest.id);
-                if (deleteError) alert("Ошибка: " + deleteError.message);
-            }
-        }
-        closeAll();
-        await loadAllData();
-    }
-
-    async function sendMessage() {
-        const input = document.getElementById('chatInput');
-        const text = input.value.trim();
-        if (text) {
-            const currentPlayer = appData.players.find(p => p.id === appData.currentPlayerId);
-            const { error } = await supabase.from('messages').insert([{ sender_name: currentPlayer?.name || "Аноним", text: text }]);
-            if (error) alert("Ошибка: " + error.message);
-            else { input.value = ''; await openChat(); }
-        }
-    }
-
-    async function setAvatar(emoji) {
-        const player = appData.players.find(p => p.id === appData.currentPlayerId);
-        if (player) {
-            const { error } = await supabase.from('players').update({ avatar: emoji }).eq('id', player.id);
-            if (error) alert("Ошибка: " + error.message);
             else await loadAllData();
-            closeAll();
         }
     }
 
@@ -399,11 +342,74 @@
         if (newName && player) {
             const { error } = await supabase.from('players').update({ name: newName }).eq('id', player.id);
             if (error) alert("Ошибка: " + error.message);
+            else await loadAllData();
         }
     }
 
-    async function switchPlayer(id) { appData.currentPlayerId = id; updateUI(); closeAll(); }
-    async function openChat() { await loadAllData(); const chatDiv = document.getElementById('chatMessages'); chatDiv.innerHTML = appData.messages.map(m => `<div class="chat-message"><span class="chat-sender">${m.sender_name}:</span> ${m.text}</div>`).join(''); document.getElementById('chatModal').style.display = 'flex'; document.getElementById('overlay').style.display = 'block'; }
+    async function setAdmin(id) {
+        await supabase.from('players').update({ is_admin: false }).neq('id', 'none');
+        const { error } = await supabase.from('players').update({ is_admin: true }).eq('id', id);
+        if (error) alert("Ошибка: " + error.message);
+        else await loadAllData();
+    }
+
+    async function switchPlayer(id) { 
+        appData.currentPlayerId = id; 
+        updateUI(); 
+        closeAll(); 
+    }
+
+    async function confirmCreateQuest() {
+        const text = document.getElementById('new-quest-text').value.trim();
+        if (text && window.tempCoords) {
+            const { error } = await supabase.from('quests').insert([{ id: Date.now().toString(), text: text, x_coord: window.tempCoords.x, y_coord: window.tempCoords.y, created_by: appData.currentPlayerId }]);
+            if (error) alert("Ошибка: " + error.message);
+            else await loadAllData();
+        }
+        cancelQuest();
+    }
+
+    async function completeTask() {
+        if (currentTaskIndex !== null && appData.quests[currentTaskIndex]) {
+            const quest = appData.quests[currentTaskIndex];
+            const player = appData.players.find(p => p.id === appData.currentPlayerId);
+            if (player) {
+                await supabase.from('players').update({ points: player.points + 10 }).eq('id', player.id);
+                await supabase.from('quests').delete().eq('id', quest.id);
+                await loadAllData();
+            }
+        }
+        closeAll();
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const text = input.value.trim();
+        if (text) {
+            const currentPlayer = appData.players.find(p => p.id === appData.currentPlayerId);
+            await supabase.from('messages').insert([{ sender_name: currentPlayer?.name || "Аноним", text: text }]);
+            input.value = '';
+            await openChat();
+        }
+    }
+
+    async function setAvatar(emoji) {
+        const player = appData.players.find(p => p.id === appData.currentPlayerId);
+        if (player) {
+            await supabase.from('players').update({ avatar: emoji }).eq('id', player.id);
+            await loadAllData();
+            closeAll();
+        }
+    }
+
+    async function openChat() { 
+        await loadAllData(); 
+        const chatDiv = document.getElementById('chatMessages'); 
+        chatDiv.innerHTML = appData.messages.map(m => `<div class="chat-message"><span class="chat-sender">${m.sender_name}:</span> ${m.text}</div>`).join(''); 
+        document.getElementById('chatModal').style.display = 'flex'; 
+        document.getElementById('overlay').style.display = 'block'; 
+    }
+    
     function closeChat() { document.getElementById('chatModal').style.display = 'none'; closeAll(); }
     function openQuest(idx) { currentTaskIndex = idx; document.getElementById('taskText').innerText = appData.quests[idx].text; document.getElementById('taskModal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
     function cancelQuest() { scale = oldPos.s; posX = oldPos.x; posY = oldPos.y; container.style.transition = 'transform 0.4s'; updateTransform(); closeAll(); }
