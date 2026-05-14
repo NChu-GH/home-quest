@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Семейный Квест - Финал</title>
+    <title>Семейный Квест - Синхронизация</title>
     <style>
+        * { box-sizing: border-box; user-select: none; }
         body { background-color: #e0f7fa; display: flex; flex-direction: column; align-items: center; padding: 0; margin: 0; height: 100vh; overflow: hidden; font-family: 'Comic Sans MS', cursive, sans-serif; }
         .main-wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100%; }
         
@@ -12,7 +13,7 @@
         .profile-card { background: white; padding: 10px; border-radius: 25px; border: 4px solid #00796b; display: flex; align-items: center; gap: 10px; flex: 2; position: relative; min-width: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .crown-icon { position: absolute; top: -18px; left: 5px; font-size: 32px; transform: rotate(-15deg); display: none; z-index: 10; }
         .is-admin .crown-icon { display: block; }
-        .avatar-circle { width: 60px; height: 60px; background: #eee; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; cursor: pointer; border: 3px solid #00796b; overflow: hidden; background-size: cover; background-position: center; flex-shrink: 0; }
+        .avatar-circle { width: 60px; height: 60px; background: #eee; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; cursor: pointer; border: 3px solid #00796b; flex-shrink: 0; }
         
         .btn-group { display: flex; flex-direction: column; gap: 5px; flex: 0.8; }
         .menu-btn, .chat-btn { height: 100%; min-height: 45px; border-radius: 18px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 16px; border: 3px solid; display: flex; justify-content: center; align-items: center; }
@@ -36,7 +37,14 @@
         .sidebar { position: fixed; right: -550px; top: 0; width: 85%; max-width: 420px; height: 100%; background: white; border-left: 8px solid #ff9800; transition: 0.4s; padding: 30px; z-index: 1000; overflow-y: auto; box-sizing: border-box; }
         .sidebar.active { right: 0; }
         .member-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 2px solid #ffcc80; }
-        input { width: 100%; padding: 15px; border-radius: 15px; border: 3px solid #00796b; font-family: inherit; font-size: 18px; box-sizing: border-box; margin-bottom: 10px; }
+        
+        .chat-container { display: flex; flex-direction: column; height: 60vh; }
+        .chat-messages { flex: 1; overflow-y: auto; background: #f5f5f5; border-radius: 20px; padding: 10px; margin-bottom: 10px; }
+        .chat-message { padding: 8px; border-bottom: 1px solid #ddd; font-size: 14px; }
+        .chat-sender { font-weight: bold; color: #00796b; }
+        .chat-input-area { display: flex; gap: 8px; }
+        .chat-input-area input { flex: 1; padding: 12px; border-radius: 25px; border: 2px solid #00796b; }
+        
         .zoom-controls { position: absolute; bottom: 15px; right: 15px; display: flex; flex-direction: column; gap: 8px; z-index: 110; }
         .z-btn { width: 50px; height: 50px; border-radius: 15px; border: 4px solid #004d40; background: white; font-size: 26px; font-weight: bold; color: #004d40; cursor: pointer; }
         .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #00796b; font-weight: bold; }
@@ -57,7 +65,7 @@
             </div>
         </div>
         <div class="btn-group">
-            <button class="chat-btn" onclick="syncData()">🔄</button>
+            <button class="chat-btn" onclick="openChat()">💬</button>
             <button class="menu-btn" onclick="toggleSidebar()">⚙️</button>
         </div>
     </div>
@@ -96,9 +104,9 @@
 <div id="overlay" onclick="closeAll()" class="overlay"></div>
 
 <div id="createQuestModal" class="modal">
-    <h2 id="modal-title">Задание 📝</h2>
-    <p id="furniture-hint" style="color:#00796b; font-weight:bold; margin-bottom:10px;"></p>
-    <input type="text" id="new-quest-text" placeholder="Какое задание хотите здесь назначить?">
+    <h2>Задание 📝</h2>
+    <p id="furniture-hint" style="color:#00796b; font-weight:bold;"></p>
+    <input type="text" id="new-quest-text" placeholder="Какое задание?">
     <button class="btn-choice" style="background:#4caf50; color:white;" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button>
     <button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button>
 </div>
@@ -110,11 +118,21 @@
 </div>
 
 <div id="sidebar" class="sidebar">
-    <h2 style="color:#00796b;">🏡 Семья</h2>
+    <h2>🏡 Семья</h2>
     <div id="family-list" style="background:#fff3e0; padding:15px; border-radius:20px; margin-bottom:20px;"></div>
-    <button class="btn-choice" style="background:#4caf50; color:white; border:none;" onclick="addNewMember()">➕ ДОБАВИТЬ ИГРОКА</button>
+    <button class="btn-choice" style="background:#4caf50; color:white;" onclick="addNewMember()">➕ ДОБАВИТЬ ИГРОКА</button>
     <div id="switch-list"></div>
-    <button class="btn-choice" onclick="closeAll()" style="margin-top:40px; background:#eee;">ЗАКРЫТЬ ❌</button>
+    <button class="btn-choice" onclick="closeAll()" style="margin-top:40px;">ЗАКРЫТЬ ❌</button>
+</div>
+
+<div id="chatModal" class="modal" style="max-width: 500px; width: 90%; height: 70vh; display: none; flex-direction: column;">
+    <h2>💬 Семейный чат</h2>
+    <div id="chatMessages" style="flex:1; overflow-y: auto; background:#f5f5f5; border-radius:20px; padding:15px; margin:10px 0; text-align:left;"></div>
+    <div style="display:flex; gap:10px;">
+        <input type="text" id="chatInput" placeholder="Сообщение..." style="flex:1; padding:12px; border-radius:25px; border:2px solid #00796b;">
+        <button onclick="sendMessage()" style="background:#4caf50; color:white; border:none; border-radius:25px; padding:12px 20px;">📤</button>
+    </div>
+    <button class="btn-choice" onclick="closeChat()" style="margin-top:15px;">ЗАКРЫТЬ</button>
 </div>
 
 <div id="avatarModal" class="modal">
@@ -124,27 +142,48 @@
 </div>
 
 <script>
-    // ======================== ВАША ССЫЛКА НА СКРИПТ ========================
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzjJPxddxFMw9D2eg9HkZnb8Dc_3hw3hSYoEkcIssgX__2nlofS25COHTm0UhLBCniX/exec';
-    // =====================================================================
+    // ======================== КОНФИГУРАЦИЯ ========================
+    // ВСТАВЬ СЮДА СВОЮ ССЫЛКУ НА ВЕБ-ПРИЛОЖЕНИЕ GOOGLE APPS SCRIPT
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOsNww5psKj-p_sO14cDFzlScRRfKU-cTCMgq2fwZbKyC0FZYtZOQ23Fwf9uXoWPgB/exec';
+    // =============================================================
 
-    let state = { currentUserId: null, adminId: null, quests: [], members: [] };
+    // Состояние приложения
+    let appData = {
+        players: [],      // { id, name, points, avatar }
+        quests: [],       // { id, text, x, y }
+        messages: [],     // { id, sender, text, time }
+        adminId: null,
+        currentPlayerId: null
+    };
+    
+    let currentTaskIndex = null;
+    let lastSyncTime = 0;
+    
+    // DOM элементы
     const container = document.getElementById('map-container');
     const view = document.getElementById('viewport');
     const qBox = document.getElementById('quest-arrows');
     
+    // Зоны для кликов (мебель)
     const furnitureZones = [
-        { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 85 }, { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 85 },
-        { id: 'Stiralka', name: '🧼 Стиральная машина', x: 865, y: 555, r: 95 }, { name: '🧺 Корзина', x: 765, y: 555, r: 85 },
-        { id: 'Veshalka', name: '🧥 Вешалка', x: 690, y: 420, r: 75 }, { name: '🗄 Тумбочка', x: 640, y: 500, r: 60 },
-        { id: 'Shkaf1', name: '👟 Шкаф для обуви', x: 505, y: 620, r: 85 }, { id: 'Shkaf2', name: '👗 Шкаф для одежды', x: 410, y: 620, r: 85 },
-        { id: 'Shkaf3', name: '🧹 Хоз. шкаф', x: 330, y: 630, r: 75 }, { id: 'Shkaf4', name: '⛺️ Шкаф спорт', x: 330, y: 710, r: 75 },
+        { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 85 },
+        { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 85 },
+        { id: 'Stiralka', name: '🧼 Стиральная машина', x: 865, y: 555, r: 95 },
+        { name: '🧺 Корзина', x: 765, y: 555, r: 85 },
+        { id: 'Veshalka', name: '🧥 Вешалка', x: 690, y: 420, r: 75 },
+        { name: '🗄 Тумбочка', x: 640, y: 500, r: 60 },
+        { id: 'Shkaf1', name: '👟 Шкаф обуви', x: 505, y: 620, r: 85 },
+        { id: 'Shkaf2', name: '👗 Шкаф одежды', x: 410, y: 620, r: 85 },
+        { id: 'Shkaf3', name: '🧹 Хоз. шкаф', x: 330, y: 630, r: 75 },
+        { id: 'Shkaf4', name: '⛺️ Шкаф спорт', x: 330, y: 710, r: 75 },
         { id: 'Shkaf5', name: '📦 Доп. шкаф', x: 330, y: 790, r: 75 }
     ];
-
+    
+    // Управление картой (масштаб, панорамирование)
     let scale = 0.5, posX = 0, posY = 0, isDragging = false, startX, startY, lastTap = 0, initialDist = null, initialScale = 0, oldPos = {s: 0.5, x: 0, y: 0};
-
+    
     function updateTransform() { container.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`; }
+    
     function applyZoom(delta, clientX, clientY) {
         const rect = view.getBoundingClientRect();
         const newScale = Math.min(Math.max(0.1, scale + delta), 4);
@@ -152,13 +191,15 @@
         posY = (clientY - rect.top) - (clientY - rect.top - posY) * (newScale / scale);
         scale = newScale; updateTransform();
     }
+    
     function btnZoom(delta) { applyZoom(delta, view.offsetWidth / 2, view.offsetHeight / 2); }
-
+    
+    // Обработчики жестов
     view.addEventListener('touchstart', e => {
         if (e.touches.length === 1) { isDragging = true; startX = e.touches[0].clientX - posX; startY = e.touches[0].clientY - posY; container.style.transition = 'none'; }
         else if (e.touches.length === 2) { isDragging = false; initialDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); initialScale = scale; }
     }, {passive: false});
-
+    
     view.addEventListener('touchmove', e => {
         e.preventDefault();
         if (e.touches.length === 1 && isDragging) { posX = e.touches[0].clientX - startX; posY = e.touches[0].clientY - startY; updateTransform(); }
@@ -167,15 +208,16 @@
             applyZoom((initialScale * (currentDist / initialDist)) - scale, (e.touches[0].clientX + e.touches[1].clientX)/2, (e.touches[0].clientY + e.touches[1].clientY)/2);
         }
     }, {passive: false});
-
+    
     view.addEventListener('touchend', () => { isDragging = false; initialDist = null; });
     view.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX - posX; startY = e.clientY - posY; container.style.transition = 'none'; });
     window.addEventListener('mousemove', e => { if (isDragging) { posX = e.clientX - startX; posY = e.clientY - startY; updateTransform(); } });
     window.addEventListener('mouseup', () => isDragging = false);
     view.addEventListener('wheel', e => { e.preventDefault(); applyZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX, e.clientY); }, {passive:false});
-
+    
+    // Создание задания (двойной клик/тап)
     view.addEventListener('click', e => {
-        if (state.members.length > 0 && state.currentUserId !== state.adminId) return;
+        if (appData.players.length > 0 && appData.currentPlayerId !== appData.adminId) return;
         const now = Date.now();
         if (now - lastTap < 300) {
             const rect = container.getBoundingClientRect();
@@ -190,261 +232,350 @@
             container.style.transition = 'transform 0.4s ease-out';
             window.tempCoords = { x: mapX, y: mapY };
             setTimeout(() => {
-                document.getElementById('furniture-hint').innerText = found ? `Объект: ${found.name}` : "Пустая зона комнат";
+                document.getElementById('furniture-hint').innerText = found ? `Объект: ${found.name}` : "Пустая зона";
                 document.getElementById('createQuestModal').style.display='block';
                 document.getElementById('overlay').style.display='block';
             }, 350);
         }
         lastTap = now;
     });
-
-    // ======================== СИНХРОНИЗАЦИЯ С GOOGLE ТАБЛИЦЕЙ ========================
+    
+    // ======================== ОСНОВНАЯ ЛОГИКА ========================
+    
+    // Загрузка данных из таблицы
     async function syncData() {
         document.getElementById('loader').style.display = 'flex';
         try {
-            const response = await fetch(SCRIPT_URL);
+            const response = await fetch(SCRIPT_URL + '?t=' + Date.now());
             const data = await response.json();
-            state.members = [];
-            state.quests = [];
-            let adminId = null;
-            let currentUserId = null;
             
-            // Проверяем, есть ли данные
-            if (Array.isArray(data) && data.length > 0) {
-                for(let i = 0; i < data.length; i++) {
-                    const row = data[i];
+            // Очищаем текущие данные
+            appData.players = [];
+            appData.quests = [];
+            appData.messages = [];
+            
+            if (Array.isArray(data)) {
+                for (const row of data) {
                     if (!row[0]) continue;
-                    if(row[0] === 'member') {
-                        state.members.push({
+                    if (row[0] === 'player') {
+                        appData.players.push({
                             id: row[1],
                             name: row[2],
                             points: parseInt(row[3]) || 0,
                             avatar: row[4] || '👤'
                         });
-                    }
-                    if(row[0] === 'quest') {
-                        state.quests.push({text: row[1], x: parseFloat(row[2]), y: parseFloat(row[3])});
-                    }
-                    if(row[0] === 'config') {
-                        adminId = row[1];
-                        currentUserId = row[2];
+                    } else if (row[0] === 'quest') {
+                        appData.quests.push({
+                            id: row[1],
+                            text: row[2],
+                            x: parseFloat(row[3]),
+                            y: parseFloat(row[4])
+                        });
+                    } else if (row[0] === 'message') {
+                        appData.messages.push({
+                            id: row[1],
+                            sender: row[2],
+                            text: row[3],
+                            time: row[4]
+                        });
+                    } else if (row[0] === 'config') {
+                        appData.adminId = row[1];
+                        appData.currentPlayerId = row[2];
                     }
                 }
             }
             
-            // Если игроков нет — создаём Админа и сохраняем
-            if(state.members.length === 0) {
+            // Если нет игроков — создаём первого
+            if (appData.players.length === 0) {
                 const defaultId = Date.now().toString();
-                state.members = [{id: defaultId, name: "Админ", points: 0, avatar: "👤"}];
-                state.adminId = defaultId;
-                state.currentUserId = defaultId;
-                // Сохраняем в облако
-                await pushToCloud();
+                appData.players = [{ id: defaultId, name: "Админ", points: 0, avatar: "👤" }];
+                appData.adminId = defaultId;
+                appData.currentPlayerId = defaultId;
+                await saveToCloud();
             } else {
-                state.adminId = adminId || state.members[0].id;
-                state.currentUserId = currentUserId || state.members[0].id;
-                if(!state.members.find(m => m.id === state.currentUserId)) state.currentUserId = state.members[0].id;
-                if(!state.members.find(m => m.id === state.adminId)) state.adminId = state.members[0].id;
+                // Проверяем, что currentPlayerId существует
+                if (!appData.players.find(p => p.id === appData.currentPlayerId)) {
+                    appData.currentPlayerId = appData.players[0].id;
+                }
+                if (!appData.players.find(p => p.id === appData.adminId)) {
+                    appData.adminId = appData.players[0].id;
+                }
             }
+            
             updateUI();
-        } catch (e) { 
-            console.error("Ошибка загрузки", e); 
+            renderQuestsOnMap();
+        } catch (e) {
+            console.error("Ошибка загрузки", e);
             alert("Ошибка загрузки: " + e.message);
-            // При ошибке сети тоже создаём локального админа
-            if(state.members.length === 0) {
-                state.members = [{id: Date.now().toString(), name: "Админ", points: 0, avatar: "👤"}];
-                state.adminId = state.members[0].id;
-                state.currentUserId = state.members[0].id;
-                updateUI();
-            }
         }
         document.getElementById('loader').style.display = 'none';
     }
-
-    async function pushToCloud() {
+    
+    // Сохранение всех данных в таблицу
+    async function saveToCloud() {
         try {
             // Очищаем таблицу
-            await fetch(SCRIPT_URL, { 
-                method: 'POST', 
-                body: JSON.stringify({action: 'clear'}), 
-                headers: {'Content-Type': 'application/json'} 
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'clear' }),
+                headers: { 'Content-Type': 'application/json' }
             });
             
             // Сохраняем игроков
-            for (let m of state.members) {
-                await fetch(SCRIPT_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({type: 'member', id: m.id, name: m.name, points: m.points, avatar: m.avatar}), 
-                    headers: {'Content-Type': 'application/json'} 
+            for (const p of appData.players) {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ type: 'player', id: p.id, name: p.name, points: p.points, avatar: p.avatar }),
+                    headers: { 'Content-Type': 'application/json' }
                 });
             }
             
             // Сохраняем задания
-            for (let q of state.quests) {
-                await fetch(SCRIPT_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({type: 'quest', text: q.text, x: q.x, y: q.y}), 
-                    headers: {'Content-Type': 'application/json'} 
+            for (const q of appData.quests) {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ type: 'quest', id: q.id, text: q.text, x: q.x, y: q.y }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+            
+            // Сохраняем сообщения (последние 50)
+            const lastMessages = appData.messages.slice(-50);
+            for (const m of lastMessages) {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ type: 'message', id: m.id, sender: m.sender, text: m.text, time: m.time }),
+                    headers: { 'Content-Type': 'application/json' }
                 });
             }
             
             // Сохраняем конфигурацию
-            await fetch(SCRIPT_URL, { 
-                method: 'POST', 
-                body: JSON.stringify({type: 'config', adminId: state.adminId, currentUserId: state.currentUserId}), 
-                headers: {'Content-Type': 'application/json'} 
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ type: 'config', adminId: appData.adminId, currentPlayerId: appData.currentPlayerId }),
+                headers: { 'Content-Type': 'application/json' }
             });
-        } catch(e) { 
+        } catch (e) {
             console.error("Ошибка сохранения", e);
-            alert("Ошибка сохранения: " + e.message);
         }
     }
-
-    function updateUI() {
-        const user = state.members.find(m => m.id === state.currentUserId) || state.members[0];
-        if(!user) return;
-        document.getElementById('current-user-name').innerText = user.name;
-        document.getElementById('score-val').innerText = user.points;
-        document.getElementById('current-avatar').innerText = user.avatar;
-        document.getElementById('p-card').classList.toggle('is-admin', state.currentUserId === state.adminId);
-        
+    
+    // Отрисовка стрелок на карте
+    function renderQuestsOnMap() {
         qBox.innerHTML = '';
-        state.quests.forEach((q, i) => {
-            const img = document.createElement('img'); 
-            img.src = 'arrow.png'; 
+        appData.quests.forEach((q, idx) => {
+            const img = document.createElement('img');
+            img.src = 'arrow.png';
             img.className = 'arrow';
-            img.style.left = q.x + 'px'; 
+            img.style.left = q.x + 'px';
             img.style.top = q.y + 'px';
-            img.onclick = e => { e.stopPropagation(); openQuest(i); };
+            img.onclick = (e) => {
+                e.stopPropagation();
+                openQuest(idx);
+            };
             qBox.appendChild(img);
         });
-
-        const fList = document.getElementById('family-list'); 
-        fList.innerHTML = '';
-        const sList = document.getElementById('switch-list'); 
-        sList.innerHTML = '<h3 style="color:#e65100">🔄 Сменить героя:</h3>';
-        
-        state.members.forEach((m) => {
-            fList.innerHTML += `<div class="member-item"><span>${m.avatar} ${m.name} ${m.id === state.adminId ? '👑' : ''}</span><div><button onclick="setAdmin('${m.id}')" style="border:none;background:none;font-size:24px;">👑</button><button onclick="renameAnyMember('${m.id}')" style="border:none;background:none;font-size:24px;">✏️</button></div></div>`;
-            if(m.id !== state.currentUserId) {
-                sList.innerHTML += `<button class="btn-choice" onclick="switchProfile('${m.id}')">${m.name}</button>`;
-            }
-        });
     }
-
+    
+    // Обновление интерфейса (игроки, бонусы)
+    function updateUI() {
+        const currentPlayer = appData.players.find(p => p.id === appData.currentPlayerId);
+        if (!currentPlayer) return;
+        
+        document.getElementById('current-user-name').innerText = currentPlayer.name;
+        document.getElementById('score-val').innerText = currentPlayer.points;
+        document.getElementById('current-avatar').innerText = currentPlayer.avatar;
+        document.getElementById('p-card').classList.toggle('is-admin', appData.currentPlayerId === appData.adminId);
+        
+        // Семейный список
+        const familyList = document.getElementById('family-list');
+        const switchList = document.getElementById('switch-list');
+        familyList.innerHTML = '';
+        switchList.innerHTML = '<h3>🔄 Сменить героя:</h3>';
+        
+        for (const p of appData.players) {
+            familyList.innerHTML += `<div class="member-item">
+                <span>${p.avatar} ${p.name} ${p.id === appData.adminId ? '👑' : ''} (⭐️ ${p.points})</span>
+                <div>
+                    <button onclick="setAdmin('${p.id}')" style="border:none;background:none;font-size:24px;">👑</button>
+                    <button onclick="renamePlayer('${p.id}')" style="border:none;background:none;font-size:24px;">✏️</button>
+                </div>
+            </div>`;
+            if (p.id !== appData.currentPlayerId) {
+                switchList.innerHTML += `<button class="btn-choice" onclick="switchPlayer('${p.id}')">${p.name}</button>`;
+            }
+        }
+    }
+    
+    // Создание нового задания
     function confirmCreateQuest() {
-        const txt = document.getElementById('new-quest-text').value;
-        if(txt) { 
-            state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt }); 
-            document.getElementById('new-quest-text').value = ''; 
-            pushToCloud(); 
-            updateUI(); 
+        const text = document.getElementById('new-quest-text').value.trim();
+        if (text) {
+            appData.quests.push({
+                id: Date.now().toString(),
+                text: text,
+                x: window.tempCoords.x,
+                y: window.tempCoords.y
+            });
+            saveToCloud();
+            renderQuestsOnMap();
         }
         cancelQuest();
     }
     
+    // Выполнение задания
     async function completeTask() {
-        const user = state.members.find(m => m.id === state.currentUserId);
-        if(user) user.points += 10;
-        state.quests.splice(window.activeIdx, 1);
-        await pushToCloud();
+        if (currentTaskIndex !== null && appData.quests[currentTaskIndex]) {
+            const quest = appData.quests[currentTaskIndex];
+            const player = appData.players.find(p => p.id === appData.currentPlayerId);
+            if (player) {
+                player.points += 10;
+                appData.quests.splice(currentTaskIndex, 1);
+                await saveToCloud();
+                updateUI();
+                renderQuestsOnMap();
+            }
+        }
+        closeAll();
+    }
+    
+    function openQuest(idx) {
+        currentTaskIndex = idx;
+        document.getElementById('taskText').innerText = appData.quests[idx].text;
+        document.getElementById('taskModal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+    
+    // Управление игроками
+    async function addNewMember() {
+        let name = prompt("Имя игрока:");
+        if (name) {
+            appData.players.push({
+                id: Date.now().toString(),
+                name: name,
+                points: 0,
+                avatar: '👤'
+            });
+            await saveToCloud();
+            updateUI();
+        }
+    }
+    
+    async function renamePlayer(id) {
+        const player = appData.players.find(p => p.id === id);
+        let newName = prompt("Новое имя:", player?.name);
+        if (newName && player) {
+            player.name = newName;
+            await saveToCloud();
+            updateUI();
+        }
+    }
+    
+    async function switchPlayer(id) {
+        appData.currentPlayerId = id;
+        await saveToCloud();
         updateUI();
         closeAll();
     }
     
-    async function addNewMember() { 
-        let n = prompt("Имя игрока:"); 
-        if(n) {
-            const newId = Date.now().toString();
-            state.members.push({id: newId, name: n, points: 0, avatar: '👤'});
-            await pushToCloud();
-            updateUI();
-        } 
-    }
-    
-    async function renameCurrentPlayer() { 
-        let n = prompt("Имя:", state.members.find(m => m.id === state.currentUserId)?.name); 
-        if(n) {
-            const user = state.members.find(m => m.id === state.currentUserId);
-            if(user) user.name = n;
-            await pushToCloud();
-            updateUI();
-        } 
-    }
-    
-    async function renameAnyMember(id) { 
-        let n = prompt("Имя:", state.members.find(m => m.id === id)?.name); 
-        if(n) {
-            const user = state.members.find(m => m.id === id);
-            if(user) user.name = n;
-            await pushToCloud();
-            updateUI();
-        } 
-    }
-    
-    function openAvatarPicker() { 
-        document.getElementById('avatarModal').style.display='block'; 
-        document.getElementById('overlay').style.display='block'; 
-    }
-    
-    async function setAvatar(emoji) { 
-        const user = state.members.find(m => m.id === state.currentUserId);
-        if(user) user.avatar = emoji;
-        await pushToCloud();
+    async function setAdmin(id) {
+        appData.adminId = id;
+        await saveToCloud();
         updateUI();
+    }
+    
+    async function renameCurrentPlayer() {
+        const player = appData.players.find(p => p.id === appData.currentPlayerId);
+        let newName = prompt("Ваше имя:", player?.name);
+        if (newName && player) {
+            player.name = newName;
+            await saveToCloud();
+            updateUI();
+        }
+    }
+    
+    // Аватары
+    function openAvatarPicker() {
+        document.getElementById('avatarModal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+    
+    async function setAvatar(emoji) {
+        const player = appData.players.find(p => p.id === appData.currentPlayerId);
+        if (player) {
+            player.avatar = emoji;
+            await saveToCloud();
+            updateUI();
+            closeAll();
+        }
+    }
+    
+    // Чат
+    async function openChat() {
+        await syncData(); // обновляем сообщения
+        const chatMessages = document.getElementById('chatMessages');
+        chatMessages.innerHTML = '';
+        for (const m of appData.messages.slice(-30)) {
+            chatMessages.innerHTML += `<div class="chat-message"><span class="chat-sender">${m.sender}:</span> ${m.text}</div>`;
+        }
+        document.getElementById('chatModal').style.display = 'flex';
+        document.getElementById('overlay').style.display = 'block';
+    }
+    
+    async function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const text = input.value.trim();
+        if (text) {
+            const currentPlayer = appData.players.find(p => p.id === appData.currentPlayerId);
+            appData.messages.push({
+                id: Date.now().toString(),
+                sender: currentPlayer?.name || "Аноним",
+                text: text,
+                time: new Date().toLocaleTimeString()
+            });
+            await saveToCloud();
+            input.value = '';
+            await openChat(); // обновляем окно чата
+        }
+    }
+    
+    function closeChat() {
+        document.getElementById('chatModal').style.display = 'none';
         closeAll();
     }
     
-    function cancelQuest() { 
-        scale = oldPos.s; 
-        posX = oldPos.x; 
-        posY = oldPos.y; 
-        container.style.transition = 'transform 0.4s'; 
-        updateTransform(); 
-        closeAll(); 
-    }
-    
-    function openQuest(idx) { 
-        window.activeIdx = idx; 
-        document.getElementById('taskText').innerText = state.quests[idx].text; 
-        document.getElementById('taskModal').style.display = 'block'; 
-        document.getElementById('overlay').style.display = 'block'; 
-    }
-    
-    function closeAll() { 
-        document.querySelectorAll('.modal').forEach(m=>m.style.display='none'); 
-        document.getElementById('sidebar').classList.remove('active'); 
-        document.getElementById('overlay').style.display='none'; 
-    }
-    
-    function toggleSidebar() { 
-        document.getElementById('sidebar').classList.add('active'); 
-        document.getElementById('overlay').style.display = 'block'; 
-    }
-    
-    async function switchProfile(id) { 
-        state.currentUserId = id; 
-        await pushToCloud();
-        updateUI();
+    // Вспомогательные функции
+    function cancelQuest() {
+        scale = oldPos.s;
+        posX = oldPos.x;
+        posY = oldPos.y;
+        container.style.transition = 'transform 0.4s';
+        updateTransform();
         closeAll();
     }
     
-    async function setAdmin(id) { 
-        state.adminId = id; 
-        await pushToCloud();
-        updateUI();
+    function closeAll() {
+        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        document.getElementById('sidebar').classList.remove('active');
+        document.getElementById('overlay').style.display = 'none';
     }
-
-    const emojis = ['🐱','🐶','🦊','🐼','🐨','🐯','🦁','🦄','🐷','🐸','🐮','🦒'];
+    
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.add('active');
+        document.getElementById('overlay').style.display = 'block';
+    }
+    
+    // Эмодзи для аватаров
+    const emojis = ['🐱', '🐶', '🦊', '🐼', '🐨', '🐯', '🦁', '🦄', '🐷', '🐸', '🐮', '🦒'];
     document.getElementById('emoji-grid').innerHTML = emojis.map(e => `<span onclick="setAvatar('${e}')" style="font-size:35px; cursor:pointer;">${e}</span>`).join('');
     
     // Запуск
     syncData();
-    setTimeout(() => { 
-        posX = (view.offsetWidth - 1000*0.4)/2; 
-        posY = (view.offsetHeight - 1000*0.4)/2; 
-        scale = 0.4; 
-        updateTransform(); 
+    setTimeout(() => {
+        posX = (view.offsetWidth - 1000 * 0.4) / 2;
+        posY = (view.offsetHeight - 1000 * 0.4) / 2;
+        scale = 0.4;
+        updateTransform();
     }, 600);
 </script>
 </body>
