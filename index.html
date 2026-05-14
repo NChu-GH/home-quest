@@ -8,19 +8,19 @@
         *{box-sizing:border-box}
         body{background:#e0f7fa;font-family:'Comic Sans MS',cursive,sans-serif;margin:0;padding:0;height:100vh;overflow:hidden;font-size:18px}
         .main-wrapper{width:100%;max-width:500px;margin:0 auto;display:flex;flex-direction:column;height:100%}
-        .top-bar{display:flex;gap:10px;padding:10px;flex-shrink:0}
-        .profile-card{background:white;padding:6px 12px;border-radius:40px;border:3px solid #00796b;display:flex;align-items:center;gap:10px;flex:2;position:relative;cursor:pointer;min-height:70px}
-        .crown-icon{position:absolute;top:-14px;left:5px;font-size:26px;display:none}
+        .top-bar{display:flex;align-items:stretch;gap:8px;padding:10px;flex-shrink:0}
+        .profile-card{flex:2;background:white;padding:8px 12px;border-radius:30px;border:3px solid #00796b;display:flex;align-items:center;gap:12px;position:relative;cursor:pointer;min-width:0}
+        .btn-group{flex:1;display:flex;gap:8px}
+        .menu-btn,.chat-btn{flex:1;border-radius:30px;cursor:pointer;font-weight:bold;font-size:22px;border:3px solid;display:flex;align-items:center;justify-content:center;background:#ff9800;color:white}
+        .chat-btn{background:#4caf50;border-color:#2e7d32}
+        .menu-btn{background:#ff9800;border-color:#e65100}
+        .crown-icon{position:absolute;top:-16px;left:5px;font-size:28px;display:none}
         .is-admin .crown-icon{display:block}
-        .avatar-circle{width:52px;height:52px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;border:2px solid #00796b;flex-shrink:0}
+        .avatar-circle{width:50px;height:50px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;border:2px solid #00796b;flex-shrink:0}
         .user-info{flex:1;min-width:0}
-        .user-name{font-weight:bold;font-size:20px;display:block;line-height:1.2}
-        .bonus-line{display:flex;align-items:center;gap:4px;font-size:18px;color:#00796b}
+        .user-name{font-weight:bold;font-size:20px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .bonus-line{display:flex;align-items:center;gap:6px;font-size:18px;color:#00796b}
         .bonus-line button{background:none;border:none;font-size:20px;cursor:pointer;padding:0 4px}
-        .btn-group{display:flex;gap:10px;align-items:stretch}
-        .menu-btn,.chat-btn{width:70px;border-radius:40px;cursor:pointer;font-weight:bold;font-size:22px;border:3px solid;display:flex;align-items:center;justify-content:center;min-height:70px}
-        .menu-btn{background:#ff9800;color:white;border-color:#e65100}
-        .chat-btn{background:#4caf50;color:white;border-color:#2e7d32}
         .map-viewport{flex:1;position:relative;overflow:hidden;background:#cfd8dc;touch-action:none}
         #map-container{position:absolute;width:1000px;height:1000px;transform-origin:0 0}
         .layer{position:absolute;top:0;left:0;width:1000px;height:1000px;pointer-events:none;background-size:contain;background-repeat:no-repeat}
