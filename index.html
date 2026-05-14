@@ -17,6 +17,7 @@
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 35px; border: 6px solid #00796b; text-align: center; width: 85%; max-width: 420px; z-index: 1000; }
         .btn-choice { width: 100%; padding: 16px; margin: 8px 0; border-radius: 20px; border: 3px solid #00796b; cursor: pointer; font-weight: bold; }
         .member-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 2px solid #ffcc80; }
+        .token-input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #00796b; border-radius: 30px; font-family: monospace; }
     </style>
 </head>
 <body>
@@ -24,7 +25,7 @@
 <div id="statusMsg" class="status"></div>
 <div id="overlay" class="overlay" onclick="closeSidebar()"></div>
 
-<div class="container">
+<div class="container" id="mainApp">
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
             <span id="currentAvatar" style="font-size: 40px; cursor: pointer;" onclick="openAvatarPicker()">👤</span>
@@ -38,6 +39,14 @@
     
     <h3>👨‍👩‍👧‍👦 Семья</h3>
     <div id="playersList"></div>
+</div>
+
+<div id="tokenModal" class="modal">
+    <h2>🔐 Настройка GitHub</h2>
+    <p>Введите ваш GitHub токен (нужен только для сохранения данных):</p>
+    <input type="password" id="tokenInput" class="token-input" placeholder="ghp_...">
+    <button class="btn-choice" onclick="saveToken()" style="background:#4caf50; color:white;">✅ Сохранить токен</button>
+    <button class="btn-choice" onclick="skipToken()">⏭️ Пропустить (только просмотр)</button>
 </div>
 
 <div id="sidebar" class="sidebar">
@@ -55,16 +64,44 @@
 </div>
 
 <script>
-    // ==================== ТВОИ НАСТРОЙКИ ====================
-    const GITHUB_TOKEN = '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';  // ВСТАВЬ СВОЙ ТОКЕН
     const REPO_OWNER = 'NChu-GH';
     const REPO_NAME = 'home-quest';
     const DATA_FILE = 'family-data.json';
-    // ====================================================
-
+    
     let players = [];
     let currentPlayerId = null;
     let adminId = null;
+    let githubToken = null;
+
+    // Загрузка токена из localStorage
+    function loadToken() {
+        const saved = localStorage.getItem('githubToken');
+        if (saved) {
+            githubToken = saved;
+            return true;
+        }
+        return false;
+    }
+
+    // Сохранение токена
+    function saveToken() {
+        const token = document.getElementById('tokenInput').value.trim();
+        if (token && token.startsWith('ghp_')) {
+            githubToken = token;
+            localStorage.setItem('githubToken', token);
+            showStatus('✅ Токен сохранён!');
+            closeModal();
+            loadData();
+        } else {
+            showStatus('❌ Неправильный формат токена (должен начинаться с ghp_)', true);
+        }
+    }
+
+    function skipToken() {
+        showStatus('⚠️ Вы в режиме просмотра. Данные не будут сохраняться.', true);
+        closeModal();
+        loadData();
+    }
 
     function showStatus(msg, isError = false) {
         const el = document.getElementById('statusMsg');
@@ -105,8 +142,8 @@
     }
 
     async function saveData() {
-        if (!GITHUB_TOKEN || GITHUB_TOKEN === 'ghp_твой_токен_сюда') {
-            showStatus('⚠️ Вставь GitHub токен в код', true);
+        if (!githubToken) {
+            showStatus('⚠️ Токен не введён. Данные не сохранены!', true);
             return false;
         }
         
@@ -121,7 +158,6 @@
             const content = btoa(unescape(encodeURIComponent(JSON.stringify(dataToSave, null, 2))));
             const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_FILE}`;
             
-            // Получаем текущий файл (если есть)
             let sha = null;
             const getRes = await fetch(url);
             if (getRes.ok) {
@@ -129,11 +165,10 @@
                 sha = existing.sha;
             }
             
-            // Сохраняем
             const res = await fetch(url, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `token ${GITHUB_TOKEN}`,
+                    'Authorization': `token ${githubToken}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
@@ -181,7 +216,6 @@
         }
         document.getElementById('playersList').innerHTML = playersHtml;
         
-        // Семейный список в меню
         let familyHtml = '';
         for (let p of players) {
             familyHtml += `<div class="member-item">
@@ -194,7 +228,6 @@
         }
         document.getElementById('familyList').innerHTML = familyHtml;
         
-        // Список смены игрока
         let switchHtml = '<h3>🔄 Сменить героя:</h3>';
         for (let p of players) {
             if (p.id !== currentPlayerId) {
@@ -282,6 +315,7 @@
 
     function closeModal() {
         document.getElementById('avatarModal').style.display = 'none';
+        document.getElementById('tokenModal').style.display = 'none';
         document.getElementById('overlay').style.display = 'none';
     }
 
@@ -295,7 +329,13 @@
         document.getElementById('overlay').style.display = 'none';
     }
 
-    loadData();
+    // Запуск
+    if (!loadToken()) {
+        document.getElementById('tokenModal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    } else {
+        loadData();
+    }
 </script>
 </body>
 </html>
