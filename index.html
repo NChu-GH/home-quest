@@ -8,31 +8,27 @@
         body { background-color: #e0f7fa; display: flex; flex-direction: column; align-items: center; padding: 0; margin: 0; height: 100vh; overflow: hidden; font-family: 'Comic Sans MS', cursive, sans-serif; }
         .main-wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100%; }
         
-        /* ВЕРХНЯЯ ПАНЕЛЬ */
         .top-bar { display: flex; justify-content: space-between; align-items: stretch; padding: 10px; gap: 8px; z-index: 100; flex-shrink: 0; }
         .profile-card { background: white; padding: 10px; border-radius: 25px; border: 4px solid #00796b; display: flex; align-items: center; gap: 10px; flex: 2; position: relative; min-width: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .crown-icon { position: absolute; top: -18px; left: 5px; font-size: 32px; transform: rotate(-15deg); display: none; z-index: 10; }
         .is-admin .crown-icon { display: block; }
-        .avatar-circle { width: 60px; height: 60px; background: #eee; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; cursor: pointer; border: 3px solid #00796b; overflow: hidden; background-size: cover; background-position: center; flex-shrink: 0; }
+        .avatar-circle { width: 60px; height: 60px; background: #eee; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; cursor: pointer; border: 3px solid #00796b; overflow: hidden; flex-shrink: 0; }
         
         .btn-group { display: flex; flex-direction: column; gap: 5px; flex: 0.8; }
         .menu-btn, .chat-btn { height: 100%; min-height: 45px; border-radius: 18px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 16px; border: 3px solid; display: flex; justify-content: center; align-items: center; }
         .menu-btn { background: #ff9800; color: white; border-color: #e65100; }
         .chat-btn { background: #4caf50; color: white; border-color: #2e7d32; }
 
-        /* ИГРОВОЕ ПОЛЕ */
         .map-viewport { flex: 1; width: 100%; position: relative; overflow: hidden; background: #cfd8dc; touch-action: none; border-top: 2px solid #004d40; }
         #map-container { position: absolute; width: 1000px; height: 1000px; transform-origin: 0 0; }
         .layer { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; background-size: contain; background-repeat: no-repeat; transition: filter 0.3s; }
         
-        /* СВЕЧЕНИЕ МЕБЕЛИ */
         .highlight { filter: drop-shadow(0 0 25px #00e5ff) brightness(1.4) !important; }
 
         #quest-arrows { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; z-index: 60; }
         .arrow { position: absolute; width: 55px; height: 55px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); pointer-events: auto; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); }
         @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -80%); } }
 
-        /* БИРЮЗОВАЯ РАМКА 6PX И СКРУГЛЕНИЕ 35PX */
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 500; }
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 35px; border: 6px solid #00796b; text-align: center; width: 85%; max-width: 420px; z-index: 1000; box-shadow: 0 0 50px rgba(0,0,0,0.4); }
         .btn-choice { width: 100%; padding: 16px; margin: 8px 0; border-radius: 20px; border: 3px solid #00796b; cursor: pointer; font-family: inherit; font-size: 20px; background: white; font-weight: bold; }
@@ -43,13 +39,11 @@
         input { width: 100%; padding: 15px; border-radius: 15px; border: 3px solid #00796b; font-family: inherit; font-size: 18px; box-sizing: border-box; margin-bottom: 10px; }
         .zoom-controls { position: absolute; bottom: 15px; right: 15px; display: flex; flex-direction: column; gap: 8px; z-index: 110; }
         .z-btn { width: 50px; height: 50px; border-radius: 15px; border: 4px solid #004d40; background: white; font-size: 26px; font-weight: bold; color: #004d40; cursor: pointer; }
-        .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #00796b; font-weight: bold; }
         .status-msg { position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; border-radius: 10px; font-size: 11px; z-index: 999; }
     </style>
 </head>
 <body>
 
-<div id="loader" class="loading-screen">Синхронизация с облаком... ☁️</div>
 <div id="statusMsg" class="status-msg"></div>
 
 <div class="main-wrapper">
@@ -70,7 +64,6 @@
 
     <div class="map-viewport" id="viewport">
         <div id="map-container">
-            <!-- СЛОИ КОМНАТ -->
             <div class="layer" style="background-image: url('Sanuzel1.png');"></div>
             <div class="layer" style="background-image: url('Koridor.png');"></div>
             <div class="layer" style="background-image: url('Gostinaya.png');"></div>
@@ -80,7 +73,6 @@
             <div class="layer" style="background-image: url('Sanuzel2.png');"></div>
             <div class="layer" style="background-image: url('Kuhnya.png');"></div>
             <div class="layer" style="background-image: url('Balcon.png');"></div>
-            <!-- СЛОИ МЕБЕЛИ С ЛОКАЛЬНЫМИ ID ДЛЯ ПОДСВЕТКИ -->
             <div id="obj-Lapomoika" class="layer" style="background-image: url('Lapomoika.png');"></div>
             <div id="obj-Unitaz1" class="layer" style="background-image: url('Unitaz1.png');"></div>
             <div id="obj-Stiralka" class="layer" style="background-image: url('Stiralka.png');"></div>
@@ -102,7 +94,7 @@
 </div>
 
 <div id="overlay" onclick="closeAll()" class="overlay"></div>
-<!-- МОДАЛКИ С ТРЕБУЕМЫМ СТИЛЕМ -->
+
 <div id="createQuestModal" class="modal">
     <h2 id="modal-title">Задание 📝</h2>
     <p id="furniture-hint" style="color:#00796b; font-weight:bold; margin-bottom:10px;"></p>
@@ -133,21 +125,13 @@
 
 <script>
     // ==================== НАСТРОЙКИ GITHUB ====================
-    // Создай токен здесь: https://github.com/settings/tokens
-    // Нужны галочки: repo, write:packages
-    const GITHUB_TOKEN = 'ВАШ_ТОКЕН_СЮДА';  // <- ВСТАВЬ СВОЙ ТОКЕН
+    const GITHUB_TOKEN = 'ВАШ_ТОКЕН_СЮДА';  // ВСТАВЬ СВОЙ ТОКЕН
     const REPO_OWNER = 'NChu-GH';
     const REPO_NAME = 'home-quest';
     const DATA_FILE = 'family-data.json';
     // ==========================================================
 
-    // Состояние приложения
-    let state = { 
-        members: [],      // { name, points, avatar, id }
-        adminId: null,
-        currentUserId: null,
-        quests: [] 
-    };
+    let state = { members: [], adminId: null, currentUserId: null, quests: [] };
     
     const container = document.getElementById('map-container');
     const view = document.getElementById('viewport');
@@ -201,7 +185,6 @@
             const rect = container.getBoundingClientRect();
             const mapX = (e.clientX - rect.left) / scale, mapY = (e.clientY - rect.top) / scale;
             let found = furnitureZones.find(f => Math.hypot(f.x - mapX, f.y - mapY) < f.r);
-            
             if(found) {
                 const el = document.getElementById('obj-' + found.id);
                 if(el) { el.classList.add('highlight'); setTimeout(() => el.classList.remove('highlight'), 1000); }
@@ -219,7 +202,6 @@
         lastTap = now;
     });
 
-    // ==================== РАБОТА С GITHUB ====================
     function showStatus(msg, isError = false) {
         const el = document.getElementById('statusMsg');
         if (el) {
@@ -239,24 +221,19 @@
                 state.quests = data.quests || [];
                 state.adminId = data.adminId || (state.members[0]?.id || null);
                 state.currentUserId = data.currentUserId || (state.members[0]?.id || null);
-                showStatus('✅ Данные загружены из GitHub');
             } else {
-                // Файла нет — начинаем с пустого состояния
                 state.members = [];
                 state.quests = [];
                 state.adminId = null;
                 state.currentUserId = null;
-                showStatus('📝 Новый файл будет создан при первом сохранении');
             }
         } catch(e) {
             state.members = [];
             state.quests = [];
             state.adminId = null;
             state.currentUserId = null;
-            showStatus('⚠️ Ошибка загрузки, будет создан новый файл');
         }
         
-        // Восстанавливаем выбранного игрока из localStorage
         const savedId = localStorage.getItem('currentUserId');
         if (savedId && state.members.find(m => m.id === savedId)) {
             state.currentUserId = savedId;
@@ -270,7 +247,7 @@
 
     async function saveToGitHub() {
         if (!GITHUB_TOKEN || GITHUB_TOKEN === 'ВАШ_ТОКЕН_СЮДА') {
-            showStatus('⚠️ Вставь GitHub токен в код (строка ~290)', true);
+            showStatus('⚠️ Вставь GitHub токен в код', true);
             return false;
         }
         
@@ -286,7 +263,6 @@
             const content = btoa(unescape(encodeURIComponent(JSON.stringify(dataToSave, null, 2))));
             const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_FILE}`;
             
-            // Проверяем, существует ли уже файл
             let sha = null;
             const getRes = await fetch(url);
             if (getRes.ok) {
@@ -300,19 +276,15 @@
                     'Authorization': `token ${GITHUB_TOKEN}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    message: 'Обновление данных семейного квеста',
-                    content: content,
-                    sha: sha
-                })
+                body: JSON.stringify({ message: 'Обновление данных', content: content, sha: sha })
             });
             
             if (res.ok) {
-                showStatus('✅ Данные сохранены в GitHub');
+                showStatus('✅ Сохранено');
                 return true;
             } else {
                 const err = await res.text();
-                showStatus('❌ Ошибка сохранения: ' + err.substring(0, 100), true);
+                showStatus('❌ Ошибка: ' + err.substring(0, 100), true);
                 return false;
             }
         } catch(e) {
@@ -321,12 +293,8 @@
         }
     }
 
-    // ==================== ОСНОВНАЯ ЛОГИКА ====================
-    
     async function syncData() {
-        document.getElementById('loader').style.display = 'flex';
         await loadFromGitHub();
-        document.getElementById('loader').style.display = 'none';
     }
 
     async function pushToCloud() {
@@ -337,12 +305,10 @@
     function updateUI() {
         const user = state.members.find(m => m.id === state.currentUserId) || state.members[0];
         if(!user && state.members.length === 0) {
-            // Нет игроков — показываем приветствие
             document.getElementById('current-user-name').innerText = 'Нет игроков';
             document.getElementById('score-val').innerText = '0';
             document.getElementById('current-avatar').innerText = '👤';
             document.getElementById('p-card').classList.remove('is-admin');
-            
             qBox.innerHTML = '';
             const fList = document.getElementById('family-list');
             const sList = document.getElementById('switch-list');
@@ -504,7 +470,6 @@
         emojiGrid.innerHTML = emojis.map(e => `<span onclick="setAvatar('${e}')" style="font-size:35px; cursor:pointer;">${e}</span>`).join('');
     }
     
-    // Запуск
     loadFromGitHub();
     setTimeout(() => { 
         posX = (view.offsetWidth - 1000*0.4)/2; 
