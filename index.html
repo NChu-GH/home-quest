@@ -27,8 +27,8 @@
         .layer{position:absolute;top:0;left:0;width:1000px;height:1000px;pointer-events:none;background-size:contain;background-repeat:no-repeat}
         .highlight{filter:drop-shadow(0 0 18px #00e5ff)brightness(1.3)!important}
         #quest-arrows{position:absolute;top:0;left:0;width:1000px;height:1000px;pointer-events:none;z-index:60}
-        .arrow{position:absolute;width:52px;height:52px;cursor:pointer;animation:bounce 1.5s infinite;transform:translate(-50%,-50%);pointer-events:auto}
-        @keyframes bounce{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,-80%)}}
+        .arrow{position:absolute;width:40px;height:40px;cursor:pointer;animation:bounce 1.5s infinite;transform:translate(-50%,-50%);pointer-events:auto}
+        @keyframes bounce{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,-75%)}}
         .overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:500}
         .modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border-radius:40px;border:5px solid #00796b;text-align:center;width:85%;max-width:420px;z-index:1000}
         .btn-choice{width:100%;padding:14px;margin:8px 0;border-radius:40px;border:2px solid #00796b;cursor:pointer;font-size:18px;font-weight:bold;background:white}
@@ -47,6 +47,7 @@
         .chat-tab{flex:1;padding:10px;text-align:center;cursor:pointer;border-radius:40px;background:#e0e0e0;font-size:16px;position:relative}
         .chat-tab.active{background:#00796b;color:white}
         .tab-badge{position:absolute;top:-5px;right:-5px;background:red;color:white;border-radius:20px;padding:2px 8px;font-size:11px;min-width:18px}
+        .admin-notice{background:#ffe0b3;border-left:4px solid #ff9800;padding:8px;margin:5px 0}
         .profile-actions{margin-top:15px;display:flex;flex-direction:column;gap:10px}
         .profile-btn{background:#f0f0f0;border:2px solid #00796b;border-radius:40px;padding:12px;font-size:18px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
         .player-selector-title{font-size:20px;margin:15px 0 10px;color:#e65100}
@@ -106,7 +107,7 @@
 <div id="transferModal" class="modal"><h2>💰 Передача бонусов</h2><div id="transfer-list"></div><button class="btn-choice" onclick="closeModal()">ОТМЕНА</button></div>
 <div id="tokenModal" class="modal"><h2>🔐 GitHub токен</h2><p>Введите токен (нужен для сохранения):</p><input type="password" id="tokenInput" placeholder="ghp_..." style="font-size:16px;padding:12px"><button class="btn-choice" onclick="saveToken()">✅ Сохранить</button><button class="btn-choice" onclick="skipToken()">⏭️ Пропустить</button></div>
 <div id="avatarModal" class="modal"><h2>Аватар</h2><div id="emoji-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0"></div><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ</button></div>
-<div id="chatModal" class="modal" style="flex-direction:column"><h2>💬 Чат</h2><div class="chat-tabs"><div class="chat-tab active" onclick="switchChatTab('general')">💬 Общий<span id="generalBadge" class="tab-badge" style="display:none">0</span></div><div class="chat-tab" onclick="switchChatTab('tech')">🔧 Технические<span id="techBadge" class="tab-badge" style="display:none">0</span></div></div><div id="chatMessages" class="messages"></div><div class="chat-input-area"><input type="text" id="chatInput" placeholder="Сообщение..."><button onclick="sendChatMessage()" style="padding:12px 20px;font-size:18px">📤</button></div><button class="btn-choice" onclick="closeChat()">ЗАКРЫТЬ</button></div>
+<div id="chatModal" class="modal" style="flex-direction:column"><h2>💬 Чат</h2><div class="chat-tabs"><div class="chat-tab active" onclick="switchChatTab('general')">💬 Общий<span id="generalBadge" class="tab-badge" style="display:none">0</span></div><div class="chat-tab" onclick="switchChatTab('tech')">🔧 События<span id="techBadge" class="tab-badge" style="display:none">0</span></div></div><div id="chatMessages" class="messages"></div><div class="chat-input-area"><input type="text" id="chatInput" placeholder="Сообщение..."><button onclick="sendChatMessage()" style="padding:12px 20px;font-size:18px">📤</button></div><button class="btn-choice" onclick="closeChat()">ЗАКРЫТЬ</button></div>
 
 <script>
 const REPO_OWNER='NChu-GH',REPO_NAME='home-quest',DATA_FILE='family-data.json';
@@ -114,7 +115,6 @@ let state={members:[],adminId:null,currentUserId:null,quests:[],messages:{genera
 let unreadCounts={general:0,tech:0};
 const container=document.getElementById('map-container'),view=document.getElementById('viewport'),qBox=document.getElementById('quest-arrows');
 
-// ========== ПРАВИЛЬНЫЕ НАЗВАНИЯ КОМНАТ ПО КООРДИНАТАМ ==========
 const roomZones = [
     { name: "Санузел1", x1: 700, y1: 300, x2: 950, y2: 500 },
     { name: "Коридор", x1: 500, y1: 300, x2: 700, y2: 500 },
@@ -127,7 +127,6 @@ const roomZones = [
     { name: "Санузел2", x1: 850, y1: 480, x2: 950, y2: 580 }
 ];
 
-// Мебель
 const furnitureZones = [
     { id: 'Lapomoika', name: 'Лапомойка', x: 745, y: 405, r: 48 },
     { id: 'Unitaz1', name: 'Унитаз', x: 865, y: 405, r: 45 },
@@ -235,16 +234,16 @@ function openTransferBonus(){let cp=state.members.find(m=>m.id===state.currentUs
 let html='';op.forEach(p=>{html+=`<div class="member-item" style="cursor:pointer" onclick="transferToPlayer('${p.id}')"><span>${p.avatar} ${p.name}</span><span>⭐️ ${p.points}</span></div>`;});document.getElementById('transfer-list').innerHTML=html;document.getElementById('transferModal').style.display='block';document.getElementById('overlay').style.display='block';}
 async function transferToPlayer(id){let cp=state.members.find(m=>m.id===state.currentUserId);let target=state.members.find(m=>m.id===id);let amt=prompt(`Сколько бонусов передать ${target.name}? (У тебя ${cp.points})`,'10');if(amt&&!isNaN(parseInt(amt))){let a=parseInt(amt);if(a>cp.points){showStatus(`❌ У тебя только ${cp.points} бонусов`,true);return;}if(a<=0){showStatus('❌ Сумма >0',true);return;}
 cp.points-=a;target.points+=a;await saveToGitHub();updateUI();await addTechMessage(`💰 ${cp.name} передал(а) ${a}⭐️ игроку ${target.name}!`);showStatus(`✅ Передано ${a}⭐️`);closeModal();closeModal();}}
-async function confirmCreateQuest(){let txt=document.getElementById('new-quest-text').value,reward=parseInt(document.getElementById('quest-reward').value)||10;if(txt&&window.tempCoords){state.quests.push({x:window.tempCoords.x,y:window.tempCoords.y,text:txt,reward:reward});document.getElementById('new-quest-text').value='';document.getElementById('quest-reward').value='10';await saveToGitHub();renderQuestsOnMap();let author=state.members.find(m=>m.id===state.currentUserId);await addTechMessage(`📋 ${author?.name} создал(а) задание: "${txt}" (+${reward}⭐️)`);}cancelQuest();}
-async function completeTask(){if(currentTaskIndex!==null&&state.quests[currentTaskIndex]){let q=state.quests[currentTaskIndex],p=state.members.find(m=>m.id===state.currentUserId);if(p){p.points+=q.reward;state.quests.splice(currentTaskIndex,1);await saveToGitHub();renderQuestsOnMap();updateUI();showStatus(`✅ +${q.reward} бонусов!`);await addTechMessage(`🎉 ${p.name} выполнил(а) "${q.text}" и получил(а) +${q.reward}⭐️`);}}closeAll();}
-async function addTechMessage(t){let s=state.members.find(m=>m.id===state.currentUserId);state.messages.tech.push({id:Date.now().toString(),sender:s?.name||"Система",text:t,time:new Date().toLocaleTimeString()});if(state.messages.tech.length>200)state.messages.tech=state.messages.tech.slice(-200);await saveToGitHub();
+async function confirmCreateQuest(){let txt=document.getElementById('new-quest-text').value,reward=parseInt(document.getElementById('quest-reward').value)||10;if(txt&&window.tempCoords){state.quests.push({x:window.tempCoords.x,y:window.tempCoords.y,text:txt,reward:reward});document.getElementById('new-quest-text').value='';document.getElementById('quest-reward').value='10';await saveToGitHub();renderQuestsOnMap();let author=state.members.find(m=>m.id===state.currentUserId);let zoneName=document.getElementById('furniture-hint').innerText.replace('📍 ','');await addTechMessage(`📋 ${author?.name} создал(а) задание: "${txt}" (+${reward}⭐️) в зоне ${zoneName}`);}cancelQuest();}
+async function completeTask(){if(currentTaskIndex!==null&&state.quests[currentTaskIndex]){let q=state.quests[currentTaskIndex],p=state.members.find(m=>m.id===state.currentUserId);if(p){p.points+=q.reward;state.quests.splice(currentTaskIndex,1);await saveToGitHub();renderQuestsOnMap();updateUI();showStatus(`✅ +${q.reward} бонусов!`);await addTechMessage(`🎉 ${p.name} выполнил(а) задание "${q.text}" и получил(а) +${q.reward}⭐️`);}}closeAll();}
+async function addTechMessage(t){let s=state.members.find(m=>m.id===state.currentUserId);let isAdminMsg=t.includes('ЗАПРАШИВАЕТ')||t.includes('админа');state.messages.tech.push({id:Date.now().toString(),sender:"⚙️ Система",text:t,time:new Date().toLocaleTimeString()});if(state.messages.tech.length>200)state.messages.tech=state.messages.tech.slice(-200);await saveToGitHub();
 if(currentChatTab!=='tech'){unreadCounts.tech++;updateBadges();}
-if(currentChatTab==='tech'&&document.getElementById('chatMessages')){let cd=document.getElementById('chatMessages');let msgDiv=document.createElement('div');msgDiv.className='chat-message';msgDiv.innerHTML=`<span class="chat-sender">${s?.name||"Система"}:</span> ${t}`;cd.appendChild(msgDiv);cd.scrollTop=cd.scrollHeight;}}
-async function addGeneralMessage(t){let s=state.members.find(m=>m.id===state.currentUserId);state.messages.general.push({id:Date.now().toString(),sender:s?.name||"Система",text:t,time:new Date().toLocaleTimeString()});if(state.messages.general.length>200)state.messages.general=state.messages.general.slice(-200);await saveToGitHub();
+if(currentChatTab==='tech'&&document.getElementById('chatMessages')){let cd=document.getElementById('chatMessages');let msgDiv=document.createElement('div');msgDiv.className='chat-message';if(isAdminMsg)msgDiv.classList.add('admin-notice');msgDiv.innerHTML=`<span class="chat-sender">⚙️ Система:</span> ${t}`;cd.appendChild(msgDiv);cd.scrollTop=cd.scrollHeight;}}
+async function addGeneralMessage(t){let s=state.members.find(m=>m.id===state.currentUserId);state.messages.general.push({id:Date.now().toString(),sender:s?.name||"Аноним",text:t,time:new Date().toLocaleTimeString()});if(state.messages.general.length>200)state.messages.general=state.messages.general.slice(-200);await saveToGitHub();
 if(currentChatTab!=='general'){unreadCounts.general++;updateBadges();}
-if(currentChatTab==='general'&&document.getElementById('chatMessages')){let cd=document.getElementById('chatMessages');let msgDiv=document.createElement('div');msgDiv.className='chat-message';msgDiv.innerHTML=`<span class="chat-sender">${s?.name||"Система"}:</span> ${t}`;cd.appendChild(msgDiv);cd.scrollTop=cd.scrollHeight;}}
+if(currentChatTab==='general'&&document.getElementById('chatMessages')){let cd=document.getElementById('chatMessages');let msgDiv=document.createElement('div');msgDiv.className='chat-message';msgDiv.innerHTML=`<span class="chat-sender">${s?.name||"Аноним"}:</span> ${t}`;cd.appendChild(msgDiv);cd.scrollTop=cd.scrollHeight;}}
 async function sendChatMessage(){let inp=document.getElementById('chatInput'),t=inp.value.trim();if(t){await addGeneralMessage(t);inp.value='';await openChat();}}
-async function openChat(){await loadFromGitHub();let cd=document.getElementById('chatMessages');if(cd){cd.innerHTML='';let msgs=currentChatTab==='general'?state.messages.general:state.messages.tech;msgs.slice(-50).forEach(m=>{cd.innerHTML+=`<div class="chat-message"><span class="chat-sender">${m.sender}:</span> ${m.text}</div>`;});cd.scrollTop=cd.scrollHeight;}
+async function openChat(){await loadFromGitHub();let cd=document.getElementById('chatMessages');if(cd){cd.innerHTML='';let msgs=currentChatTab==='general'?state.messages.general:state.messages.tech;msgs.slice(-50).forEach(m=>{let msgDiv=document.createElement('div');msgDiv.className='chat-message';if(m.class)msgDiv.classList.add(m.class);msgDiv.innerHTML=`<span class="chat-sender">${m.sender}:</span> ${m.text}`;cd.appendChild(msgDiv);});cd.scrollTop=cd.scrollHeight;}
 if(currentChatTab==='general')unreadCounts.general=0;else unreadCounts.tech=0;
 updateBadges();
 document.getElementById('chatModal').style.display='flex';document.getElementById('overlay').style.display='block';}
