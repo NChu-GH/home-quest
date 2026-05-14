@@ -48,6 +48,9 @@
         .zoom-controls { position: absolute; bottom: 15px; right: 15px; display: flex; flex-direction: column; gap: 8px; z-index: 110; }
         .z-btn { width: 50px; height: 50px; border-radius: 15px; border: 4px solid #004d40; background: white; font-size: 26px; font-weight: bold; color: #004d40; cursor: pointer; }
         .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #00796b; font-weight: bold; }
+        
+        .empty-state { text-align: center; padding: 60px 20px; }
+        .create-family-btn { background: #4caf50; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 50px; margin-top: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -125,6 +128,13 @@
     <button class="btn-choice" onclick="closeAll()" style="margin-top:40px;">ЗАКРЫТЬ ❌</button>
 </div>
 
+<div id="createFamilyModal" class="modal">
+    <h2>🏠 Создание семьи</h2>
+    <p>Придумайте имя для первого игрока (администратора):</p>
+    <input type="text" id="firstPlayerName" placeholder="Имя" autocomplete="off">
+    <button class="btn-choice" style="background:#4caf50; color:white;" onclick="createFirstPlayer()">СОЗДАТЬ 👑</button>
+</div>
+
 <div id="chatModal" class="modal" style="max-width: 500px; width: 90%; height: 70vh; display: none; flex-direction: column;">
     <h2>💬 Семейный чат</h2>
     <div id="chatMessages" style="flex:1; overflow-y: auto; background:#f5f5f5; border-radius:20px; padding:15px; margin:10px 0; text-align:left;"></div>
@@ -143,28 +153,23 @@
 
 <script>
     // ======================== КОНФИГУРАЦИЯ ========================
-    // ВСТАВЬ СЮДА СВОЮ ССЫЛКУ НА ВЕБ-ПРИЛОЖЕНИЕ GOOGLE APPS SCRIPT
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOsNww5psKj-p_sO14cDFzlScRRfKU-cTCMgq2fwZbKyC0FZYtZOQ23Fwf9uXoWPgB/exec';
     // =============================================================
 
-    // Состояние приложения
     let appData = {
-        players: [],      // { id, name, points, avatar }
-        quests: [],       // { id, text, x, y }
-        messages: [],     // { id, sender, text, time }
+        players: [],
+        quests: [],
+        messages: [],
         adminId: null,
         currentPlayerId: null
     };
     
     let currentTaskIndex = null;
-    let lastSyncTime = 0;
     
-    // DOM элементы
     const container = document.getElementById('map-container');
     const view = document.getElementById('viewport');
     const qBox = document.getElementById('quest-arrows');
     
-    // Зоны для кликов (мебель)
     const furnitureZones = [
         { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 85 },
         { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 85 },
@@ -179,7 +184,6 @@
         { id: 'Shkaf5', name: '📦 Доп. шкаф', x: 330, y: 790, r: 75 }
     ];
     
-    // Управление картой (масштаб, панорамирование)
     let scale = 0.5, posX = 0, posY = 0, isDragging = false, startX, startY, lastTap = 0, initialDist = null, initialScale = 0, oldPos = {s: 0.5, x: 0, y: 0};
     
     function updateTransform() { container.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`; }
@@ -194,7 +198,6 @@
     
     function btnZoom(delta) { applyZoom(delta, view.offsetWidth / 2, view.offsetHeight / 2); }
     
-    // Обработчики жестов
     view.addEventListener('touchstart', e => {
         if (e.touches.length === 1) { isDragging = true; startX = e.touches[0].clientX - posX; startY = e.touches[0].clientY - posY; container.style.transition = 'none'; }
         else if (e.touches.length === 2) { isDragging = false; initialDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); initialScale = scale; }
@@ -215,9 +218,9 @@
     window.addEventListener('mouseup', () => isDragging = false);
     view.addEventListener('wheel', e => { e.preventDefault(); applyZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX, e.clientY); }, {passive:false});
     
-    // Создание задания (двойной клик/тап)
     view.addEventListener('click', e => {
-        if (appData.players.length > 0 && appData.currentPlayerId !== appData.adminId) return;
+        if (appData.players.length === 0) return;
+        if (appData.currentPlayerId !== appData.adminId) return;
         const now = Date.now();
         if (now - lastTap < 300) {
             const rect = container.getBoundingClientRect();
@@ -242,14 +245,12 @@
     
     // ======================== ОСНОВНАЯ ЛОГИКА ========================
     
-    // Загрузка данных из таблицы
     async function syncData() {
         document.getElementById('loader').style.display = 'flex';
         try {
             const response = await fetch(SCRIPT_URL + '?t=' + Date.now());
             const data = await response.json();
             
-            // Очищаем текущие данные
             appData.players = [];
             appData.quests = [];
             appData.messages = [];
@@ -285,43 +286,68 @@
                 }
             }
             
-            // Если нет игроков — создаём первого
             if (appData.players.length === 0) {
-                const defaultId = Date.now().toString();
-                appData.players = [{ id: defaultId, name: "Админ", points: 0, avatar: "👤" }];
-                appData.adminId = defaultId;
-                appData.currentPlayerId = defaultId;
-                await saveToCloud();
+                renderEmptyState();
             } else {
-                // Проверяем, что currentPlayerId существует
                 if (!appData.players.find(p => p.id === appData.currentPlayerId)) {
                     appData.currentPlayerId = appData.players[0].id;
                 }
                 if (!appData.players.find(p => p.id === appData.adminId)) {
                     appData.adminId = appData.players[0].id;
                 }
+                renderApp();
+                renderQuestsOnMap();
             }
-            
-            updateUI();
-            renderQuestsOnMap();
         } catch (e) {
             console.error("Ошибка загрузки", e);
-            alert("Ошибка загрузки: " + e.message);
+            renderEmptyState();
         }
         document.getElementById('loader').style.display = 'none';
     }
     
-    // Сохранение всех данных в таблицу
+    function renderEmptyState() {
+        const mainWrapper = document.querySelector('.main-wrapper');
+        const topBar = document.querySelector('.top-bar');
+        const mapViewport = document.querySelector('.map-viewport');
+        
+        document.getElementById('p-card').style.opacity = '0.5';
+        document.getElementById('current-user-name').innerText = 'Нет игроков';
+        document.getElementById('score-val').innerText = '0';
+        
+        // Показываем модалку создания семьи
+        document.getElementById('createFamilyModal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+    
+    async function createFirstPlayer() {
+        const name = document.getElementById('firstPlayerName').value.trim();
+        if (!name) {
+            alert("Введите имя!");
+            return;
+        }
+        
+        const newId = Date.now().toString();
+        appData.players = [{ id: newId, name: name, points: 0, avatar: '👤' }];
+        appData.adminId = newId;
+        appData.currentPlayerId = newId;
+        appData.quests = [];
+        appData.messages = [];
+        
+        await saveToCloud();
+        closeAll();
+        renderApp();
+        renderQuestsOnMap();
+        updateUI();
+    }
+    
     async function saveToCloud() {
         try {
-            // Очищаем таблицу
             await fetch(SCRIPT_URL, {
                 method: 'POST',
                 body: JSON.stringify({ action: 'clear' }),
                 headers: { 'Content-Type': 'application/json' }
             });
             
-            // Сохраняем игроков
             for (const p of appData.players) {
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
@@ -330,7 +356,6 @@
                 });
             }
             
-            // Сохраняем задания
             for (const q of appData.quests) {
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
@@ -339,7 +364,6 @@
                 });
             }
             
-            // Сохраняем сообщения (последние 50)
             const lastMessages = appData.messages.slice(-50);
             for (const m of lastMessages) {
                 await fetch(SCRIPT_URL, {
@@ -349,7 +373,6 @@
                 });
             }
             
-            // Сохраняем конфигурацию
             await fetch(SCRIPT_URL, {
                 method: 'POST',
                 body: JSON.stringify({ type: 'config', adminId: appData.adminId, currentPlayerId: appData.currentPlayerId }),
@@ -360,7 +383,11 @@
         }
     }
     
-    // Отрисовка стрелок на карте
+    function renderApp() {
+        document.getElementById('p-card').style.opacity = '1';
+        updateUI();
+    }
+    
     function renderQuestsOnMap() {
         qBox.innerHTML = '';
         appData.quests.forEach((q, idx) => {
@@ -377,7 +404,6 @@
         });
     }
     
-    // Обновление интерфейса (игроки, бонусы)
     function updateUI() {
         const currentPlayer = appData.players.find(p => p.id === appData.currentPlayerId);
         if (!currentPlayer) return;
@@ -387,7 +413,6 @@
         document.getElementById('current-avatar').innerText = currentPlayer.avatar;
         document.getElementById('p-card').classList.toggle('is-admin', appData.currentPlayerId === appData.adminId);
         
-        // Семейный список
         const familyList = document.getElementById('family-list');
         const switchList = document.getElementById('switch-list');
         familyList.innerHTML = '';
@@ -407,7 +432,6 @@
         }
     }
     
-    // Создание нового задания
     function confirmCreateQuest() {
         const text = document.getElementById('new-quest-text').value.trim();
         if (text) {
@@ -423,10 +447,8 @@
         cancelQuest();
     }
     
-    // Выполнение задания
     async function completeTask() {
         if (currentTaskIndex !== null && appData.quests[currentTaskIndex]) {
-            const quest = appData.quests[currentTaskIndex];
             const player = appData.players.find(p => p.id === appData.currentPlayerId);
             if (player) {
                 player.points += 10;
@@ -446,7 +468,6 @@
         document.getElementById('overlay').style.display = 'block';
     }
     
-    // Управление игроками
     async function addNewMember() {
         let name = prompt("Имя игрока:");
         if (name) {
@@ -494,7 +515,6 @@
         }
     }
     
-    // Аватары
     function openAvatarPicker() {
         document.getElementById('avatarModal').style.display = 'block';
         document.getElementById('overlay').style.display = 'block';
@@ -510,9 +530,8 @@
         }
     }
     
-    // Чат
     async function openChat() {
-        await syncData(); // обновляем сообщения
+        await syncData();
         const chatMessages = document.getElementById('chatMessages');
         chatMessages.innerHTML = '';
         for (const m of appData.messages.slice(-30)) {
@@ -535,7 +554,7 @@
             });
             await saveToCloud();
             input.value = '';
-            await openChat(); // обновляем окно чата
+            await openChat();
         }
     }
     
@@ -544,7 +563,6 @@
         closeAll();
     }
     
-    // Вспомогательные функции
     function cancelQuest() {
         scale = oldPos.s;
         posX = oldPos.x;
@@ -565,11 +583,9 @@
         document.getElementById('overlay').style.display = 'block';
     }
     
-    // Эмодзи для аватаров
     const emojis = ['🐱', '🐶', '🦊', '🐼', '🐨', '🐯', '🦁', '🦄', '🐷', '🐸', '🐮', '🦒'];
     document.getElementById('emoji-grid').innerHTML = emojis.map(e => `<span onclick="setAvatar('${e}')" style="font-size:35px; cursor:pointer;">${e}</span>`).join('');
     
-    // Запуск
     syncData();
     setTimeout(() => {
         posX = (view.offsetWidth - 1000 * 0.4) / 2;
