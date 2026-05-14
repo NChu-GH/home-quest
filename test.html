@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h2>Тест Supabase</h2>
+    <div id="result">Проверка...</div>
+    <script>
+        const supabase = supabaseJs.createClient(
+            'https://qyemgoxxlryqezuvmerw.supabase.co',
+            'sb_publishable_huHz5Ox00GXUNYW-ncHCRw_RU-49Kn6'
+        );
+        
+        async function test() {
+            document.getElementById('result').innerHTML = 'Отправка запроса...';
+            const { data, error } = await supabase.from('players').select('*');
+            if (error) {
+                document.getElementById('result').innerHTML = '❌ Ошибка: ' + error.message;
+            } else {
+                document.getElementById('result').innerHTML = '✅ Успех! Данные: ' + JSON.stringify(data);
+            }
+        }
+        test();
+    </script>
+</body>
+</html>
