@@ -10,10 +10,11 @@
         .main-wrapper{width:100%;max-width:500px;margin:0 auto;display:flex;flex-direction:column;height:100%}
         .top-bar{display:flex;align-items:stretch;gap:8px;padding:10px;flex-shrink:0}
         .profile-card{flex:1;background:white;padding:6px 10px;border-radius:30px;border:3px solid #00796b;display:flex;align-items:center;gap:8px;position:relative;cursor:pointer;min-width:0}
-        .btn-group{flex:2;display:flex;gap:10px}
-        .menu-btn,.chat-btn{flex:1;border-radius:30px;cursor:pointer;font-weight:bold;font-size:22px;border:3px solid;display:flex;align-items:center;justify-content:center}
+        .btn-group{flex:2;display:flex;gap:10px;position:relative}
+        .menu-btn,.chat-btn{flex:1;border-radius:30px;cursor:pointer;font-weight:bold;font-size:22px;border:3px solid;display:flex;align-items:center;justify-content:center;position:relative}
         .chat-btn{background:#4caf50;color:white;border-color:#2e7d32}
         .menu-btn{background:#ff9800;color:white;border-color:#e65100}
+        .badge{position:absolute;top:-8px;right:-8px;background:red;color:white;border-radius:20px;padding:2px 8px;font-size:12px;font-weight:bold;min-width:20px;text-align:center}
         .crown-icon{position:absolute;top:-16px;left:5px;font-size:28px;display:none}
         .is-admin .crown-icon{display:block}
         .avatar-circle{width:46px;height:46px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;border:2px solid #00796b;flex-shrink:0}
@@ -43,8 +44,9 @@
         .chat-input-area{display:flex;gap:10px}
         .chat-input-area input{flex:1;padding:14px;border-radius:40px;border:2px solid #00796b;font-size:16px}
         .chat-tabs{display:flex;gap:12px;margin-bottom:12px}
-        .chat-tab{flex:1;padding:10px;text-align:center;cursor:pointer;border-radius:40px;background:#e0e0e0;font-size:16px}
+        .chat-tab{flex:1;padding:10px;text-align:center;cursor:pointer;border-radius:40px;background:#e0e0e0;font-size:16px;position:relative}
         .chat-tab.active{background:#00796b;color:white}
+        .tab-badge{position:absolute;top:-5px;right:-5px;background:red;color:white;border-radius:20px;padding:2px 8px;font-size:11px;min-width:18px}
         .profile-actions{margin-top:15px;display:flex;flex-direction:column;gap:10px}
         .profile-btn{background:#f0f0f0;border:2px solid #00796b;border-radius:40px;padding:12px;font-size:18px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
         .player-selector-title{font-size:20px;margin:15px 0 10px;color:#e65100}
@@ -66,20 +68,21 @@
                 <div class="bonus-line">⭐️ <span id="score-val">0</span> <button onclick="event.stopPropagation();renameCurrentPlayer()">✏️</button></div>
             </div>
         </div>
-        <div class="btn-group"><button class="chat-btn" onclick="openChat()">💬</button><button class="menu-btn" onclick="toggleSidebar()">⚙️</button></div>
+        <div class="btn-group">
+            <button class="chat-btn" onclick="openChat()">💬<span id="chatBadge" class="badge" style="display:none">0</span></button>
+            <button class="menu-btn" onclick="toggleSidebar()">⚙️</button>
+        </div>
     </div>
     <div class="map-viewport" id="viewport"><div id="map-container">
-        <!-- КОМНАТЫ с корректными именами по границам картинок -->
-        <div id="room-Sanuzel1" class="layer" style="background-image:url('Sanuzel1.png')" data-room="Санузел 1"></div>
+        <div id="room-Sanuzel1" class="layer" style="background-image:url('Sanuzel1.png')" data-room="Санузел1"></div>
         <div id="room-Koridor" class="layer" style="background-image:url('Koridor.png')" data-room="Коридор"></div>
         <div id="room-Gostinaya" class="layer" style="background-image:url('Gostinaya.png')" data-room="Гостиная"></div>
-        <div id="room-Spalnya1" class="layer" style="background-image:url('Spalnya1.png')" data-room="Спальня 1"></div>
-        <div id="room-Spalnya2" class="layer" style="background-image:url('Spalnya2.png')" data-room="Спальня 2"></div>
+        <div id="room-Spalnya1" class="layer" style="background-image:url('Spalnya1.png')" data-room="Спальня1"></div>
+        <div id="room-Spalnya2" class="layer" style="background-image:url('Spalnya2.png')" data-room="Спальня2"></div>
         <div id="room-Vannaya" class="layer" style="background-image:url('Vannaya.png')" data-room="Ванная"></div>
-        <div id="room-Sanuzel2" class="layer" style="background-image:url('Sanuzel2.png')" data-room="Санузел 2"></div>
+        <div id="room-Sanuzel2" class="layer" style="background-image:url('Sanuzel2.png')" data-room="Санузел2"></div>
         <div id="room-Kuhnya" class="layer" style="background-image:url('Kuhnya.png')" data-room="Кухня"></div>
         <div id="room-Balcon" class="layer" style="background-image:url('Balcon.png')" data-room="Балкон"></div>
-        <!-- МЕБЕЛЬ -->
         <div id="obj-Lapomoika" class="layer" style="background-image:url('Lapomoika.png')" data-room="Лапомойка"></div>
         <div id="obj-Unitaz1" class="layer" style="background-image:url('Unitaz1.png')" data-room="Унитаз"></div>
         <div id="obj-Stiralka" class="layer" style="background-image:url('Stiralka.png')" data-room="Стиральная машина"></div>
@@ -103,14 +106,16 @@
 <div id="transferModal" class="modal"><h2>💰 Передача бонусов</h2><div id="transfer-list"></div><button class="btn-choice" onclick="closeModal()">ОТМЕНА</button></div>
 <div id="tokenModal" class="modal"><h2>🔐 GitHub токен</h2><p>Введите токен (нужен для сохранения):</p><input type="password" id="tokenInput" placeholder="ghp_..." style="font-size:16px;padding:12px"><button class="btn-choice" onclick="saveToken()">✅ Сохранить</button><button class="btn-choice" onclick="skipToken()">⏭️ Пропустить</button></div>
 <div id="avatarModal" class="modal"><h2>Аватар</h2><div id="emoji-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0"></div><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ</button></div>
-<div id="chatModal" class="modal" style="flex-direction:column"><h2>💬 Чат</h2><div class="chat-tabs"><div class="chat-tab active" onclick="switchChatTab('general')">💬 Общий</div><div class="chat-tab" onclick="switchChatTab('tech')">🔧 Технические</div></div><div id="chatMessages" class="messages"></div><div class="chat-input-area"><input type="text" id="chatInput" placeholder="Сообщение..."><button onclick="sendChatMessage()" style="padding:12px 20px;font-size:18px">📤</button></div><button class="btn-choice" onclick="closeChat()">ЗАКРЫТЬ</button></div>
+<div id="chatModal" class="modal" style="flex-direction:column"><h2>💬 Чат</h2><div class="chat-tabs"><div class="chat-tab active" onclick="switchChatTab('general')">💬 Общий<span id="generalBadge" class="tab-badge" style="display:none">0</span></div><div class="chat-tab" onclick="switchChatTab('tech')">🔧 Технические<span id="techBadge" class="tab-badge" style="display:none">0</span></div></div><div id="chatMessages" class="messages"></div><div class="chat-input-area"><input type="text" id="chatInput" placeholder="Сообщение..."><button onclick="sendChatMessage()" style="padding:12px 20px;font-size:18px">📤</button></div><button class="btn-choice" onclick="closeChat()">ЗАКРЫТЬ</button></div>
 
 <script>
 const REPO_OWNER='NChu-GH',REPO_NAME='home-quest',DATA_FILE='family-data.json';
 let state={members:[],adminId:null,currentUserId:null,quests:[],messages:{general:[],tech:[]}},githubToken=null,currentTaskIndex=null,currentChatTab='general';
+let unreadCounts={general:0,tech:0};
+let lastMessageCount={general:0,tech:0};
 const container=document.getElementById('map-container'),view=document.getElementById('viewport'),qBox=document.getElementById('quest-arrows');
 
-// Координаты мебели для точного попадания
+// Координаты мебели
 const furnitureZones = [
     { id: 'Lapomoika', x: 745, y: 405, r: 48 },
     { id: 'Unitaz1', x: 865, y: 405, r: 45 },
@@ -137,7 +142,6 @@ window.addEventListener('mousemove',e=>{if(isDragging){posX=e.clientX-startX;pos
 window.addEventListener('mouseup',()=>isDragging=false);
 view.addEventListener('wheel',e=>{e.preventDefault();applyZoom(e.deltaY<0?0.1:-0.1,e.clientX,e.clientY);},{passive:false});
 
-// Точное определение комнаты по пересечению с картинкой
 function getRoomNameByPoint(mapX, mapY){
     const layers = document.querySelectorAll('#map-container .layer');
     let bestMatch = null;
@@ -145,7 +149,6 @@ function getRoomNameByPoint(mapX, mapY){
     for(let layer of layers){
         const room = layer.getAttribute('data-room');
         if(!room) continue;
-        if(layer.style.backgroundImage === 'none' || !layer.style.backgroundImage) continue;
         const rect = layer.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
         const layerLeft = (rect.left - containerRect.left) / scale;
@@ -161,18 +164,9 @@ function getRoomNameByPoint(mapX, mapY){
         }
     }
     if(bestMatch) return bestMatch;
-    // fallback по регионам
-    if(mapX > 700 && mapX < 950 && mapY > 300 && mapY < 500) return "Санузел/Ванная";
-    if(mapX > 500 && mapX < 700 && mapY > 300 && mapY < 500) return "Коридор";
-    if(mapX > 300 && mapX < 600 && mapY > 500 && mapY < 700) return "Гостиная";
-    if(mapX > 100 && mapX < 350 && mapY > 500 && mapY < 700) return "Спальня 1";
-    if(mapX > 100 && mapX < 350 && mapY > 700 && mapY < 880) return "Спальня 2";
-    if(mapX > 600 && mapX < 950 && mapY > 550 && mapY < 750) return "Кухня";
-    if(mapX > 700 && mapX < 920 && mapY > 750 && mapY < 880) return "Балкон";
     return "Комната";
 }
 
-// Клик по мебели или пустой комнате
 view.addEventListener('click',e=>{
     if(state.members.length>0 && state.currentUserId !== state.adminId) return;
     let now=Date.now();
@@ -192,8 +186,7 @@ view.addEventListener('click',e=>{
         if(found){
             let el=document.getElementById('obj-'+found.id);
             if(el){el.classList.add('highlight');setTimeout(()=>el.classList.remove('highlight'),800);}
-            const roomAttr = document.getElementById('obj-'+found.id)?.getAttribute('data-room');
-            zoneName = roomAttr || found.id;
+            zoneName = document.getElementById('obj-'+found.id)?.getAttribute('data-room') || found.id;
             showStatus(`📍 ${zoneName}`, false);
         } else {
             zoneName = getRoomNameByPoint(mapX, mapY);
@@ -212,13 +205,30 @@ view.addEventListener('click',e=>{
     lastTap=now;
 });
 
+function updateBadges(){
+    const chatBadge = document.getElementById('chatBadge');
+    const totalUnread = unreadCounts.general + unreadCounts.tech;
+    if(totalUnread>0){chatBadge.style.display='flex';chatBadge.innerText=totalUnread>99?'99+':totalUnread;}
+    else chatBadge.style.display='none';
+    const generalBadge = document.getElementById('generalBadge');
+    const techBadge = document.getElementById('techBadge');
+    if(unreadCounts.general>0){generalBadge.style.display='flex';generalBadge.innerText=unreadCounts.general>99?'99+':unreadCounts.general;}
+    else generalBadge.style.display='none';
+    if(unreadCounts.tech>0){techBadge.style.display='flex';techBadge.innerText=unreadCounts.tech>99?'99+':unreadCounts.tech;}
+    else techBadge.style.display='none';
+}
+
 function showStatus(m,e){let el=document.getElementById('statusMsg');el.innerHTML=m;el.style.background=e?'rgba(255,0,0,0.8)':'rgba(0,0,0,0.7)';setTimeout(()=>el.innerHTML='',3000);}
 function loadToken(){let t=localStorage.getItem('githubToken');if(t&&t.startsWith('ghp_')){githubToken=t;return true;}return false;}
 function saveToken(){let t=document.getElementById('tokenInput').value.trim();if(t&&t.startsWith('ghp_')){githubToken=t;localStorage.setItem('githubToken',t);showStatus('✅ Токен сохранён');closeModal();loadFromGitHub();}else showStatus('❌ Неверный токен',true);}
 function skipToken(){showStatus('⚠️ Режим просмотра',true);closeModal();loadFromGitHub();}
 async function loadFromGitHub(){document.getElementById('loader').style.display='flex';try{let res=await fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${DATA_FILE}?t=${Date.now()}`);if(res.ok){let d=await res.json();state.members=d.members||[];state.quests=d.quests||[];state.messages=d.messages||{general:[],tech:[]};state.adminId=d.adminId||(state.members[0]?.id||null);state.currentUserId=d.currentUserId||(state.members[0]?.id||null);if(!state.messages.general)state.messages.general=[];if(!state.messages.tech)state.messages.tech=[];}else{state.members=[];state.quests=[];state.messages={general:[],tech:[]};state.adminId=null;state.currentUserId=null;}}catch(e){state.members=[];state.quests=[];state.messages={general:[],tech:[]};state.adminId=null;state.currentUserId=null;}
 let sid=localStorage.getItem('currentUserId');if(sid&&state.members.find(m=>m.id===sid))state.currentUserId=sid;else if(state.members.length>0){state.currentUserId=state.members[0].id;localStorage.setItem('currentUserId',state.currentUserId);}
-updateUI();renderQuestsOnMap();document.getElementById('loader').style.display='none';}
+updateUI();renderQuestsOnMap();
+lastMessageCount.general=state.messages.general.length;
+lastMessageCount.tech=state.messages.tech.length;
+updateBadges();
+document.getElementById('loader').style.display='none';}
 async function saveToGitHub(){if(!githubToken){showStatus('⚠️ Нет токена',true);return false;}
 let data={members:state.members,quests:state.quests,messages:state.messages,adminId:state.adminId,currentUserId:state.currentUserId,updated:new Date().toISOString()};
 try{let content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2)))),url=`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_FILE}`;
@@ -238,10 +248,17 @@ async function transferToPlayer(id){let cp=state.members.find(m=>m.id===state.cu
 cp.points-=a;target.points+=a;await saveToGitHub();updateUI();await addTechMessage(`💰 ${cp.name} передал(а) ${a}⭐️ игроку ${target.name}!`);showStatus(`✅ Передано ${a}⭐️`);closeModal();closeModal();}}
 async function confirmCreateQuest(){let txt=document.getElementById('new-quest-text').value,reward=parseInt(document.getElementById('quest-reward').value)||10;if(txt&&window.tempCoords){state.quests.push({x:window.tempCoords.x,y:window.tempCoords.y,text:txt,reward:reward});document.getElementById('new-quest-text').value='';document.getElementById('quest-reward').value='10';await saveToGitHub();renderQuestsOnMap();let author=state.members.find(m=>m.id===state.currentUserId);await addTechMessage(`📋 ${author?.name} создал(а) задание: "${txt}" (+${reward}⭐️)`);}cancelQuest();}
 async function completeTask(){if(currentTaskIndex!==null&&state.quests[currentTaskIndex]){let q=state.quests[currentTaskIndex],p=state.members.find(m=>m.id===state.currentUserId);if(p){p.points+=q.reward;state.quests.splice(currentTaskIndex,1);await saveToGitHub();renderQuestsOnMap();updateUI();showStatus(`✅ +${q.reward} бонусов!`);await addTechMessage(`🎉 ${p.name} выполнил(а) "${q.text}" и получил(а) +${q.reward}⭐️`);}}closeAll();}
-async function addTechMessage(t){let s=state.members.find(m=>m.id===state.currentUserId);state.messages.tech.push({id:Date.now().toString(),sender:s?.name||"Система",text:t,time:new Date().toLocaleTimeString()});if(state.messages.tech.length>200)state.messages.tech=state.messages.tech.slice(-200);await saveToGitHub();if(currentChatTab==='tech'&&document.getElementById('chatMessages')){let cd=document.getElementById('chatMessages');let msgDiv=document.createElement('div');msgDiv.className='chat-message';msgDiv.innerHTML=`<span class="chat-sender">${s?.name||"Система"}:</span> ${t}`;cd.appendChild(msgDiv);cd.scrollTop=cd.scrollHeight;}}
-async function addGeneralMessage(t){let s=state.members.find(m=>m.id===state.currentUserId);state.messages.general.push({id:Date.now().toString(),sender:s?.name||"Система",text:t,time:new Date().toLocaleTimeString()});if(state.messages.general.length>200)state.messages.general=state.messages.general.slice(-200);await saveToGitHub();if(currentChatTab==='general'&&document.getElementById('chatMessages')){let cd=document.getElementById('chatMessages');let msgDiv=document.createElement('div');msgDiv.className='chat-message';msgDiv.innerHTML=`<span class="chat-sender">${s?.name||"Система"}:</span> ${t}`;cd.appendChild(msgDiv);cd.scrollTop=cd.scrollHeight;}}
+async function addTechMessage(t){let s=state.members.find(m=>m.id===state.currentUserId);state.messages.tech.push({id:Date.now().toString(),sender:s?.name||"Система",text:t,time:new Date().toLocaleTimeString()});if(state.messages.tech.length>200)state.messages.tech=state.messages.tech.slice(-200);await saveToGitHub();
+if(currentChatTab!=='tech'){unreadCounts.tech++;updateBadges();}
+if(currentChatTab==='tech'&&document.getElementById('chatMessages')){let cd=document.getElementById('chatMessages');let msgDiv=document.createElement('div');msgDiv.className='chat-message';msgDiv.innerHTML=`<span class="chat-sender">${s?.name||"Система"}:</span> ${t}`;cd.appendChild(msgDiv);cd.scrollTop=cd.scrollHeight;}}
+async function addGeneralMessage(t){let s=state.members.find(m=>m.id===state.currentUserId);state.messages.general.push({id:Date.now().toString(),sender:s?.name||"Система",text:t,time:new Date().toLocaleTimeString()});if(state.messages.general.length>200)state.messages.general=state.messages.general.slice(-200);await saveToGitHub();
+if(currentChatTab!=='general'){unreadCounts.general++;updateBadges();}
+if(currentChatTab==='general'&&document.getElementById('chatMessages')){let cd=document.getElementById('chatMessages');let msgDiv=document.createElement('div');msgDiv.className='chat-message';msgDiv.innerHTML=`<span class="chat-sender">${s?.name||"Система"}:</span> ${t}`;cd.appendChild(msgDiv);cd.scrollTop=cd.scrollHeight;}}
 async function sendChatMessage(){let inp=document.getElementById('chatInput'),t=inp.value.trim();if(t){await addGeneralMessage(t);inp.value='';await openChat();}}
-async function openChat(){await loadFromGitHub();let cd=document.getElementById('chatMessages');if(cd){cd.innerHTML='';let msgs=currentChatTab==='general'?state.messages.general:state.messages.tech;msgs.slice(-50).forEach(m=>{cd.innerHTML+=`<div class="chat-message"><span class="chat-sender">${m.sender}:</span> ${m.text}</div>`;});cd.scrollTop=cd.scrollHeight;}document.getElementById('chatModal').style.display='flex';document.getElementById('overlay').style.display='block';}
+async function openChat(){await loadFromGitHub();let cd=document.getElementById('chatMessages');if(cd){cd.innerHTML='';let msgs=currentChatTab==='general'?state.messages.general:state.messages.tech;msgs.slice(-50).forEach(m=>{cd.innerHTML+=`<div class="chat-message"><span class="chat-sender">${m.sender}:</span> ${m.text}</div>`;});cd.scrollTop=cd.scrollHeight;}
+if(currentChatTab==='general'){unreadCounts.general=0;}else{unreadCounts.tech=0;}
+updateBadges();
+document.getElementById('chatModal').style.display='flex';document.getElementById('overlay').style.display='block';}
 function switchChatTab(tab){currentChatTab=tab;document.querySelectorAll('.chat-tab').forEach((t,i)=>{if((tab==='general'&&i===0)||(tab==='tech'&&i===1))t.classList.add('active');else t.classList.remove('active');});openChat();}
 function closeChat(){document.getElementById('chatModal').style.display='none';closeAll();}
 async function requestCash(){let cp=state.members.find(m=>m.id===state.currentUserId);if(!cp)return;let amt=prompt(`Сколько бонусов обменять на деньги? (У тебя ${cp.points})`,'10');if(amt&&!isNaN(parseInt(amt))){let a=parseInt(amt);if(a>cp.points){showStatus(`❌ У тебя только ${cp.points}⭐️`,true);return;}if(a<=0){showStatus('❌ Сумма >0',true);return;}
