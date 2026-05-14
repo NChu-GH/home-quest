@@ -3,33 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Семейный Квест - Supabase</title>
+    <title>Семейный Квест - Финал</title>
     <style>
-        * { box-sizing: border-box; user-select: none; }
         body { background-color: #e0f7fa; display: flex; flex-direction: column; align-items: center; padding: 0; margin: 0; height: 100vh; overflow: hidden; font-family: 'Comic Sans MS', cursive, sans-serif; }
         .main-wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100%; }
         
+        /* ВЕРХНЯЯ ПАНЕЛЬ */
         .top-bar { display: flex; justify-content: space-between; align-items: stretch; padding: 10px; gap: 8px; z-index: 100; flex-shrink: 0; }
         .profile-card { background: white; padding: 10px; border-radius: 25px; border: 4px solid #00796b; display: flex; align-items: center; gap: 10px; flex: 2; position: relative; min-width: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .crown-icon { position: absolute; top: -18px; left: 5px; font-size: 32px; transform: rotate(-15deg); display: none; z-index: 10; }
         .is-admin .crown-icon { display: block; }
-        .avatar-circle { width: 60px; height: 60px; background: #eee; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; cursor: pointer; border: 3px solid #00796b; flex-shrink: 0; }
+        .avatar-circle { width: 60px; height: 60px; background: #eee; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; cursor: pointer; border: 3px solid #00796b; overflow: hidden; background-size: cover; background-position: center; flex-shrink: 0; }
         
         .btn-group { display: flex; flex-direction: column; gap: 5px; flex: 0.8; }
         .menu-btn, .chat-btn { height: 100%; min-height: 45px; border-radius: 18px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 16px; border: 3px solid; display: flex; justify-content: center; align-items: center; }
         .menu-btn { background: #ff9800; color: white; border-color: #e65100; }
         .chat-btn { background: #4caf50; color: white; border-color: #2e7d32; }
 
+        /* ИГРОВОЕ ПОЛЕ */
         .map-viewport { flex: 1; width: 100%; position: relative; overflow: hidden; background: #cfd8dc; touch-action: none; border-top: 2px solid #004d40; }
         #map-container { position: absolute; width: 1000px; height: 1000px; transform-origin: 0 0; }
         .layer { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; background-size: contain; background-repeat: no-repeat; transition: filter 0.3s; }
         
+        /* СВЕЧЕНИЕ МЕБЕЛИ */
         .highlight { filter: drop-shadow(0 0 25px #00e5ff) brightness(1.4) !important; }
 
         #quest-arrows { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; z-index: 60; }
         .arrow { position: absolute; width: 55px; height: 55px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); pointer-events: auto; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); }
         @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -80%); } }
 
+        /* БИРЮЗОВАЯ РАМКА 6PX И СКРУГЛЕНИЕ 35PX */
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 500; }
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 35px; border: 6px solid #00796b; text-align: center; width: 85%; max-width: 420px; z-index: 1000; box-shadow: 0 0 50px rgba(0,0,0,0.4); }
         .btn-choice { width: 100%; padding: 16px; margin: 8px 0; border-radius: 20px; border: 3px solid #00796b; cursor: pointer; font-family: inherit; font-size: 20px; background: white; font-weight: bold; }
@@ -37,20 +40,17 @@
         .sidebar { position: fixed; right: -550px; top: 0; width: 85%; max-width: 420px; height: 100%; background: white; border-left: 8px solid #ff9800; transition: 0.4s; padding: 30px; z-index: 1000; overflow-y: auto; box-sizing: border-box; }
         .sidebar.active { right: 0; }
         .member-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 2px solid #ffcc80; }
-        
+        input { width: 100%; padding: 15px; border-radius: 15px; border: 3px solid #00796b; font-family: inherit; font-size: 18px; box-sizing: border-box; margin-bottom: 10px; }
         .zoom-controls { position: absolute; bottom: 15px; right: 15px; display: flex; flex-direction: column; gap: 8px; z-index: 110; }
         .z-btn { width: 50px; height: 50px; border-radius: 15px; border: 4px solid #004d40; background: white; font-size: 26px; font-weight: bold; color: #004d40; cursor: pointer; }
         .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #00796b; font-weight: bold; }
-        
-        .chat-messages { flex: 1; overflow-y: auto; background: #f5f5f5; border-radius: 20px; padding: 10px; margin-bottom: 10px; text-align: left; max-height: 300px; }
-        .chat-message { padding: 8px; border-bottom: 1px solid #ddd; font-size: 14px; }
-        .chat-sender { font-weight: bold; color: #00796b; }
+        .status-msg { position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; border-radius: 10px; font-size: 11px; z-index: 999; }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
 <div id="loader" class="loading-screen">Синхронизация с облаком... ☁️</div>
+<div id="statusMsg" class="status-msg"></div>
 
 <div class="main-wrapper">
     <div class="top-bar">
@@ -63,13 +63,14 @@
             </div>
         </div>
         <div class="btn-group">
-            <button class="chat-btn" onclick="openChat()">💬</button>
+            <button class="chat-btn" onclick="syncData()">🔄</button>
             <button class="menu-btn" onclick="toggleSidebar()">⚙️</button>
         </div>
     </div>
 
     <div class="map-viewport" id="viewport">
         <div id="map-container">
+            <!-- СЛОИ КОМНАТ -->
             <div class="layer" style="background-image: url('Sanuzel1.png');"></div>
             <div class="layer" style="background-image: url('Koridor.png');"></div>
             <div class="layer" style="background-image: url('Gostinaya.png');"></div>
@@ -79,6 +80,7 @@
             <div class="layer" style="background-image: url('Sanuzel2.png');"></div>
             <div class="layer" style="background-image: url('Kuhnya.png');"></div>
             <div class="layer" style="background-image: url('Balcon.png');"></div>
+            <!-- СЛОИ МЕБЕЛИ С ЛОКАЛЬНЫМИ ID ДЛЯ ПОДСВЕТКИ -->
             <div id="obj-Lapomoika" class="layer" style="background-image: url('Lapomoika.png');"></div>
             <div id="obj-Unitaz1" class="layer" style="background-image: url('Unitaz1.png');"></div>
             <div id="obj-Stiralka" class="layer" style="background-image: url('Stiralka.png');"></div>
@@ -100,11 +102,11 @@
 </div>
 
 <div id="overlay" onclick="closeAll()" class="overlay"></div>
-
+<!-- МОДАЛКИ С ТРЕБУЕМЫМ СТИЛЕМ -->
 <div id="createQuestModal" class="modal">
-    <h2>Задание 📝</h2>
-    <p id="furniture-hint" style="color:#00796b; font-weight:bold;"></p>
-    <input type="text" id="new-quest-text" placeholder="Какое задание?">
+    <h2 id="modal-title">Задание 📝</h2>
+    <p id="furniture-hint" style="color:#00796b; font-weight:bold; margin-bottom:10px;"></p>
+    <input type="text" id="new-quest-text" placeholder="Какое задание хотите здесь назначить?">
     <button class="btn-choice" style="background:#4caf50; color:white;" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button>
     <button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button>
 </div>
@@ -116,28 +118,11 @@
 </div>
 
 <div id="sidebar" class="sidebar">
-    <h2>🏡 Семья</h2>
+    <h2 style="color:#00796b;">🏡 Семья</h2>
     <div id="family-list" style="background:#fff3e0; padding:15px; border-radius:20px; margin-bottom:20px;"></div>
-    <button class="btn-choice" style="background:#4caf50; color:white;" onclick="addNewMember()">➕ ДОБАВИТЬ ИГРОКА</button>
+    <button class="btn-choice" style="background:#4caf50; color:white; border:none;" onclick="addNewMember()">➕ ДОБАВИТЬ ИГРОКА</button>
     <div id="switch-list"></div>
-    <button class="btn-choice" onclick="closeAll()" style="margin-top:40px;">ЗАКРЫТЬ ❌</button>
-</div>
-
-<div id="createFamilyModal" class="modal">
-    <h2>🏠 Создание семьи</h2>
-    <p>Придумайте имя для первого игрока (администратора):</p>
-    <input type="text" id="firstPlayerName" placeholder="Имя" autocomplete="off">
-    <button class="btn-choice" style="background:#4caf50; color:white;" onclick="createFirstPlayer()">СОЗДАТЬ 👑</button>
-</div>
-
-<div id="chatModal" class="modal" style="max-width: 500px; width: 90%; height: 60vh; display: none; flex-direction: column;">
-    <h2>💬 Семейный чат</h2>
-    <div id="chatMessages" style="flex:1; overflow-y: auto; background:#f5f5f5; border-radius:20px; padding:15px; margin:10px 0; text-align:left;"></div>
-    <div style="display:flex; gap:10px;">
-        <input type="text" id="chatInput" placeholder="Сообщение..." style="flex:1; padding:12px; border-radius:25px; border:2px solid #00796b;">
-        <button onclick="sendMessage()" style="background:#4caf50; color:white; border:none; border-radius:25px; padding:12px 20px;">📤</button>
-    </div>
-    <button class="btn-choice" onclick="closeChat()" style="margin-top:15px;">ЗАКРЫТЬ</button>
+    <button class="btn-choice" onclick="closeAll()" style="margin-top:40px; background:#eee;">ЗАКРЫТЬ ❌</button>
 </div>
 
 <div id="avatarModal" class="modal">
@@ -147,41 +132,38 @@
 </div>
 
 <script>
-    // ======================== ПОДКЛЮЧЕНИЕ К SUPABASE ========================
-    const SUPABASE_URL = 'https://kpibkmvhyevebjjpvwxn.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_MiKitncKVznOIY28I14BjQ_3MdpLUB7';
-    const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    // =====================================================================
+    // ==================== НАСТРОЙКИ GITHUB ====================
+    // Создай токен здесь: https://github.com/settings/tokens
+    // Нужны галочки: repo, write:packages
+    const GITHUB_TOKEN = 'ВАШ_ТОКЕН_СЮДА';  // <- ВСТАВЬ СВОЙ ТОКЕН
+    const REPO_OWNER = 'NChu-GH';
+    const REPO_NAME = 'home-quest';
+    const DATA_FILE = 'family-data.json';
+    // ==========================================================
 
-    let appData = {
-        players: [],
-        quests: [],
-        messages: [],
-        currentPlayerId: null,
-        adminId: null
+    // Состояние приложения
+    let state = { 
+        members: [],      // { name, points, avatar, id }
+        adminId: null,
+        currentUserId: null,
+        quests: [] 
     };
-    let currentTaskIndex = null;
-
-    // --- УПРАВЛЕНИЕ КАРТОЙ ---
+    
     const container = document.getElementById('map-container');
     const view = document.getElementById('viewport');
     const qBox = document.getElementById('quest-arrows');
+    
     const furnitureZones = [
-        { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 85 },
-        { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 85 },
-        { id: 'Stiralka', name: '🧼 Стиральная машина', x: 865, y: 555, r: 95 },
-        { name: '🧺 Корзина', x: 765, y: 555, r: 85 },
-        { id: 'Veshalka', name: '🧥 Вешалка', x: 690, y: 420, r: 75 },
-        { name: '🗄 Тумбочка', x: 640, y: 500, r: 60 },
-        { id: 'Shkaf1', name: '👟 Шкаф обуви', x: 505, y: 620, r: 85 },
-        { id: 'Shkaf2', name: '👗 Шкаф одежды', x: 410, y: 620, r: 85 },
-        { id: 'Shkaf3', name: '🧹 Хоз. шкаф', x: 330, y: 630, r: 75 },
-        { id: 'Shkaf4', name: '⛺️ Шкаф спорт', x: 330, y: 710, r: 75 },
+        { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 85 }, { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 85 },
+        { id: 'Stiralka', name: '🧼 Стиральная машина', x: 865, y: 555, r: 95 }, { name: '🧺 Корзина', x: 765, y: 555, r: 85 },
+        { id: 'Veshalka', name: '🧥 Вешалка', x: 690, y: 420, r: 75 }, { name: '🗄 Тумбочка', x: 640, y: 500, r: 60 },
+        { id: 'Shkaf1', name: '👟 Шкаф для обуви', x: 505, y: 620, r: 85 }, { id: 'Shkaf2', name: '👗 Шкаф для одежды', x: 410, y: 620, r: 85 },
+        { id: 'Shkaf3', name: '🧹 Хоз. шкаф', x: 330, y: 630, r: 75 }, { id: 'Shkaf4', name: '⛺️ Шкаф спорт', x: 330, y: 710, r: 75 },
         { id: 'Shkaf5', name: '📦 Доп. шкаф', x: 330, y: 790, r: 75 }
     ];
 
     let scale = 0.5, posX = 0, posY = 0, isDragging = false, startX, startY, lastTap = 0, initialDist = null, initialScale = 0, oldPos = {s: 0.5, x: 0, y: 0};
-    
+
     function updateTransform() { container.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`; }
     function applyZoom(delta, clientX, clientY) {
         const rect = view.getBoundingClientRect();
@@ -191,12 +173,12 @@
         scale = newScale; updateTransform();
     }
     function btnZoom(delta) { applyZoom(delta, view.offsetWidth / 2, view.offsetHeight / 2); }
-    
+
     view.addEventListener('touchstart', e => {
         if (e.touches.length === 1) { isDragging = true; startX = e.touches[0].clientX - posX; startY = e.touches[0].clientY - posY; container.style.transition = 'none'; }
         else if (e.touches.length === 2) { isDragging = false; initialDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); initialScale = scale; }
     }, {passive: false});
-    
+
     view.addEventListener('touchmove', e => {
         e.preventDefault();
         if (e.touches.length === 1 && isDragging) { posX = e.touches[0].clientX - startX; posY = e.touches[0].clientY - startY; updateTransform(); }
@@ -205,21 +187,21 @@
             applyZoom((initialScale * (currentDist / initialDist)) - scale, (e.touches[0].clientX + e.touches[1].clientX)/2, (e.touches[0].clientY + e.touches[1].clientY)/2);
         }
     }, {passive: false});
-    
+
     view.addEventListener('touchend', () => { isDragging = false; initialDist = null; });
     view.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX - posX; startY = e.clientY - posY; container.style.transition = 'none'; });
     window.addEventListener('mousemove', e => { if (isDragging) { posX = e.clientX - startX; posY = e.clientY - startY; updateTransform(); } });
     window.addEventListener('mouseup', () => isDragging = false);
     view.addEventListener('wheel', e => { e.preventDefault(); applyZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX, e.clientY); }, {passive:false});
-    
+
     view.addEventListener('click', e => {
-        if (appData.players.length === 0) return;
-        if (appData.currentPlayerId !== appData.adminId) return;
+        if (state.members.length > 0 && state.currentUserId !== state.adminId) return;
         const now = Date.now();
         if (now - lastTap < 300) {
             const rect = container.getBoundingClientRect();
             const mapX = (e.clientX - rect.left) / scale, mapY = (e.clientY - rect.top) / scale;
             let found = furnitureZones.find(f => Math.hypot(f.x - mapX, f.y - mapY) < f.r);
+            
             if(found) {
                 const el = document.getElementById('obj-' + found.id);
                 if(el) { el.classList.add('highlight'); setTimeout(() => el.classList.remove('highlight'), 1000); }
@@ -229,7 +211,7 @@
             container.style.transition = 'transform 0.4s ease-out';
             window.tempCoords = { x: mapX, y: mapY };
             setTimeout(() => {
-                document.getElementById('furniture-hint').innerText = found ? `Объект: ${found.name}` : "Пустая зона";
+                document.getElementById('furniture-hint').innerText = found ? `Объект: ${found.name}` : "Пустая зона комнат";
                 document.getElementById('createQuestModal').style.display='block';
                 document.getElementById('overlay').style.display='block';
             }, 350);
@@ -237,191 +219,299 @@
         lastTap = now;
     });
 
-    // --- ОСНОВНЫЕ ФУНКЦИИ ---
-    async function loadAllData() {
-        try {
-            document.getElementById('loader').style.display = 'flex';
-            
-            const [playersRes, questsRes, messagesRes] = await Promise.all([
-                supabase.from('players').select('*').order('created_at', { ascending: true }),
-                supabase.from('quests').select('*'),
-                supabase.from('messages').select('*').order('created_at', { ascending: false }).limit(50)
-            ]);
-            
-            if (playersRes.error) throw playersRes.error;
-            if (questsRes.error) throw questsRes.error;
-            if (messagesRes.error) throw messagesRes.error;
-            
-            appData.players = playersRes.data || [];
-            appData.quests = questsRes.data || [];
-            appData.messages = (messagesRes.data || []).reverse();
-            
-            if (appData.players.length > 0) {
-                const admin = appData.players.find(p => p.is_admin === true);
-                appData.adminId = admin ? admin.id : appData.players[0].id;
-                if (!appData.currentPlayerId || !appData.players.find(p => p.id === appData.currentPlayerId)) {
-                    appData.currentPlayerId = appData.players[0].id;
-                }
-                document.getElementById('p-card').style.opacity = '1';
-                updateUI();
-                renderQuestsOnMap();
-            } else {
-                document.getElementById('p-card').style.opacity = '0.5';
-                document.getElementById('createFamilyModal').style.display = 'block';
-                document.getElementById('overlay').style.display = 'block';
-            }
-        } catch (error) {
-            console.error("Ошибка:", error);
-            alert("Ошибка: " + error.message + "\n\nПроверьте, созданы ли таблицы в Supabase (SQL Editor)");
-        } finally {
-            document.getElementById('loader').style.display = 'none';
+    // ==================== РАБОТА С GITHUB ====================
+    function showStatus(msg, isError = false) {
+        const el = document.getElementById('statusMsg');
+        if (el) {
+            el.innerHTML = msg;
+            el.style.background = isError ? 'rgba(255,0,0,0.8)' : 'rgba(0,0,0,0.7)';
+            setTimeout(() => { if (el) el.innerHTML = ''; }, 3000);
         }
     }
 
-    function renderQuestsOnMap() {
-        qBox.innerHTML = '';
-        appData.quests.forEach((q, idx) => {
-            const img = document.createElement('img');
-            img.src = 'arrow.png';
-            img.className = 'arrow';
-            img.style.left = q.x_coord + 'px';
-            img.style.top = q.y_coord + 'px';
-            img.onclick = (e) => { e.stopPropagation(); openQuest(idx); };
-            qBox.appendChild(img);
-        });
+    async function loadFromGitHub() {
+        try {
+            const url = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${DATA_FILE}?t=${Date.now()}`;
+            const res = await fetch(url);
+            if (res.ok) {
+                const data = await res.json();
+                state.members = data.members || [];
+                state.quests = data.quests || [];
+                state.adminId = data.adminId || (state.members[0]?.id || null);
+                state.currentUserId = data.currentUserId || (state.members[0]?.id || null);
+                showStatus('✅ Данные загружены из GitHub');
+            } else {
+                // Файла нет — начинаем с пустого состояния
+                state.members = [];
+                state.quests = [];
+                state.adminId = null;
+                state.currentUserId = null;
+                showStatus('📝 Новый файл будет создан при первом сохранении');
+            }
+        } catch(e) {
+            state.members = [];
+            state.quests = [];
+            state.adminId = null;
+            state.currentUserId = null;
+            showStatus('⚠️ Ошибка загрузки, будет создан новый файл');
+        }
+        
+        // Восстанавливаем выбранного игрока из localStorage
+        const savedId = localStorage.getItem('currentUserId');
+        if (savedId && state.members.find(m => m.id === savedId)) {
+            state.currentUserId = savedId;
+        } else if (state.members.length > 0) {
+            state.currentUserId = state.members[0].id;
+            localStorage.setItem('currentUserId', state.currentUserId);
+        }
+        
+        updateUI();
+    }
+
+    async function saveToGitHub() {
+        if (!GITHUB_TOKEN || GITHUB_TOKEN === 'ВАШ_ТОКЕН_СЮДА') {
+            showStatus('⚠️ Вставь GitHub токен в код (строка ~290)', true);
+            return false;
+        }
+        
+        const dataToSave = {
+            members: state.members,
+            quests: state.quests,
+            adminId: state.adminId,
+            currentUserId: state.currentUserId,
+            lastUpdated: new Date().toISOString()
+        };
+        
+        try {
+            const content = btoa(unescape(encodeURIComponent(JSON.stringify(dataToSave, null, 2))));
+            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_FILE}`;
+            
+            // Проверяем, существует ли уже файл
+            let sha = null;
+            const getRes = await fetch(url);
+            if (getRes.ok) {
+                const existing = await getRes.json();
+                sha = existing.sha;
+            }
+            
+            const res = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${GITHUB_TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: 'Обновление данных семейного квеста',
+                    content: content,
+                    sha: sha
+                })
+            });
+            
+            if (res.ok) {
+                showStatus('✅ Данные сохранены в GitHub');
+                return true;
+            } else {
+                const err = await res.text();
+                showStatus('❌ Ошибка сохранения: ' + err.substring(0, 100), true);
+                return false;
+            }
+        } catch(e) {
+            showStatus('❌ Ошибка: ' + e.message, true);
+            return false;
+        }
+    }
+
+    // ==================== ОСНОВНАЯ ЛОГИКА ====================
+    
+    async function syncData() {
+        document.getElementById('loader').style.display = 'flex';
+        await loadFromGitHub();
+        document.getElementById('loader').style.display = 'none';
+    }
+
+    async function pushToCloud() {
+        await saveToGitHub();
+        updateUI();
     }
 
     function updateUI() {
-        const currentPlayer = appData.players.find(p => p.id === appData.currentPlayerId);
-        if (!currentPlayer) return;
-        document.getElementById('current-user-name').innerText = currentPlayer.name;
-        document.getElementById('score-val').innerText = currentPlayer.points;
-        document.getElementById('current-avatar').innerText = currentPlayer.avatar;
-        document.getElementById('p-card').classList.toggle('is-admin', appData.currentPlayerId === appData.adminId);
+        const user = state.members.find(m => m.id === state.currentUserId) || state.members[0];
+        if(!user && state.members.length === 0) {
+            // Нет игроков — показываем приветствие
+            document.getElementById('current-user-name').innerText = 'Нет игроков';
+            document.getElementById('score-val').innerText = '0';
+            document.getElementById('current-avatar').innerText = '👤';
+            document.getElementById('p-card').classList.remove('is-admin');
+            
+            qBox.innerHTML = '';
+            const fList = document.getElementById('family-list');
+            const sList = document.getElementById('switch-list');
+            if(fList) fList.innerHTML = '<div class="member-item">Нажмите "Добавить игрока"</div>';
+            if(sList) sList.innerHTML = '';
+            return;
+        }
         
-        const familyList = document.getElementById('family-list');
-        const switchList = document.getElementById('switch-list');
-        familyList.innerHTML = '';
-        switchList.innerHTML = '<h3>🔄 Сменить героя:</h3>';
-        for (const p of appData.players) {
-            familyList.innerHTML += `<div class="member-item"><span>${p.avatar} ${p.name} ${p.id === appData.adminId ? '👑' : ''} (⭐️ ${p.points})</span><div><button onclick="setAdmin('${p.id}')" style="border:none;background:none;font-size:24px;">👑</button><button onclick="renamePlayer('${p.id}')" style="border:none;background:none;font-size:24px;">✏️</button></div></div>`;
-            if (p.id !== appData.currentPlayerId) switchList.innerHTML += `<button class="btn-choice" onclick="switchPlayer('${p.id}')">${p.name}</button>`;
+        if(!user) return;
+        
+        document.getElementById('current-user-name').innerText = user.name;
+        document.getElementById('score-val').innerText = user.points;
+        document.getElementById('current-avatar').innerText = user.avatar;
+        document.getElementById('p-card').classList.toggle('is-admin', state.currentUserId === state.adminId);
+        
+        qBox.innerHTML = '';
+        state.quests.forEach((q, i) => {
+            const img = document.createElement('img'); 
+            img.src = 'arrow.png'; 
+            img.className = 'arrow';
+            img.style.left = q.x + 'px'; 
+            img.style.top = q.y + 'px';
+            img.onclick = e => { e.stopPropagation(); openQuest(i); };
+            qBox.appendChild(img);
+        });
+
+        const fList = document.getElementById('family-list'); 
+        if(fList) {
+            fList.innerHTML = '';
+            state.members.forEach((m) => {
+                fList.innerHTML += `<div class="member-item">
+                    <span>${m.avatar} ${m.name} ${m.id === state.adminId ? '👑' : ''}</span>
+                    <div>
+                        <button onclick="setAdmin('${m.id}')" style="border:none;background:none;font-size:24px;">👑</button>
+                        <button onclick="renameAnyMember('${m.id}')" style="border:none;background:none;font-size:24px;">✏️</button>
+                    </div>
+                </div>`;
+            });
+        }
+        
+        const sList = document.getElementById('switch-list');
+        if(sList) {
+            sList.innerHTML = '<h3 style="color:#e65100">🔄 Сменить героя:</h3>';
+            state.members.forEach((m) => {
+                if(m.id !== state.currentUserId) {
+                    sList.innerHTML += `<button class="btn-choice" onclick="switchProfile('${m.id}')">${m.name}</button>`;
+                }
+            });
         }
     }
 
-    async function createFirstPlayer() {
-        const name = document.getElementById('firstPlayerName').value.trim();
-        if (!name) { alert("Введите имя!"); return; }
-        const { error } = await supabase.from('players').insert([{ id: Date.now().toString(), name: name, points: 0, avatar: '👤', is_admin: true }]);
-        if (error) alert("Ошибка: " + error.message);
-        else { closeAll(); await loadAllData(); }
-    }
-
-    async function addNewMember() {
-        let name = prompt("Имя игрока:");
-        if (name) {
-            const { error } = await supabase.from('players').insert([{ id: Date.now().toString(), name: name, points: 0, avatar: '👤', is_admin: false }]);
-            if (error) alert("Ошибка: " + error.message);
-            else await loadAllData();
-        }
-    }
-
-    async function renamePlayer(id) {
-        const player = appData.players.find(p => p.id === id);
-        let newName = prompt("Новое имя:", player?.name);
-        if (newName && player) {
-            const { error } = await supabase.from('players').update({ name: newName }).eq('id', id);
-            if (error) alert("Ошибка: " + error.message);
-            else await loadAllData();
-        }
-    }
-
-    async function renameCurrentPlayer() {
-        const player = appData.players.find(p => p.id === appData.currentPlayerId);
-        let newName = prompt("Ваше имя:", player?.name);
-        if (newName && player) {
-            const { error } = await supabase.from('players').update({ name: newName }).eq('id', player.id);
-            if (error) alert("Ошибка: " + error.message);
-            else await loadAllData();
-        }
-    }
-
-    async function setAdmin(id) {
-        await supabase.from('players').update({ is_admin: false }).neq('id', 'none');
-        const { error } = await supabase.from('players').update({ is_admin: true }).eq('id', id);
-        if (error) alert("Ошибка: " + error.message);
-        else await loadAllData();
-    }
-
-    async function switchPlayer(id) { 
-        appData.currentPlayerId = id; 
-        updateUI(); 
-        closeAll(); 
-    }
-
-    async function confirmCreateQuest() {
-        const text = document.getElementById('new-quest-text').value.trim();
-        if (text && window.tempCoords) {
-            const { error } = await supabase.from('quests').insert([{ id: Date.now().toString(), text: text, x_coord: window.tempCoords.x, y_coord: window.tempCoords.y, created_by: appData.currentPlayerId }]);
-            if (error) alert("Ошибка: " + error.message);
-            else await loadAllData();
+    function confirmCreateQuest() {
+        const txt = document.getElementById('new-quest-text').value;
+        if(txt) { 
+            state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt }); 
+            document.getElementById('new-quest-text').value = ''; 
+            pushToCloud(); 
         }
         cancelQuest();
     }
-
-    async function completeTask() {
-        if (currentTaskIndex !== null && appData.quests[currentTaskIndex]) {
-            const quest = appData.quests[currentTaskIndex];
-            const player = appData.players.find(p => p.id === appData.currentPlayerId);
-            if (player) {
-                await supabase.from('players').update({ points: player.points + 10 }).eq('id', player.id);
-                await supabase.from('quests').delete().eq('id', quest.id);
-                await loadAllData();
+    
+    async function completeTask() { 
+        const user = state.members.find(m => m.id === state.currentUserId);
+        if(user) user.points += 10; 
+        state.quests.splice(window.activeIdx, 1); 
+        await pushToCloud(); 
+        closeAll(); 
+    }
+    
+    async function addNewMember() { 
+        let n = prompt("Имя игрока:"); 
+        if(n) {
+            const newId = Date.now().toString();
+            state.members.push({id: newId, name: n, points: 0, avatar: '👤'});
+            if(state.members.length === 1) {
+                state.adminId = newId;
+                state.currentUserId = newId;
+                localStorage.setItem('currentUserId', newId);
             }
-        }
+            await pushToCloud();
+        } 
+    }
+    
+    async function renameCurrentPlayer() { 
+        const user = state.members.find(m => m.id === state.currentUserId);
+        let n = prompt("Имя:", user?.name); 
+        if(n && user) { 
+            user.name = n; 
+            await pushToCloud(); 
+        } 
+    }
+    
+    async function renameAnyMember(id) { 
+        const user = state.members.find(m => m.id === id);
+        let n = prompt("Имя:", user?.name); 
+        if(n && user) { 
+            user.name = n; 
+            await pushToCloud(); 
+        } 
+    }
+    
+    function openAvatarPicker() { 
+        document.getElementById('avatarModal').style.display='block'; 
+        document.getElementById('overlay').style.display='block'; 
+    }
+    
+    async function setAvatar(emoji) { 
+        const user = state.members.find(m => m.id === state.currentUserId);
+        if(user) user.avatar = emoji;
+        await pushToCloud();
+        updateUI();
         closeAll();
     }
-
-    async function sendMessage() {
-        const input = document.getElementById('chatInput');
-        const text = input.value.trim();
-        if (text) {
-            const currentPlayer = appData.players.find(p => p.id === appData.currentPlayerId);
-            await supabase.from('messages').insert([{ sender_name: currentPlayer?.name || "Аноним", text: text }]);
-            input.value = '';
-            await openChat();
-        }
+    
+    function cancelQuest() { 
+        scale = oldPos.s; 
+        posX = oldPos.x; 
+        posY = oldPos.y; 
+        container.style.transition = 'transform 0.4s'; 
+        updateTransform(); 
+        closeAll(); 
     }
-
-    async function setAvatar(emoji) {
-        const player = appData.players.find(p => p.id === appData.currentPlayerId);
-        if (player) {
-            await supabase.from('players').update({ avatar: emoji }).eq('id', player.id);
-            await loadAllData();
-            closeAll();
-        }
-    }
-
-    async function openChat() { 
-        await loadAllData(); 
-        const chatDiv = document.getElementById('chatMessages'); 
-        chatDiv.innerHTML = appData.messages.map(m => `<div class="chat-message"><span class="chat-sender">${m.sender_name}:</span> ${m.text}</div>`).join(''); 
-        document.getElementById('chatModal').style.display = 'flex'; 
+    
+    function openQuest(idx) { 
+        window.activeIdx = idx; 
+        document.getElementById('taskText').innerText = state.quests[idx].text; 
+        document.getElementById('taskModal').style.display = 'block'; 
         document.getElementById('overlay').style.display = 'block'; 
     }
     
-    function closeChat() { document.getElementById('chatModal').style.display = 'none'; closeAll(); }
-    function openQuest(idx) { currentTaskIndex = idx; document.getElementById('taskText').innerText = appData.quests[idx].text; document.getElementById('taskModal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
-    function cancelQuest() { scale = oldPos.s; posX = oldPos.x; posY = oldPos.y; container.style.transition = 'transform 0.4s'; updateTransform(); closeAll(); }
-    function closeAll() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').style.display = 'none'; }
-    function toggleSidebar() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
-    function openAvatarPicker() { document.getElementById('avatarModal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
+    function closeAll() { 
+        document.querySelectorAll('.modal').forEach(m=>m.style.display='none'); 
+        document.getElementById('sidebar').classList.remove('active'); 
+        document.getElementById('overlay').style.display='none'; 
+    }
+    
+    function toggleSidebar() { 
+        document.getElementById('sidebar').classList.add('active'); 
+        document.getElementById('overlay').style.display = 'block'; 
+    }
+    
+    async function switchProfile(id) { 
+        state.currentUserId = id; 
+        localStorage.setItem('currentUserId', id);
+        await pushToCloud();
+        updateUI();
+        closeAll();
+    }
+    
+    async function setAdmin(id) { 
+        state.adminId = id; 
+        await pushToCloud();
+        updateUI();
+    }
 
     const emojis = ['🐱','🐶','🦊','🐼','🐨','🐯','🦁','🦄','🐷','🐸','🐮','🦒'];
-    document.getElementById('emoji-grid').innerHTML = emojis.map(e => `<span onclick="setAvatar('${e}')" style="font-size:35px; cursor:pointer;">${e}</span>`).join('');
+    const emojiGrid = document.getElementById('emoji-grid');
+    if(emojiGrid) {
+        emojiGrid.innerHTML = emojis.map(e => `<span onclick="setAvatar('${e}')" style="font-size:35px; cursor:pointer;">${e}</span>`).join('');
+    }
     
-    loadAllData();
-    setTimeout(() => { posX = (view.offsetWidth - 1000 * 0.4) / 2; posY = (view.offsetHeight - 1000 * 0.4) / 2; scale = 0.4; updateTransform(); }, 600);
+    // Запуск
+    loadFromGitHub();
+    setTimeout(() => { 
+        posX = (view.offsetWidth - 1000*0.4)/2; 
+        posY = (view.offsetHeight - 1000*0.4)/2; 
+        scale = 0.4; 
+        updateTransform(); 
+    }, 600);
 </script>
 </body>
 </html>
