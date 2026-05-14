@@ -8,7 +8,6 @@
         body { background-color: #e0f7fa; display: flex; flex-direction: column; align-items: center; padding: 0; margin: 0; height: 100vh; overflow: hidden; font-family: 'Comic Sans MS', cursive, sans-serif; }
         .main-wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100%; }
         
-        /* ВЕРХНЯЯ ПАНЕЛЬ */
         .top-bar { display: flex; justify-content: space-between; align-items: stretch; padding: 10px; gap: 8px; z-index: 100; flex-shrink: 0; }
         .profile-card { background: white; padding: 10px; border-radius: 25px; border: 4px solid #00796b; display: flex; align-items: center; gap: 10px; flex: 2; position: relative; min-width: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .crown-icon { position: absolute; top: -18px; left: 5px; font-size: 32px; transform: rotate(-15deg); display: none; z-index: 10; }
@@ -20,19 +19,16 @@
         .menu-btn { background: #ff9800; color: white; border-color: #e65100; }
         .chat-btn { background: #4caf50; color: white; border-color: #2e7d32; }
 
-        /* ИГРОВОЕ ПОЛЕ */
         .map-viewport { flex: 1; width: 100%; position: relative; overflow: hidden; background: #cfd8dc; touch-action: none; border-top: 2px solid #004d40; }
         #map-container { position: absolute; width: 1000px; height: 1000px; transform-origin: 0 0; }
         .layer { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; background-size: contain; background-repeat: no-repeat; transition: filter 0.3s; }
         
-        /* СВЕЧЕНИЕ МЕБЕЛИ */
         .highlight { filter: drop-shadow(0 0 25px #00e5ff) brightness(1.4) !important; }
 
         #quest-arrows { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; z-index: 60; }
         .arrow { position: absolute; width: 55px; height: 55px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); pointer-events: auto; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); }
         @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -80%); } }
 
-        /* БИРЮЗОВАЯ РАМКА 6PX И СКРУГЛЕНИЕ 35PX */
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 500; }
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 35px; border: 6px solid #00796b; text-align: center; width: 85%; max-width: 420px; z-index: 1000; box-shadow: 0 0 50px rgba(0,0,0,0.4); }
         .btn-choice { width: 100%; padding: 16px; margin: 8px 0; border-radius: 20px; border: 3px solid #00796b; cursor: pointer; font-family: inherit; font-size: 20px; background: white; font-weight: bold; }
@@ -68,7 +64,6 @@
 
     <div class="map-viewport" id="viewport">
         <div id="map-container">
-            <!-- СЛОИ КОМНАТ -->
             <div class="layer" style="background-image: url('Sanuzel1.png');"></div>
             <div class="layer" style="background-image: url('Koridor.png');"></div>
             <div class="layer" style="background-image: url('Gostinaya.png');"></div>
@@ -78,7 +73,6 @@
             <div class="layer" style="background-image: url('Sanuzel2.png');"></div>
             <div class="layer" style="background-image: url('Kuhnya.png');"></div>
             <div class="layer" style="background-image: url('Balcon.png');"></div>
-            <!-- СЛОИ МЕБЕЛИ С ЛОКАЛЬНЫМИ ID ДЛЯ ПОДСВЕТКИ -->
             <div id="obj-Lapomoika" class="layer" style="background-image: url('Lapomoika.png');"></div>
             <div id="obj-Unitaz1" class="layer" style="background-image: url('Unitaz1.png');"></div>
             <div id="obj-Stiralka" class="layer" style="background-image: url('Stiralka.png');"></div>
@@ -100,7 +94,7 @@
 </div>
 
 <div id="overlay" onclick="closeAll()" class="overlay"></div>
-<!-- МОДАЛКИ С ТРЕБУЕМЫМ СТИЛЕМ -->
+
 <div id="createQuestModal" class="modal">
     <h2 id="modal-title">Задание 📝</h2>
     <p id="furniture-hint" style="color:#00796b; font-weight:bold; margin-bottom:10px;"></p>
@@ -130,9 +124,11 @@
 </div>
 
 <script>
-    const SCRIPT_URL = 'google.com';
-    
-    let state = { currentUserIndex: 0, adminIndex: 0, quests: [], members: [] };
+    // ======================== ВАША ССЫЛКА НА СКРИПТ ========================
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzz4tLNf6jdU85F_IZVE0xBpdyxiu4TGJlDEGXVop3WSTOFKJp4Alh_NdRSMZuDN1fQ/exec';
+    // =====================================================================
+
+    let state = { currentUserId: null, adminId: null, quests: [], members: [] };
     const container = document.getElementById('map-container');
     const view = document.getElementById('viewport');
     const qBox = document.getElementById('quest-arrows');
@@ -158,20 +154,18 @@
     }
     function btnZoom(delta) { applyZoom(delta, view.offsetWidth / 2, view.offsetHeight / 2); }
 
-    // ТАЧ И ПК СЦЕНАРИИ УПРАВЛЕНИЯ
     view.addEventListener('touchstart', e => {
-        if (e.touches.length === 1) { isDragging = true; startX = e.touches.clientX - posX; startY = e.touches.clientY - posY; container.style.transition = 'none'; }
-        else if (e.touches.length === 2) { isDragging = false; initialDist = Math.hypot(e.touches.clientX - e.touches.clientX, e.touches.clientY - e.touches.clientY); initialScale = scale; }
+        if (e.touches.length === 1) { isDragging = true; startX = e.touches[0].clientX - posX; startY = e.touches[0].clientY - posY; container.style.transition = 'none'; }
+        else if (e.touches.length === 2) { isDragging = false; initialDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); initialScale = scale; }
     }, {passive: false});
 
     view.addEventListener('touchmove', e => {
         e.preventDefault();
-        if (e.touches.length === 1 && isDragging) { posX = e.touches.clientX - startX; posY = e.touches.clientY - startY; }
+        if (e.touches.length === 1 && isDragging) { posX = e.touches[0].clientX - startX; posY = e.touches[0].clientY - startY; updateTransform(); }
         else if (e.touches.length === 2 && initialDist) {
-            const currentDist = Math.hypot(e.touches.clientX - e.touches.clientX, e.touches.clientY - e.touches.clientY);
-            applyZoom((initialScale * (currentDist / initialDist)) - scale, (e.touches.clientX + e.touches.clientX)/2, (e.touches.clientY + e.touches.clientY)/2);
+            const currentDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+            applyZoom((initialScale * (currentDist / initialDist)) - scale, (e.touches[0].clientX + e.touches[1].clientX)/2, (e.touches[0].clientY + e.touches[1].clientY)/2);
         }
-        updateTransform();
     }, {passive: false});
 
     view.addEventListener('touchend', () => { isDragging = false; initialDist = null; });
@@ -180,15 +174,13 @@
     window.addEventListener('mouseup', () => isDragging = false);
     view.addEventListener('wheel', e => { e.preventDefault(); applyZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX, e.clientY); }, {passive:false});
 
-    // ТУК-ТУК КЛИК С СИЯНИЕМ И УМНЫМ МАСШТАБОМ
     view.addEventListener('click', e => {
-        if (state.members.length > 0 && state.currentUserIndex !== state.adminIndex) return;
+        if (state.members.length > 0 && state.currentUserId !== state.adminId) return;
         const now = Date.now();
         if (now - lastTap < 300) {
             const rect = container.getBoundingClientRect();
             const mapX = (e.clientX - rect.left) / scale, mapY = (e.clientY - rect.top) / scale;
             let found = furnitureZones.find(f => Math.hypot(f.x - mapX, f.y - mapY) < f.r);
-            
             if(found) {
                 const el = document.getElementById('obj-' + found.id);
                 if(el) { el.classList.add('highlight'); setTimeout(() => el.classList.remove('highlight'), 1000); }
@@ -206,47 +198,70 @@
         lastTap = now;
     });
 
-    // СИНХРОНИЗАЦИЯ ОБЛАКА JSON С GOOGLE SHEETS
+    // ======================== СИНХРОНИЗАЦИЯ С GOOGLE ТАБЛИЦЕЙ ========================
     async function syncData() {
         document.getElementById('loader').style.display = 'flex';
         try {
             const response = await fetch(SCRIPT_URL);
             const data = await response.json();
             state.members = []; state.quests = [];
+            let adminId = null, currentUserId = null;
             
-            for(let i = 1; i < data.length; i++) {
+            for(let i = 0; i < data.length; i++) {
                 const row = data[i];
                 if (!row[0]) continue;
-                if(row[0] === 'member') state.members.push({name: row[1], points: parseInt(row[2]) || 0, avatar: row[3] || '👤'});
+                if(row[0] === 'member') {
+                    state.members.push({
+                        id: row[1],
+                        name: row[2],
+                        points: parseInt(row[3]) || 0,
+                        avatar: row[4] || '👤'
+                    });
+                }
                 if(row[0] === 'quest') state.quests.push({text: row[1], x: parseFloat(row[2]), y: parseFloat(row[3])});
-                if(row[0] === 'config') { state.adminIndex = parseInt(row[2]) || 0; state.currentUserIndex = parseInt(row[3]) || 0; }
+                if(row[0] === 'config') {
+                    adminId = row[1];
+                    currentUserId = row[2];
+                }
             }
-            if(state.members.length === 0) { state.members.push({name: "Админ", points: 0, avatar: "👤"}); }
+            
+            if(state.members.length === 0) {
+                const defaultId = Date.now().toString();
+                state.members.push({id: defaultId, name: "Админ", points: 0, avatar: "👤"});
+                state.adminId = defaultId;
+                state.currentUserId = defaultId;
+                await pushToCloud();
+            } else {
+                state.adminId = adminId || state.members[0].id;
+                state.currentUserId = currentUserId || state.members[0].id;
+                if(!state.members.find(m => m.id === state.currentUserId)) state.currentUserId = state.members[0].id;
+                if(!state.members.find(m => m.id === state.adminId)) state.adminId = state.members[0].id;
+            }
             updateUI();
-        } catch (e) { console.error("Ошибка сети", e); }
+        } catch (e) { console.error("Ошибка загрузки", e); alert("Ошибка загрузки: " + e.message); }
         document.getElementById('loader').style.display = 'none';
     }
 
     async function pushToCloud() {
         try {
-            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'clear'}), mode: 'no-cors' });
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'clear'}), headers: {'Content-Type': 'application/json'} });
             for (let m of state.members) {
-                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'member', name: m.name, val1: m.points, val2: m.avatar}), mode: 'no-cors' });
+                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'member', id: m.id, name: m.name, points: m.points, avatar: m.avatar}), headers: {'Content-Type': 'application/json'} });
             }
             for (let q of state.quests) {
-                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'quest', name: q.text, val1: q.x, val2: q.y}), mode: 'no-cors' });
+                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'quest', text: q.text, x: q.x, y: q.y}), headers: {'Content-Type': 'application/json'} });
             }
-            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'config', val1: state.adminIndex, val2: state.currentUserIndex}), mode: 'no-cors' });
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({type: 'config', adminId: state.adminId, currentUserId: state.currentUserId}), headers: {'Content-Type': 'application/json'} });
         } catch(e) { console.error(e); }
     }
 
     function updateUI() {
-        const user = state.members[state.currentUserIndex] || state.members[0];
+        const user = state.members.find(m => m.id === state.currentUserId) || state.members[0];
         if(!user) return;
         document.getElementById('current-user-name').innerText = user.name;
         document.getElementById('score-val').innerText = user.points;
         document.getElementById('current-avatar').innerText = user.avatar;
-        document.getElementById('p-card').classList.toggle('is-admin', state.currentUserIndex === state.adminIndex);
+        document.getElementById('p-card').classList.toggle('is-admin', state.currentUserId === state.adminId);
         
         qBox.innerHTML = '';
         state.quests.forEach((q, i) => {
@@ -258,29 +273,84 @@
 
         const fList = document.getElementById('family-list'); fList.innerHTML = '';
         const sList = document.getElementById('switch-list'); sList.innerHTML = '<h3 style="color:#e65100">🔄 Сменить героя:</h3>';
-        state.members.forEach((m, i) => {
-            fList.innerHTML += `<div class="member-item"><span>${m.avatar} ${m.name} ${i===state.adminIndex?'👑':''}</span><div><button onclick="setAdmin(${i})" style="border:none;background:none;font-size:24px;">👑</button><button onclick="renameAnyMember(${i})" style="border:none;background:none;font-size:24px;">✏️</button></div></div>`;
-            if(i !== state.currentUserIndex) sList.innerHTML += `<button class="btn-choice" onclick="switchProfile(${i})">${m.name}</button>`;
+        state.members.forEach((m) => {
+            fList.innerHTML += `<div class="member-item"><span>${m.avatar} ${m.name} ${m.id === state.adminId ? '👑' : ''}</span><div><button onclick="setAdmin('${m.id}')" style="border:none;background:none;font-size:24px;">👑</button><button onclick="renameAnyMember('${m.id}')" style="border:none;background:none;font-size:24px;">✏️</button></div></div>`;
+            if(m.id !== state.currentUserId) sList.innerHTML += `<button class="btn-choice" onclick="switchProfile('${m.id}')">${m.name}</button>`;
         });
     }
 
     function confirmCreateQuest() {
         const txt = document.getElementById('new-quest-text').value;
-        if(txt) { state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt }); document.getElementById('new-quest-text').value = ''; pushToCloud().then(updateUI); }
+        if(txt) { state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt }); document.getElementById('new-quest-text').value = ''; pushToCloud().then(() => updateUI()); }
         cancelQuest();
     }
-    function completeTask() { state.members[state.currentUserIndex].points += 10; state.quests.splice(window.activeIdx, 1); pushToCloud().then(updateUI); closeAll(); }
-    function addNewMember() { let n = prompt("Имя игрока:"); if(n) { state.members.push({name:n, points:0, avatar:'👤'}); pushToCloud().then(updateUI); } }
-    function renameCurrentPlayer() { let n = prompt("Имя:", state.members[state.currentUserIndex].name); if(n) { state.members[state.currentUserIndex].name = n; pushToCloud().then(updateUI); } }
-    function renameAnyMember(i) { let n = prompt("Имя:", state.members[i].name); if(n) { state.members[i].name = n; pushToCloud().then(updateUI); } }
+    
+    async function completeTask() {
+        const user = state.members.find(m => m.id === state.currentUserId);
+        if(user) user.points += 10;
+        state.quests.splice(window.activeIdx, 1);
+        await pushToCloud();
+        updateUI();
+        closeAll();
+    }
+    
+    async function addNewMember() { 
+        let n = prompt("Имя игрока:"); 
+        if(n) {
+            const newId = Date.now().toString();
+            state.members.push({id: newId, name: n, points: 0, avatar: '👤'});
+            await pushToCloud();
+            updateUI();
+        } 
+    }
+    
+    async function renameCurrentPlayer() { 
+        let n = prompt("Имя:", state.members.find(m => m.id === state.currentUserId)?.name); 
+        if(n) {
+            const user = state.members.find(m => m.id === state.currentUserId);
+            if(user) user.name = n;
+            await pushToCloud();
+            updateUI();
+        } 
+    }
+    
+    async function renameAnyMember(id) { 
+        let n = prompt("Имя:", state.members.find(m => m.id === id)?.name); 
+        if(n) {
+            const user = state.members.find(m => m.id === id);
+            if(user) user.name = n;
+            await pushToCloud();
+            updateUI();
+        } 
+    }
+    
     function openAvatarPicker() { document.getElementById('avatarModal').style.display='block'; document.getElementById('overlay').style.display='block'; }
-    function setAvatar(e) { state.members[state.currentUserIndex].avatar = e; pushToCloud().then(() => { updateUI(); closeAll(); }); }
+    
+    async function setAvatar(e) { 
+        const user = state.members.find(m => m.id === state.currentUserId);
+        if(user) user.avatar = e;
+        await pushToCloud();
+        updateUI();
+        closeAll();
+    }
+    
     function cancelQuest() { scale = oldPos.s; posX = oldPos.x; posY = oldPos.y; container.style.transition = 'transform 0.4s'; updateTransform(); closeAll(); }
     function openQuest(idx) { window.activeIdx = idx; document.getElementById('taskText').innerText = state.quests[idx].text; document.getElementById('taskModal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
     function closeAll() { document.querySelectorAll('.modal').forEach(m=>m.style.display='none'); document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').style.display='none'; }
     function toggleSidebar() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
-    function switchProfile(i) { state.currentUserIndex = i; pushToCloud().then(updateUI); closeAll(); }
-    function setAdmin(i) { state.adminIndex = i; pushToCloud().then(updateUI); }
+    
+    async function switchProfile(id) { 
+        state.currentUserId = id; 
+        await pushToCloud();
+        updateUI();
+        closeAll();
+    }
+    
+    async function setAdmin(id) { 
+        state.adminId = id; 
+        await pushToCloud();
+        updateUI();
+    }
 
     const emojis = ['🐱','🐶','🦊','🐼','🐨','🐯','🦁','🦄','🐷','🐸','🐮','🦒'];
     document.getElementById('emoji-grid').innerHTML = emojis.map(e => `<span onclick="setAvatar('${e}')" style="font-size:35px; cursor:pointer;">${e}</span>`).join('');
