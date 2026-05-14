@@ -5,18 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Семейный Квест</title>
     <style>
-        body{background:#e0f7fa;font-family:'Comic Sans MS',cursive;margin:0;padding:0;height:100vh;overflow:hidden}
-        .main-wrapper{width:100%;max-width:500px;margin:0 auto;display:flex;flex-direction:column;height:100%}
-        .top-bar{display:flex;justify-content:space-between;padding:10px;gap:8px}
-        .profile-card{background:white;padding:10px;border-radius:25px;border:4px solid #00796b;display:flex;align-items:center;gap:10px;flex:2;position:relative}
-        .crown-icon{position:absolute;top:-18px;left:5px;font-size:32px;display:none}
+        *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+        body{background:#e0f7fa;font-family:'Segoe UI','Comic Sans MS',cursive;margin:0;padding:0;height:100vh;overflow:hidden;font-size:18px;font-weight:500}
+        .main-wrapper{width:100%;max-width:550px;margin:0 auto;display:flex;flex-direction:column;height:100%}
+        .top-bar{display:flex;justify-content:space-between;align-items:center;padding:12px;gap:12px;flex-shrink:0}
+        .profile-card{background:white;padding:8px 15px;border-radius:40px;border:3px solid #00796b;display:flex;align-items:center;gap:12px;flex:2;position:relative}
+        .crown-icon{position:absolute;top:-14px;left:5px;font-size:28px;display:none}
         .is-admin .crown-icon{display:block}
-        .avatar-circle{width:60px;height:60px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;border:3px solid #00796b}
-        .btn-group{display:flex;flex-direction:column;gap:5px;flex:0.8}
-        .menu-btn,.chat-btn{height:100%;min-height:45px;border-radius:18px;cursor:pointer;font-weight:bold;border:3px solid;display:flex;align-items:center;justify-content:center}
+        .avatar-circle{width:55px;height:55px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer;border:2px solid #00796b;flex-shrink:0}
+        .profile-info{flex:1;min-width:0}
+        .profile-info b{font-size:18px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .score-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+        .score-row span{font-size:18px;font-weight:bold;color:#00796b}
+        .score-row button{background:none;border:none;font-size:18px;cursor:pointer;padding:0 5px}
+        .btn-group{display:flex;gap:10px;flex-shrink:0}
+        .menu-btn,.chat-btn{width:55px;height:55px;border-radius:30px;cursor:pointer;font-weight:bold;font-size:24px;border:3px solid;display:flex;align-items:center;justify-content:center;background:white}
         .menu-btn{background:#ff9800;color:white;border-color:#e65100}
         .chat-btn{background:#4caf50;color:white;border-color:#2e7d32}
-        .map-viewport{flex:1;position:relative;overflow:hidden;background:#cfd8dc;touch-action:none}
+        .map-viewport{flex:1;position:relative;overflow:hidden;background:#cfd8dc;touch-action:none;border-radius:25px;margin:5px}
         #map-container{position:absolute;width:1000px;height:1000px;transform-origin:0 0}
         .layer{position:absolute;top:0;left:0;width:1000px;height:1000px;pointer-events:none;background-size:contain;background-repeat:no-repeat}
         .highlight{filter:drop-shadow(0 0 25px #00e5ff)brightness(1.4)!important}
@@ -24,32 +30,43 @@
         .arrow{position:absolute;width:55px;height:55px;cursor:pointer;animation:bounce 1.5s infinite;transform:translate(-50%,-50%);pointer-events:auto}
         @keyframes bounce{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,-80%)}}
         .overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:500}
-        .modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:25px;border-radius:35px;border:6px solid #00796b;text-align:center;width:85%;max-width:420px;z-index:1000}
-        .btn-choice{width:100%;padding:16px;margin:8px 0;border-radius:20px;border:3px solid #00796b;cursor:pointer;font-weight:bold}
-        .sidebar{position:fixed;right:-550px;top:0;width:85%;max-width:420px;height:100%;background:white;border-left:8px solid #ff9800;transition:0.4s;padding:30px;z-index:1000;overflow-y:auto}
+        .modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:25px;border-radius:35px;border:6px solid #00796b;text-align:center;width:85%;max-width:420px;z-index:1000;font-size:18px}
+        .btn-choice{width:100%;padding:14px;margin:8px 0;border-radius:30px;border:2px solid #00796b;cursor:pointer;font-weight:bold;font-size:18px;background:white}
+        .sidebar{position:fixed;right:-550px;top:0;width:85%;max-width:420px;height:100%;background:white;border-left:8px solid #ff9800;transition:0.4s;padding:30px;z-index:1000;overflow-y:auto;font-size:18px}
         .sidebar.active{right:0}
-        .member-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:2px solid #ffcc80}
+        .member-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:2px solid #ffcc80;font-size:18px}
         .zoom-controls{position:absolute;bottom:15px;right:15px;display:flex;flex-direction:column;gap:8px;z-index:110}
-        .z-btn{width:50px;height:50px;border-radius:15px;border:4px solid #004d40;background:white;font-size:26px;font-weight:bold;cursor:pointer}
-        .status-msg{position:fixed;bottom:10px;left:10px;background:rgba(0,0,0,0.7);color:white;padding:5px 10px;border-radius:10px;font-size:11px;z-index:999}
-        .messages{height:200px;overflow-y:auto;background:#f5f5f5;border-radius:20px;padding:10px;margin:10px 0;font-size:14px;text-align:left}
-        .chat-message{padding:5px;border-bottom:1px solid #ddd}
+        .z-btn{width:50px;height:50px;border-radius:25px;border:3px solid #004d40;background:white;font-size:28px;font-weight:bold;cursor:pointer}
+        .status-msg{position:fixed;bottom:10px;left:10px;background:rgba(0,0,0,0.8);color:white;padding:8px 15px;border-radius:30px;font-size:14px;z-index:999}
+        .messages{height:250px;overflow-y:auto;background:#f5f5f5;border-radius:20px;padding:12px;margin:10px 0;font-size:16px;text-align:left}
+        .chat-message{padding:8px;border-bottom:1px solid #ddd;font-size:16px}
         .chat-sender{font-weight:bold;color:#00796b}
-        .chat-input-area{display:flex;gap:8px}
-        .chat-input-area input{flex:1;padding:12px;border-radius:25px;border:2px solid #00796b}
+        .chat-input-area{display:flex;gap:8px;margin-top:10px}
+        .chat-input-area input{flex:1;padding:14px;border-radius:30px;border:2px solid #00796b;font-size:16px}
+        .chat-tabs{display:flex;gap:10px;margin-bottom:10px}
+        .chat-tab{flex:1;padding:12px;text-align:center;cursor:pointer;border-radius:30px;background:#e0e0e0;font-weight:bold;font-size:16px}
+        .chat-tab.active{background:#00796b;color:white}
+        .profile-select-item{padding:15px;margin:8px 0;background:#fff3e0;border-radius:30px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:20px}
+        .action-buttons{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+        .action-btn{background:#2196f3;color:white;border:none;padding:14px;border-radius:30px;font-weight:bold;font-size:18px;cursor:pointer}
+        .action-btn.warning{background:#ff9800}
+        hr{margin:20px 0}
     </style>
 </head>
 <body>
 
 <div id="statusMsg" class="status-msg"></div>
-<div id="loader" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:white;z-index:2000;align-items:center;justify-content:center;font-size:24px;">Загрузка...</div>
+<div id="loader" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:white;z-index:2000;align-items:center;justify-content:center;font-size:28px;">Загрузка...</div>
 
 <div class="main-wrapper">
     <div class="top-bar">
         <div id="p-card" class="profile-card">
             <div class="crown-icon">👑</div>
             <div id="current-avatar" class="avatar-circle" onclick="openAvatarPicker()">👤</div>
-            <div><b id="current-user-name">...</b><div>⭐️ <span id="score-val">0</span> <button onclick="renameCurrentPlayer()" style="background:none;border:none;font-size:18px;">✏️</button></div></div>
+            <div class="profile-info">
+                <b id="current-user-name">...</b>
+                <div class="score-row"><span>⭐️ <span id="score-val">0</span></span><button onclick="renameCurrentPlayer()">✏️</button></div>
+            </div>
         </div>
         <div class="btn-group"><button class="chat-btn" onclick="openChat()">💬</button><button class="menu-btn" onclick="toggleSidebar()">⚙️</button></div>
     </div>
@@ -58,16 +75,18 @@
 
 <div id="overlay" onclick="closeAll()" class="overlay"></div>
 
-<div id="createQuestModal" class="modal"><h2>Задание 📝</h2><p id="furniture-hint"></p><input type="text" id="new-quest-text" placeholder="Что сделать?"><input type="number" id="quest-reward" placeholder="Бонусы" value="10"><button class="btn-choice" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button><button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button></div>
-<div id="taskModal" class="modal"><h2 id="taskText"></h2><p id="taskReward" style="color:#00796b"></p><button class="btn-choice" onclick="completeTask()">ВЫПОЛНИТЬ ✅</button><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ 🔙</button></div>
-<div id="sidebar" class="sidebar"><h2>🏡 Семья</h2><div id="family-list"></div><button class="btn-choice" onclick="addNewMember()">➕ ДОБАВИТЬ ИГРОКА</button><div id="switch-list"></div><hr><button class="btn-choice" onclick="transferBonus()">💰 ПЕРЕДАТЬ БОНУСЫ</button><button class="btn-choice" onclick="requestCash()">💵 ОБМЕНЯТЬ НА КЭШ</button><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ ❌</button></div>
-<div id="tokenModal" class="modal"><h2>🔐 GitHub токен</h2><p>Введите токен (нужен для сохранения):</p><input type="password" id="tokenInput" placeholder="ghp_..."><button class="btn-choice" onclick="saveToken()">✅ Сохранить</button><button class="btn-choice" onclick="skipToken()">⏭️ Пропустить</button></div>
-<div id="avatarModal" class="modal"><h2>Аватар</h2><div id="emoji-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0"></div><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ</button></div>
-<div id="chatModal" class="modal" style="flex-direction:column"><h2>💬 Чат</h2><div id="chatMessages" class="messages"></div><div class="chat-input-area"><input type="text" id="chatInput" placeholder="Сообщение..."><button onclick="sendChatMessage()">📤</button></div><button class="btn-choice" onclick="closeChat()">ЗАКРЫТЬ</button></div>
+<div id="createQuestModal" class="modal"><h2>Задание 📝</h2><p id="furniture-hint"></p><input type="text" id="new-quest-text" placeholder="Что сделать?" style="width:100%;padding:12px;font-size:16px;border-radius:30px;border:2px solid #00796b;"><input type="number" id="quest-reward" placeholder="Бонусы" value="10" style="width:100%;padding:12px;font-size:16px;border-radius:30px;border:2px solid #00796b;margin-top:10px;"><button class="btn-choice" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button><button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button></div>
+<div id="taskModal" class="modal"><h2 id="taskText"></h2><p id="taskReward" style="color:#00796b;font-size:20px;font-weight:bold;"></p><button class="btn-choice" onclick="completeTask()">ВЫПОЛНИТЬ ✅</button><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ 🔙</button></div>
+<div id="sidebar" class="sidebar"><h2>🏡 Семья</h2><div id="family-list"></div><button class="btn-choice" onclick="addNewMember()">➕ ДОБАВИТЬ ИГРОКА</button><div id="switch-list"></div><hr><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ ❌</button></div>
+<div id="tokenModal" class="modal"><h2>🔐 GitHub токен</h2><p>Введите токен (нужен для сохранения):</p><input type="password" id="tokenInput" placeholder="ghp_..." style="width:100%;padding:12px;border-radius:30px;border:2px solid #00796b;"><button class="btn-choice" onclick="saveToken()">✅ Сохранить</button><button class="btn-choice" onclick="skipToken()">⏭️ Пропустить</button></div>
+<div id="avatarModal" class="modal"><h2>Аватар</h2><div id="emoji-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin:20px 0"></div><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ</button></div>
+<div id="chatModal" class="modal" style="flex-direction:column;max-width:500px"><h2>💬 Чат</h2><div class="chat-tabs"><div class="chat-tab active" onclick="switchChatTab('general')">💬 Общий</div><div class="chat-tab" onclick="switchChatTab('tech')">🔧 Технические</div></div><div id="chatMessages" class="messages"></div><div class="chat-input-area"><input type="text" id="chatInput" placeholder="Сообщение..."><button onclick="sendChatMessage()" style="background:#4caf50;color:white;border:none;border-radius:30px;padding:12px 20px;font-size:18px;">📤</button></div><button class="btn-choice" onclick="closeChat()">ЗАКРЫТЬ</button></div>
+<div id="profileActionsModal" class="modal"><h2>👤 Действия с бонусами</h2><div class="action-buttons"><button class="action-btn" onclick="transferBonus()">💰 Передать бонусы</button><button class="action-btn warning" onclick="requestCash()">💵 Обменять на кэш</button></div><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ</button></div>
+<div id="playerSelectModal" class="modal"><h2>👥 Выберите профиль</h2><div id="playerListSelect"></div><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ</button></div>
 
 <script>
 const REPO_OWNER='NChu-GH',REPO_NAME='home-quest',DATA_FILE='family-data.json';
-let state={members:[],adminId:null,currentUserId:null,quests:[],messages:[]},githubToken=null,currentTaskIndex=null;
+let state={members:[],adminId:null,currentUserId:null,quests:[],messages:{general:[],tech:[]}},githubToken=null,currentTaskIndex=null,currentChatTab='general',targetPlayerId=null;
 const container=document.getElementById('map-container'),view=document.getElementById('viewport'),qBox=document.getElementById('quest-arrows');
 const furnitureZones=[{id:'Lapomoika',name:'🐾 Лапомойка',x:745,y:405,r:85},{id:'Unitaz1',name:'🚽 Унитаз',x:865,y:405,r:85},{id:'Stiralka',name:'🧼 Стиральная машина',x:865,y:555,r:95},{name:'🧺 Корзина',x:765,y:555,r:85},{id:'Veshalka',name:'🧥 Вешалка',x:690,y:420,r:75},{name:'🗄 Тумбочка',x:640,y:500,r:60},{id:'Shkaf1',name:'👟 Шкаф обуви',x:505,y:620,r:85},{id:'Shkaf2',name:'👗 Шкаф одежды',x:410,y:620,r:85},{id:'Shkaf3',name:'🧹 Хоз. шкаф',x:330,y:630,r:75},{id:'Shkaf4',name:'⛺️ Шкаф спорт',x:330,y:710,r:75},{id:'Shkaf5',name:'📦 Доп. шкаф',x:330,y:790,r:75}];
 let scale=0.5,posX=0,posY=0,isDragging=false,startX,startY,lastTap=0,initialDist=null,initialScale=0,oldPos={s:0.5,x:0,y:0};
@@ -82,47 +101,54 @@ window.addEventListener('mousemove',e=>{if(isDragging){posX=e.clientX-startX;pos
 window.addEventListener('mouseup',()=>isDragging=false);
 view.addEventListener('wheel',e=>{e.preventDefault();applyZoom(e.deltaY<0?0.1:-0.1,e.clientX,e.clientY);},{passive:false});
 view.addEventListener('click',e=>{if(state.members.length>0&&state.currentUserId!==state.adminId)return;let now=Date.now();if(now-lastTap<300){let rect=container.getBoundingClientRect(),mapX=(e.clientX-rect.left)/scale,mapY=(e.clientY-rect.top)/scale,found=furnitureZones.find(f=>Math.hypot(f.x-mapX,f.y-mapY)<f.r);if(found){let el=document.getElementById('obj-'+found.id);if(el){el.classList.add('highlight');setTimeout(()=>el.classList.remove('highlight'),1000);}}oldPos={s:scale,x:posX,y:posY};applyZoom(1.4-scale,e.clientX,e.clientY);container.style.transition='transform 0.4s ease-out';window.tempCoords={x:mapX,y:mapY};setTimeout(()=>{document.getElementById('furniture-hint').innerText=found?`Объект: ${found.name}`:"Пустая зона";document.getElementById('createQuestModal').style.display='block';document.getElementById('overlay').style.display='block';},350);}lastTap=now;});
-function showStatus(m,e){let el=document.getElementById('statusMsg');el.innerHTML=m;el.style.background=e?'rgba(255,0,0,0.8)':'rgba(0,0,0,0.7)';setTimeout(()=>el.innerHTML='',3000);}
+function showStatus(m,e){let el=document.getElementById('statusMsg');el.innerHTML=m;el.style.background=e?'rgba(255,0,0,0.8)':'rgba(0,0,0,0.8)';setTimeout(()=>el.innerHTML='',3000);}
 function loadToken(){let t=localStorage.getItem('githubToken');if(t&&t.startsWith('ghp_')){githubToken=t;return true;}return false;}
 function saveToken(){let t=document.getElementById('tokenInput').value.trim();if(t&&t.startsWith('ghp_')){githubToken=t;localStorage.setItem('githubToken',t);showStatus('✅ Токен сохранён');closeModal();loadFromGitHub();}else showStatus('❌ Неверный токен',true);}
 function skipToken(){showStatus('⚠️ Режим просмотра',true);closeModal();loadFromGitHub();}
-async function loadFromGitHub(){document.getElementById('loader').style.display='flex';try{let res=await fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${DATA_FILE}?t=${Date.now()}`);if(res.ok){let d=await res.json();state.members=d.members||[];state.quests=d.quests||[];state.messages=d.messages||[];state.adminId=d.adminId||(state.members[0]?.id||null);state.currentUserId=d.currentUserId||(state.members[0]?.id||null);}else{state.members=[];state.quests=[];state.messages=[];state.adminId=null;state.currentUserId=null;}}catch(e){state.members=[];state.quests=[];state.messages=[];state.adminId=null;state.currentUserId=null;}
-let sid=localStorage.getItem('currentUserId');if(sid&&state.members.find(m=>m.id===sid))state.currentUserId=sid;else if(state.members.length>0){state.currentUserId=state.members[0].id;localStorage.setItem('currentUserId',state.currentUserId);}
-updateUI();renderQuestsOnMap();document.getElementById('loader').style.display='none';}
+async function loadFromGitHub(){document.getElementById('loader').style.display='flex';try{let res=await fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${DATA_FILE}?t=${Date.now()}`);if(res.ok){let d=await res.json();state.members=d.members||[];state.quests=d.quests||[];state.messages=d.messages||{general:[],tech:[]};state.adminId=d.adminId||(state.members[0]?.id||null);state.currentUserId=d.currentUserId||(state.members[0]?.id||null);if(!state.messages.general)state.messages.general=[];if(!state.messages.tech)state.messages.tech=[];}else{state.members=[];state.quests=[];state.messages={general:[],tech:[]};state.adminId=null;state.currentUserId=null;}}catch(e){state.members=[];state.quests=[];state.messages={general:[],tech:[]};state.adminId=null;state.currentUserId=null;}
+let sid=localStorage.getItem('currentUserId');if(sid&&state.members.find(m=>m.id===sid))state.currentUserId=sid;else if(state.members.length>0&&!sid){state.currentUserId=null;showPlayerSelect();}else if(state.members.length>0&&!state.currentUserId){showPlayerSelect();}
+if(state.currentUserId&&state.members.length>0){updateUI();renderQuestsOnMap();}
+document.getElementById('loader').style.display='none';}
+function showPlayerSelect(){let modal=document.getElementById('playerSelectModal');let listDiv=document.getElementById('playerListSelect');if(!listDiv)return;listDiv.innerHTML='';state.members.forEach(m=>{let div=document.createElement('div');div.className='profile-select-item';div.innerHTML=`<span>${m.avatar} ${m.name} <span style="font-size:16px;">⭐️ ${m.points}</span></span><span>👉</span>`;div.onclick=()=>{state.currentUserId=m.id;localStorage.setItem('currentUserId',m.id);closeAll();updateUI();renderQuestsOnMap();};listDiv.appendChild(div);});modal.style.display='block';document.getElementById('overlay').style.display='block';}
 async function saveToGitHub(){if(!githubToken){showStatus('⚠️ Нет токена',true);return false;}
 let data={members:state.members,quests:state.quests,messages:state.messages,adminId:state.adminId,currentUserId:state.currentUserId,updated:new Date().toISOString()};
 try{let content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2)))),url=`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_FILE}`;
 let shaRes=await fetch(url,{headers:{'Authorization':`token ${githubToken}`}}),sha=null;if(shaRes.ok){let ex=await shaRes.json();sha=ex.sha;}
 let res=await fetch(url,{method:'PUT',headers:{'Authorization':`token ${githubToken}`,'Content-Type':'application/json'},body:JSON.stringify({message:'Обновление',content:content,sha:sha})});
 if(res.ok){showStatus('✅ Сохранено');return true;}else{let err=await res.text();showStatus('❌ '+err.substring(0,100),true);return false;}}catch(e){showStatus('❌ '+e.message,true);return false;}}
-function renderQuestsOnMap(){qBox.innerHTML='';if(!state.quests||state.quests.length===0)return;console.log('Отрисовка заданий:',state.quests.length);state.quests.forEach((q,i)=>{let img=document.createElement('img');img.src='arrow.png';img.className='arrow';img.style.left=q.x+'px';img.style.top=q.y+'px';img.onclick=e=>{e.stopPropagation();openQuest(i);};qBox.appendChild(img);});}
-function updateUI(){let user=state.members.find(m=>m.id===state.currentUserId)||state.members[0];if(!user&&state.members.length===0){document.getElementById('current-user-name').innerText='Нет игроков';document.getElementById('score-val').innerText='0';document.getElementById('current-avatar').innerText='👤';document.getElementById('p-card').classList.remove('is-admin');return;}
+function renderQuestsOnMap(){qBox.innerHTML='';if(!state.quests||state.quests.length===0)return;state.quests.forEach((q,i)=>{let img=document.createElement('img');img.src='arrow.png';img.className='arrow';img.style.left=q.x+'px';img.style.top=q.y+'px';img.onclick=e=>{e.stopPropagation();openQuest(i);};qBox.appendChild(img);});}
+function updateUI(){let user=state.members.find(m=>m.id===state.currentUserId);if(!user&&state.members.length>0){state.currentUserId=state.members[0].id;localStorage.setItem('currentUserId',state.currentUserId);user=state.members[0];}
+if(!user||state.members.length===0){document.getElementById('current-user-name').innerText='Нет игроков';document.getElementById('score-val').innerText='0';document.getElementById('current-avatar').innerText='👤';document.getElementById('p-card').classList.remove('is-admin');return;}
 document.getElementById('current-user-name').innerText=user.name;document.getElementById('score-val').innerText=user.points;document.getElementById('current-avatar').innerText=user.avatar;document.getElementById('p-card').classList.toggle('is-admin',state.currentUserId===state.adminId);
-let fl=document.getElementById('family-list');if(fl){fl.innerHTML='';state.members.forEach(m=>{fl.innerHTML+=`<div class="member-item"><span>${m.avatar} ${m.name} ${m.id===state.adminId?'👑':''} (⭐️ ${m.points})</span><div><button onclick="setAdmin('${m.id}')" style="font-size:24px;">👑</button><button onclick="renameAnyMember('${m.id}')" style="font-size:24px;">✏️</button></div></div>`;});}
+let fl=document.getElementById('family-list');if(fl){fl.innerHTML='';state.members.forEach(m=>{fl.innerHTML+=`<div class="member-item"><span style="font-size:18px;">${m.avatar} ${m.name} ${m.id===state.adminId?'👑':''} (⭐️ ${m.points})</span><div><button onclick="setAdmin('${m.id}')" style="font-size:24px;background:none;border:none;">👑</button><button onclick="renameAnyMember('${m.id}')" style="font-size:24px;background:none;border:none;">✏️</button><button onclick="openProfileActions('${m.id}')" style="font-size:24px;background:none;border:none;">🎁</button></div></div>`;});}
 let sl=document.getElementById('switch-list');if(sl){sl.innerHTML='<h3>🔄 Сменить героя:</h3>';state.members.forEach(m=>{if(m.id!==state.currentUserId)sl.innerHTML+=`<button class="btn-choice" onclick="switchProfile('${m.id}')">${m.name} (⭐️ ${m.points})</button>`;});}}
-async function confirmCreateQuest(){let txt=document.getElementById('new-quest-text').value,reward=parseInt(document.getElementById('quest-reward').value)||10;if(txt&&window.tempCoords){state.quests.push({x:window.tempCoords.x,y:window.tempCoords.y,text:txt,reward:reward});document.getElementById('new-quest-text').value='';document.getElementById('quest-reward').value='10';await saveToGitHub();renderQuestsOnMap();let author=state.members.find(m=>m.id===state.currentUserId);await addChatMessage(`📋 ${author?.name} создал(а) задание: "${txt}" (+${reward}⭐️)`);}cancelQuest();}
-async function completeTask(){if(currentTaskIndex!==null&&state.quests[currentTaskIndex]){let q=state.quests[currentTaskIndex],p=state.members.find(m=>m.id===state.currentUserId);if(p){p.points+=q.reward;state.quests.splice(currentTaskIndex,1);await saveToGitHub();renderQuestsOnMap();updateUI();showStatus(`✅ +${q.reward} бонусов!`);await addChatMessage(`🎉 ${p.name} выполнил(а) "${q.text}" и получил(а) +${q.reward}⭐️`);}}closeAll();}
-async function addChatMessage(t){let s=state.members.find(m=>m.id===state.currentUserId);state.messages.push({id:Date.now().toString(),sender:s?.name||"Система",text:t,time:new Date().toLocaleTimeString()});if(state.messages.length>200)state.messages=state.messages.slice(-200);await saveToGitHub();}
-async function sendChatMessage(){let inp=document.getElementById('chatInput'),t=inp.value.trim();if(t){await addChatMessage(t);inp.value='';await openChat();}}
-async function openChat(){await loadFromGitHub();let cd=document.getElementById('chatMessages');if(cd){cd.innerHTML='';state.messages.slice(-50).forEach(m=>{cd.innerHTML+=`<div class="chat-message"><span class="chat-sender">${m.sender}:</span> ${m.text}</div>`;});cd.scrollTop=cd.scrollHeight;}document.getElementById('chatModal').style.display='flex';document.getElementById('overlay').style.display='block';}
+function openProfileActions(id){targetPlayerId=id;document.getElementById('profileActionsModal').style.display='block';document.getElementById('overlay').style.display='block';}
+async function confirmCreateQuest(){let txt=document.getElementById('new-quest-text').value,reward=parseInt(document.getElementById('quest-reward').value)||10;if(txt&&window.tempCoords){state.quests.push({x:window.tempCoords.x,y:window.tempCoords.y,text:txt,reward:reward});document.getElementById('new-quest-text').value='';document.getElementById('quest-reward').value='10';await saveToGitHub();renderQuestsOnMap();let author=state.members.find(m=>m.id===state.currentUserId);await addTechMessage(`📋 ${author?.name} создал(а) задание: "${txt}" (+${reward}⭐️)`);}cancelQuest();}
+async function completeTask(){if(currentTaskIndex!==null&&state.quests[currentTaskIndex]){let q=state.quests[currentTaskIndex],p=state.members.find(m=>m.id===state.currentUserId);if(p){p.points+=q.reward;state.quests.splice(currentTaskIndex,1);await saveToGitHub();renderQuestsOnMap();updateUI();showStatus(`✅ +${q.reward} бонусов!`);await addTechMessage(`🎉 ${p.name} выполнил(а) "${q.text}" и получил(а) +${q.reward}⭐️`);}}closeAll();}
+async function addTechMessage(t){let s=state.members.find(m=>m.id===state.currentUserId);state.messages.tech.push({id:Date.now().toString(),sender:s?.name||"Система",text:t,time:new Date().toLocaleTimeString()});if(state.messages.tech.length>200)state.messages.tech=state.messages.tech.slice(-200);await saveToGitHub();if(currentChatTab==='tech'){let cd=document.getElementById('chatMessages');if(cd){let msgDiv=document.createElement('div');msgDiv.className='chat-message';msgDiv.innerHTML=`<span class="chat-sender">${s?.name||"Система"}:</span> ${t}`;cd.appendChild(msgDiv);cd.scrollTop=cd.scrollHeight;}}}
+async function addGeneralMessage(t){let s=state.members.find(m=>m.id===state.currentUserId);state.messages.general.push({id:Date.now().toString(),sender:s?.name||"Система",text:t,time:new Date().toLocaleTimeString()});if(state.messages.general.length>200)state.messages.general=state.messages.general.slice(-200);await saveToGitHub();if(currentChatTab==='general'){let cd=document.getElementById('chatMessages');if(cd){let msgDiv=document.createElement('div');msgDiv.className='chat-message';msgDiv.innerHTML=`<span class="chat-sender">${s?.name||"Система"}:</span> ${t}`;cd.appendChild(msgDiv);cd.scrollTop=cd.scrollHeight;}}}
+async function sendChatMessage(){let inp=document.getElementById('chatInput'),t=inp.value.trim();if(t){await addGeneralMessage(t);inp.value='';await openChat();}}
+async function openChat(){await loadFromGitHub();let cd=document.getElementById('chatMessages');if(cd){cd.innerHTML='';let msgs=currentChatTab==='general'?state.messages.general:state.messages.tech;msgs.slice(-50).forEach(m=>{cd.innerHTML+=`<div class="chat-message"><span class="chat-sender">${m.sender}:</span> ${m.text}</div>`;});cd.scrollTop=cd.scrollHeight;}document.getElementById('chatModal').style.display='flex';document.getElementById('overlay').style.display='block';}
+function switchChatTab(tab){currentChatTab=tab;document.querySelectorAll('.chat-tab').forEach((t,i)=>{if((tab==='general'&&i===0)||(tab==='tech'&&i===1))t.classList.add('active');else t.classList.remove('active');});openChat();}
 function closeChat(){document.getElementById('chatModal').style.display='none';closeAll();}
-async function transferBonus(){let cp=state.members.find(m=>m.id===state.currentUserId);if(!cp)return;let op=state.members.filter(m=>m.id!==state.currentUserId);if(op.length===0){showStatus('❌ Нет других игроков',true);return;}
-let msg="Кому передать?\n";op.forEach((p,i)=>msg+=`${i+1}. ${p.name} (⭐️ ${p.points})\n`);let num=prompt(msg);if(num){let idx=parseInt(num)-1;if(op[idx]){let amt=prompt(`Сколько бонусов передать ${op[idx].name}? (У тебя ${cp.points})`,'10');if(amt&&!isNaN(parseInt(amt))){let a=parseInt(amt);if(a>cp.points){showStatus(`❌ У тебя только ${cp.points} бонусов`,true);return;}if(a<=0){showStatus('❌ Сумма >0',true);return;}
-cp.points-=a;op[idx].points+=a;await saveToGitHub();updateUI();await addChatMessage(`💰 ${cp.name} передал(а) ${a}⭐️ игроку ${op[idx].name}!`);showStatus(`✅ Передано ${a}⭐️`);}}}}
+async function transferBonus(){let cp=state.members.find(m=>m.id===state.currentUserId);if(!cp)return;let target=targetPlayerId?state.members.find(m=>m.id===targetPlayerId):cp;if(target.id===cp.id){let others=state.members.filter(m=>m.id!==cp.id);if(others.length===0){showStatus('❌ Нет других игроков',true);closeAll();return;}
+let msg="Кому передать?\n";others.forEach((p,i)=>msg+=`${i+1}. ${p.name} (⭐️ ${p.points})\n`);let num=prompt(msg);if(num){let idx=parseInt(num)-1;if(others[idx]){let amt=prompt(`Сколько бонусов передать ${others[idx].name}? (У тебя ${cp.points})`,'10');if(amt&&!isNaN(parseInt(amt))){let a=parseInt(amt);if(a>cp.points){showStatus(`❌ У тебя только ${cp.points}⭐️`,true);return;}if(a<=0){showStatus('❌ Сумма >0',true);return;}
+cp.points-=a;others[idx].points+=a;await saveToGitHub();updateUI();await addTechMessage(`💰 ${cp.name} передал(а) ${a}⭐️ игроку ${others[idx].name}!`);showStatus(`✅ Передано ${a}⭐️`);}}}else{let amt=prompt(`Сколько бонусов передать ${target.name}? (У тебя ${cp.points})`,'10');if(amt&&!isNaN(parseInt(amt))){let a=parseInt(amt);if(a>cp.points){showStatus(`❌ У тебя только ${cp.points}⭐️`,true);return;}if(a<=0){showStatus('❌ Сумма >0',true);return;}
+cp.points-=a;target.points+=a;await saveToGitHub();updateUI();await addTechMessage(`💰 ${cp.name} передал(а) ${a}⭐️ игроку ${target.name}!`);showStatus(`✅ Передано ${a}⭐️`);}}closeAll();}
 async function requestCash(){let cp=state.members.find(m=>m.id===state.currentUserId);if(!cp)return;let amt=prompt(`Сколько бонусов обменять на деньги? (У тебя ${cp.points})`,'10');if(amt&&!isNaN(parseInt(amt))){let a=parseInt(amt);if(a>cp.points){showStatus(`❌ У тебя только ${cp.points}⭐️`,true);return;}if(a<=0){showStatus('❌ Сумма >0',true);return;}
-await addChatMessage(`💵 ${cp.name} ЗАПРАШИВАЕТ ОБМЕН ${a}⭐️ на реальные деньги! Ждём ответа админа.`);showStatus(`✅ Запрос отправлен в чат!`);alert(`✅ Запрос на обмен ${a}⭐️ отправлен админу в чат!`);}}
-async function addNewMember(){let n=prompt("Имя игрока:");if(n){let newId=Date.now().toString();state.members.push({id:newId,name:n,points:0,avatar:'👤'});if(state.members.length===1){state.adminId=newId;state.currentUserId=newId;localStorage.setItem('currentUserId',newId);}await saveToGitHub();updateUI();await addChatMessage(`👋 Новый игрок ${n} присоединился к семье!`);}}
-async function renameAnyMember(id){let u=state.members.find(m=>m.id===id),n=prompt("Новое имя:",u?.name);if(n&&u){let oldName=u.name;u.name=n;await saveToGitHub();updateUI();await addChatMessage(`✏️ Игрок ${oldName} теперь ${n}`);}}
-async function renameCurrentPlayer(){let u=state.members.find(m=>m.id===state.currentUserId),n=prompt("Ваше имя:",u?.name);if(n&&u){let oldName=u.name;u.name=n;await saveToGitHub();updateUI();await addChatMessage(`✏️ Игрок ${oldName} теперь ${n}`);}}
+await addTechMessage(`💵 ${cp.name} ЗАПРАШИВАЕТ ОБМЕН ${a}⭐️ на реальные деньги! Ждём ответа админа.`);showStatus(`✅ Запрос отправлен в чат!`);alert(`✅ Запрос на обмен ${a}⭐️ отправлен админу в чат!`);closeAll();}}
+async function addNewMember(){let n=prompt("Имя игрока:");if(n){let newId=Date.now().toString();state.members.push({id:newId,name:n,points:0,avatar:'👤'});if(state.members.length===1){state.adminId=newId;state.currentUserId=newId;localStorage.setItem('currentUserId',newId);}await saveToGitHub();updateUI();await addTechMessage(`👋 Новый игрок ${n} присоединился к семье!`);}}
+async function renameAnyMember(id){let u=state.members.find(m=>m.id===id),n=prompt("Новое имя:",u?.name);if(n&&u){let oldName=u.name;u.name=n;await saveToGitHub();updateUI();await addTechMessage(`✏️ Игрок ${oldName} теперь ${n}`);}}
+async function renameCurrentPlayer(){let u=state.members.find(m=>m.id===state.currentUserId),n=prompt("Ваше имя:",u?.name);if(n&&u){let oldName=u.name;u.name=n;await saveToGitHub();updateUI();await addTechMessage(`✏️ Игрок ${oldName} теперь ${n}`);}}
 function openAvatarPicker(){document.getElementById('avatarModal').style.display='block';document.getElementById('overlay').style.display='block';}
-async function setAvatar(emoji){let u=state.members.find(m=>m.id===state.currentUserId);if(u){u.avatar=emoji;await saveToGitHub();updateUI();await addChatMessage(`🎭 ${u.name} сменил(а) аватар на ${emoji}`);}closeAll();}
+async function setAvatar(emoji){let u=state.members.find(m=>m.id===state.currentUserId);if(u){u.avatar=emoji;await saveToGitHub();updateUI();await addTechMessage(`🎭 ${u.name} сменил(а) аватар на ${emoji}`);}closeAll();}
 function cancelQuest(){scale=oldPos.s;posX=oldPos.x;posY=oldPos.y;container.style.transition='transform 0.4s';updateTransform();closeAll();}
 function openQuest(idx){currentTaskIndex=idx;document.getElementById('taskText').innerText=state.quests[idx].text;document.getElementById('taskReward').innerHTML=`⭐️ Награда: +${state.quests[idx].reward} бонусов`;document.getElementById('taskModal').style.display='block';document.getElementById('overlay').style.display='block';}
-function closeModal(){document.getElementById('tokenModal').style.display='none';document.getElementById('avatarModal').style.display='none';document.getElementById('overlay').style.display='none';}
+function closeModal(){document.getElementById('tokenModal').style.display='none';document.getElementById('avatarModal').style.display='none';document.getElementById('profileActionsModal').style.display='none';document.getElementById('playerSelectModal').style.display='none';document.getElementById('overlay').style.display='none';}
 function closeAll(){document.querySelectorAll('.modal').forEach(m=>m.style.display='none');document.getElementById('sidebar').classList.remove('active');document.getElementById('overlay').style.display='none';}
 function toggleSidebar(){document.getElementById('sidebar').classList.add('active');document.getElementById('overlay').style.display='block';}
-async function switchProfile(id){state.currentUserId=id;localStorage.setItem('currentUserId',id);await saveToGitHub();updateUI();closeAll();await addChatMessage(`🔄 Теперь играет ${state.members.find(m=>m.id===id)?.name}`);}
-async function setAdmin(id){state.adminId=id;await saveToGitHub();updateUI();await addChatMessage(`👑 Права администратора переданы ${state.members.find(m=>m.id===id)?.name}`);}
+async function switchProfile(id){state.currentUserId=id;localStorage.setItem('currentUserId',id);await saveToGitHub();updateUI();closeAll();await addTechMessage(`🔄 Теперь играет ${state.members.find(m=>m.id===id)?.name}`);}
+async function setAdmin(id){state.adminId=id;await saveToGitHub();updateUI();await addTechMessage(`👑 Права администратора переданы ${state.members.find(m=>m.id===id)?.name}`);}
 const emojis=['🐱','🐶','🦊','🐼','🐨','🐯','🦁','🦄','🐷','🐸','🐮','🦒'];
 document.getElementById('emoji-grid').innerHTML=emojis.map(e=>`<span onclick="setAvatar('${e}')" style="font-size:35px;cursor:pointer;">${e}</span>`).join('');
 if(!loadToken()){document.getElementById('tokenModal').style.display='block';document.getElementById('overlay').style.display='block';}else loadFromGitHub();
