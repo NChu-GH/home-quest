@@ -3,577 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Семейный Квест - Финал</title>
+    <title>Семейный Квест</title>
     <style>
-        body { background-color: #e0f7fa; display: flex; flex-direction: column; align-items: center; padding: 0; margin: 0; height: 100vh; overflow: hidden; font-family: 'Comic Sans MS', cursive, sans-serif; }
-        .main-wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100%; }
-        
-        .top-bar { display: flex; justify-content: space-between; align-items: stretch; padding: 10px; gap: 8px; z-index: 100; flex-shrink: 0; }
-        .profile-card { background: white; padding: 10px; border-radius: 25px; border: 4px solid #00796b; display: flex; align-items: center; gap: 10px; flex: 2; position: relative; min-width: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .crown-icon { position: absolute; top: -18px; left: 5px; font-size: 32px; transform: rotate(-15deg); display: none; z-index: 10; }
-        .is-admin .crown-icon { display: block; }
-        .avatar-circle { width: 60px; height: 60px; background: #eee; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; cursor: pointer; border: 3px solid #00796b; flex-shrink: 0; }
-        
-        .btn-group { display: flex; flex-direction: column; gap: 5px; flex: 0.8; }
-        .menu-btn, .chat-btn { height: 100%; min-height: 45px; border-radius: 18px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 16px; border: 3px solid; display: flex; justify-content: center; align-items: center; }
-        .menu-btn { background: #ff9800; color: white; border-color: #e65100; }
-        .chat-btn { background: #4caf50; color: white; border-color: #2e7d32; }
-
-        .map-viewport { flex: 1; width: 100%; position: relative; overflow: hidden; background: #cfd8dc; touch-action: none; border-top: 2px solid #004d40; }
-        #map-container { position: absolute; width: 1000px; height: 1000px; transform-origin: 0 0; }
-        .layer { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; background-size: contain; background-repeat: no-repeat; transition: filter 0.3s; }
-        
-        .highlight { filter: drop-shadow(0 0 25px #00e5ff) brightness(1.4) !important; }
-
-        #quest-arrows { position: absolute; top: 0; left: 0; width: 1000px; height: 1000px; pointer-events: none; z-index: 60; }
-        .arrow { position: absolute; width: 55px; height: 55px; cursor: pointer; animation: bounce 1.5s infinite; transform: translate(-50%, -50%); pointer-events: auto; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); }
-        @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -80%); } }
-
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 500; }
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 35px; border: 6px solid #00796b; text-align: center; width: 85%; max-width: 420px; z-index: 1000; box-shadow: 0 0 50px rgba(0,0,0,0.4); }
-        .btn-choice { width: 100%; padding: 16px; margin: 8px 0; border-radius: 20px; border: 3px solid #00796b; cursor: pointer; font-family: inherit; font-size: 20px; background: white; font-weight: bold; }
-
-        .sidebar { position: fixed; right: -550px; top: 0; width: 85%; max-width: 420px; height: 100%; background: white; border-left: 8px solid #ff9800; transition: 0.4s; padding: 30px; z-index: 1000; overflow-y: auto; box-sizing: border-box; }
-        .sidebar.active { right: 0; }
-        .member-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 2px solid #ffcc80; }
-        input { width: 100%; padding: 15px; border-radius: 15px; border: 3px solid #00796b; font-family: inherit; font-size: 18px; box-sizing: border-box; margin-bottom: 10px; }
-        .zoom-controls { position: absolute; bottom: 15px; right: 15px; display: flex; flex-direction: column; gap: 8px; z-index: 110; }
-        .z-btn { width: 50px; height: 50px; border-radius: 15px; border: 4px solid #004d40; background: white; font-size: 26px; font-weight: bold; color: #004d40; cursor: pointer; }
-        .status-msg { position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; border-radius: 10px; font-size: 11px; z-index: 999; }
-        .token-input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #00796b; border-radius: 30px; font-family: monospace; }
+        body{background:#e0f7fa;font-family:'Comic Sans MS',cursive;margin:0;padding:0;height:100vh;overflow:hidden}
+        .main-wrapper{width:100%;max-width:500px;margin:0 auto;display:flex;flex-direction:column;height:100%}
+        .top-bar{display:flex;justify-content:space-between;padding:10px;gap:8px}
+        .profile-card{background:white;padding:10px;border-radius:25px;border:4px solid #00796b;display:flex;align-items:center;gap:10px;flex:2;position:relative}
+        .crown-icon{position:absolute;top:-18px;left:5px;font-size:32px;display:none}
+        .is-admin .crown-icon{display:block}
+        .avatar-circle{width:60px;height:60px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;border:3px solid #00796b}
+        .btn-group{display:flex;flex-direction:column;gap:5px;flex:0.8}
+        .menu-btn,.chat-btn{height:100%;min-height:45px;border-radius:18px;cursor:pointer;font-weight:bold;border:3px solid;display:flex;align-items:center;justify-content:center}
+        .menu-btn{background:#ff9800;color:white;border-color:#e65100}
+        .chat-btn{background:#4caf50;color:white;border-color:#2e7d32}
+        .map-viewport{flex:1;position:relative;overflow:hidden;background:#cfd8dc;touch-action:none}
+        #map-container{position:absolute;width:1000px;height:1000px;transform-origin:0 0}
+        .layer{position:absolute;top:0;left:0;width:1000px;height:1000px;pointer-events:none;background-size:contain;background-repeat:no-repeat}
+        .highlight{filter:drop-shadow(0 0 25px #00e5ff)brightness(1.4)!important}
+        #quest-arrows{position:absolute;top:0;left:0;width:1000px;height:1000px;pointer-events:none;z-index:60}
+        .arrow{position:absolute;width:55px;height:55px;cursor:pointer;animation:bounce 1.5s infinite;transform:translate(-50%,-50%);pointer-events:auto}
+        @keyframes bounce{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,-80%)}}
+        .overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:500}
+        .modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:25px;border-radius:35px;border:6px solid #00796b;text-align:center;width:85%;max-width:420px;z-index:1000}
+        .btn-choice{width:100%;padding:16px;margin:8px 0;border-radius:20px;border:3px solid #00796b;cursor:pointer;font-weight:bold}
+        .sidebar{position:fixed;right:-550px;top:0;width:85%;max-width:420px;height:100%;background:white;border-left:8px solid #ff9800;transition:0.4s;padding:30px;z-index:1000;overflow-y:auto}
+        .sidebar.active{right:0}
+        .member-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:2px solid #ffcc80}
+        .zoom-controls{position:absolute;bottom:15px;right:15px;display:flex;flex-direction:column;gap:8px;z-index:110}
+        .z-btn{width:50px;height:50px;border-radius:15px;border:4px solid #004d40;background:white;font-size:26px;font-weight:bold;cursor:pointer}
+        .status-msg{position:fixed;bottom:10px;left:10px;background:rgba(0,0,0,0.7);color:white;padding:5px 10px;border-radius:10px;font-size:11px;z-index:999}
+        .chat-area{margin-top:20px}
+        .messages{height:200px;overflow-y:auto;background:#f5f5f5;border-radius:20px;padding:10px;margin:10px 0;font-size:14px;text-align:left}
+        .chat-message{padding:5px;border-bottom:1px solid #ddd}
+        .chat-sender{font-weight:bold;color:#00796b}
+        .chat-input-area{display:flex;gap:8px}
+        .chat-input-area input{flex:1;padding:12px;border-radius:25px;border:2px solid #00796b}
     </style>
 </head>
 <body>
 
 <div id="statusMsg" class="status-msg"></div>
-<div id="loader" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:2000; align-items:center; justify-content:center; font-size:24px;">Загрузка...</div>
+<div id="loader" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:white;z-index:2000;align-items:center;justify-content:center;font-size:24px;">Загрузка...</div>
 
 <div class="main-wrapper">
     <div class="top-bar">
         <div id="p-card" class="profile-card">
             <div class="crown-icon">👑</div>
             <div id="current-avatar" class="avatar-circle" onclick="openAvatarPicker()">👤</div>
-            <div style="flex:1; min-width: 0;">
-                <b id="current-user-name">...</b>
-                <div style="color: #00796b; font-weight: bold; font-size: 18px;">⭐️ <span id="score-val">0</span> <button onclick="renameCurrentPlayer()" style="background:none; border:none; font-size:18px; cursor:pointer;">✏️</button></div>
-            </div>
+            <div><b id="current-user-name">...</b><div>⭐️ <span id="score-val">0</span> <button onclick="renameCurrentPlayer()" style="background:none;border:none;font-size:18px;">✏️</button></div></div>
         </div>
-        <div class="btn-group">
-            <button class="chat-btn" onclick="syncData()">🔄</button>
-            <button class="menu-btn" onclick="toggleSidebar()">⚙️</button>
-        </div>
+        <div class="btn-group"><button class="chat-btn" onclick="openChat()">💬</button><button class="menu-btn" onclick="toggleSidebar()">⚙️</button></div>
     </div>
-
-    <div class="map-viewport" id="viewport">
-        <div id="map-container">
-            <div class="layer" style="background-image: url('Sanuzel1.png');"></div>
-            <div class="layer" style="background-image: url('Koridor.png');"></div>
-            <div class="layer" style="background-image: url('Gostinaya.png');"></div>
-            <div class="layer" style="background-image: url('Spalnya1.png');"></div>
-            <div class="layer" style="background-image: url('Spalnya2.png');"></div>
-            <div class="layer" style="background-image: url('Vannaya.png');"></div>
-            <div class="layer" style="background-image: url('Sanuzel2.png');"></div>
-            <div class="layer" style="background-image: url('Kuhnya.png');"></div>
-            <div class="layer" style="background-image: url('Balcon.png');"></div>
-            <div id="obj-Lapomoika" class="layer" style="background-image: url('Lapomoika.png');"></div>
-            <div id="obj-Unitaz1" class="layer" style="background-image: url('Unitaz1.png');"></div>
-            <div id="obj-Stiralka" class="layer" style="background-image: url('Stiralka.png');"></div>
-            <div id="obj-Korzina" class="layer" style="background-image: url('Korzina.png');"></div>
-            <div id="obj-Tumbochka" class="layer" style="background-image: url('Tumbochka.png');"></div>
-            <div id="obj-Veshalka" class="layer" style="background-image: url('Veshalka.png');"></div>
-            <div id="obj-Shkaf1" class="layer" style="background-image: url('Shkaf1.png');"></div>
-            <div id="obj-Shkaf2" class="layer" style="background-image: url('Shkaf2.png');"></div>
-            <div id="obj-Shkaf3" class="layer" style="background-image: url('Shkaf3.png');"></div>
-            <div id="obj-Shkaf4" class="layer" style="background-image: url('Shkaf4.png');"></div>
-            <div id="obj-Shkaf5" class="layer" style="background-image: url('Shkaf5.png');"></div>
-            <div id="quest-arrows"></div>
-        </div>
-        <div class="zoom-controls">
-            <button class="z-btn" onclick="btnZoom(0.3)">+</button>
-            <button class="z-btn" onclick="btnZoom(-0.3)">−</button>
-        </div>
-    </div>
+    <div class="map-viewport" id="viewport"><div id="map-container"><div class="layer" style="background-image:url('Sanuzel1.png')"></div><div class="layer" style="background-image:url('Koridor.png')"></div><div class="layer" style="background-image:url('Gostinaya.png')"></div><div class="layer" style="background-image:url('Spalnya1.png')"></div><div class="layer" style="background-image:url('Spalnya2.png')"></div><div class="layer" style="background-image:url('Vannaya.png')"></div><div class="layer" style="background-image:url('Sanuzel2.png')"></div><div class="layer" style="background-image:url('Kuhnya.png')"></div><div class="layer" style="background-image:url('Balcon.png')"></div><div id="obj-Lapomoika" class="layer" style="background-image:url('Lapomoika.png')"></div><div id="obj-Unitaz1" class="layer" style="background-image:url('Unitaz1.png')"></div><div id="obj-Stiralka" class="layer" style="background-image:url('Stiralka.png')"></div><div id="obj-Korzina" class="layer" style="background-image:url('Korzina.png')"></div><div id="obj-Tumbochka" class="layer" style="background-image:url('Tumbochka.png')"></div><div id="obj-Veshalka" class="layer" style="background-image:url('Veshalka.png')"></div><div id="obj-Shkaf1" class="layer" style="background-image:url('Shkaf1.png')"></div><div id="obj-Shkaf2" class="layer" style="background-image:url('Shkaf2.png')"></div><div id="obj-Shkaf3" class="layer" style="background-image:url('Shkaf3.png')"></div><div id="obj-Shkaf4" class="layer" style="background-image:url('Shkaf4.png')"></div><div id="obj-Shkaf5" class="layer" style="background-image:url('Shkaf5.png')"></div><div id="quest-arrows"></div></div><div class="zoom-controls"><button class="z-btn" onclick="btnZoom(0.3)">+</button><button class="z-btn" onclick="btnZoom(-0.3)">−</button></div></div>
 </div>
 
 <div id="overlay" onclick="closeAll()" class="overlay"></div>
 
-<div id="createQuestModal" class="modal">
-    <h2 id="modal-title">Задание 📝</h2>
-    <p id="furniture-hint" style="color:#00796b; font-weight:bold; margin-bottom:10px;"></p>
-    <input type="text" id="new-quest-text" placeholder="Какое задание хотите здесь назначить?">
-    <button class="btn-choice" style="background:#4caf50; color:white;" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button>
-    <button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button>
-</div>
-
-<div id="taskModal" class="modal">
-    <h2 id="taskText">...</h2>
-    <button class="btn-choice" style="background:#00796b; color:white;" onclick="completeTask()">ГОТОВО ✅</button>
-    <button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ 🔙</button>
-</div>
-
-<div id="sidebar" class="sidebar">
-    <h2 style="color:#00796b;">🏡 Семья</h2>
-    <div id="family-list" style="background:#fff3e0; padding:15px; border-radius:20px; margin-bottom:20px;"></div>
-    <button class="btn-choice" style="background:#4caf50; color:white; border:none;" onclick="addNewMember()">➕ ДОБАВИТЬ ИГРОКА</button>
-    <div id="switch-list"></div>
-    <hr>
-    <button class="btn-choice" style="background:#2196f3; color:white;" onclick="giveBonus()">🎁 ВЫДАТЬ БОНУС</button>
-    <button class="btn-choice" onclick="closeAll()" style="margin-top:40px; background:#eee;">ЗАКРЫТЬ ❌</button>
-</div>
-
-<div id="tokenModal" class="modal">
-    <h2>🔐 Настройка GitHub</h2>
-    <p>Введите ваш GitHub токен (нужен для сохранения данных):</p>
-    <input type="password" id="tokenInput" class="token-input" placeholder="ghp_...">
-    <button class="btn-choice" onclick="saveToken()" style="background:#4caf50; color:white;">✅ Сохранить токен</button>
-    <button class="btn-choice" onclick="skipToken()">⏭️ Пропустить (только просмотр)</button>
-</div>
-
-<div id="avatarModal" class="modal">
-    <h2>Аватар героя 🎭</h2>
-    <div id="emoji-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:20px 0;"></div>
-    <button class="btn-choice" onclick="closeAll()">🔙 НАЗАД</button>
-</div>
+<div id="createQuestModal" class="modal"><h2>Задание 📝</h2><p id="furniture-hint"></p><input type="text" id="new-quest-text" placeholder="Что сделать?"><input type="number" id="quest-reward" placeholder="Бонусы" value="10"><button class="btn-choice" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button><button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button></div>
+<div id="taskModal" class="modal"><h2 id="taskText"></h2><p id="taskReward" style="color:#00796b"></p><button class="btn-choice" onclick="completeTask()">ВЫПОЛНИТЬ ✅</button><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ 🔙</button></div>
+<div id="sidebar" class="sidebar"><h2>🏡 Семья</h2><div id="family-list"></div><button class="btn-choice" onclick="addNewMember()">➕ ДОБАВИТЬ ИГРОКА</button><div id="switch-list"></div><hr><button class="btn-choice" onclick="transferBonus()">💰 ПЕРЕДАТЬ БОНУСЫ</button><button class="btn-choice" onclick="requestCash()">💵 ЗАПРОСИТЬ ОБМЕН НА КЭШ</button><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ ❌</button></div>
+<div id="tokenModal" class="modal"><h2>🔐 GitHub токен</h2><p>Введите токен (нужен для сохранения):</p><input type="password" id="tokenInput" placeholder="ghp_..."><button class="btn-choice" onclick="saveToken()">✅ Сохранить</button><button class="btn-choice" onclick="skipToken()">⏭️ Пропустить</button></div>
+<div id="avatarModal" class="modal"><h2>Аватар</h2><div id="emoji-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0"></div><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ</button></div>
+<div id="chatModal" class="modal" style="flex-direction:column"><h2>💬 Чат</h2><div id="chatMessages" class="messages"></div><div class="chat-input-area"><input type="text" id="chatInput" placeholder="Сообщение..."><button onclick="sendChatMessage()">📤</button></div><button class="btn-choice" onclick="closeChat()">ЗАКРЫТЬ</button></div>
 
 <script>
-    // ==================== НАСТРОЙКИ GITHUB ====================
-    const REPO_OWNER = 'NChu-GH';
-    const REPO_NAME = 'home-quest';
-    const DATA_FILE = 'family-data.json';
-    // ==========================================================
-
-    let state = { members: [], adminId: null, currentUserId: null, quests: [] };
-    let githubToken = null;
-    let currentFileSha = null; // Храним SHA файла для обновления
-    
-    const container = document.getElementById('map-container');
-    const view = document.getElementById('viewport');
-    const qBox = document.getElementById('quest-arrows');
-    
-    const furnitureZones = [
-        { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 85 },
-        { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 85 },
-        { id: 'Stiralka', name: '🧼 Стиральная машина', x: 865, y: 555, r: 95 },
-        { name: '🧺 Корзина', x: 765, y: 555, r: 85 },
-        { id: 'Veshalka', name: '🧥 Вешалка', x: 690, y: 420, r: 75 },
-        { name: '🗄 Тумбочка', x: 640, y: 500, r: 60 },
-        { id: 'Shkaf1', name: '👟 Шкаф для обуви', x: 505, y: 620, r: 85 },
-        { id: 'Shkaf2', name: '👗 Шкаф для одежды', x: 410, y: 620, r: 85 },
-        { id: 'Shkaf3', name: '🧹 Хоз. шкаф', x: 330, y: 630, r: 75 },
-        { id: 'Shkaf4', name: '⛺️ Шкаф спорт', x: 330, y: 710, r: 75 },
-        { id: 'Shkaf5', name: '📦 Доп. шкаф', x: 330, y: 790, r: 75 }
-    ];
-
-    let scale = 0.5, posX = 0, posY = 0, isDragging = false, startX, startY, lastTap = 0, initialDist = null, initialScale = 0, oldPos = {s: 0.5, x: 0, y: 0};
-
-    function updateTransform() { container.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`; }
-    function applyZoom(delta, clientX, clientY) {
-        const rect = view.getBoundingClientRect();
-        const newScale = Math.min(Math.max(0.1, scale + delta), 4);
-        posX = (clientX - rect.left) - (clientX - rect.left - posX) * (newScale / scale);
-        posY = (clientY - rect.top) - (clientY - rect.top - posY) * (newScale / scale);
-        scale = newScale; updateTransform();
-    }
-    function btnZoom(delta) { applyZoom(delta, view.offsetWidth / 2, view.offsetHeight / 2); }
-
-    view.addEventListener('touchstart', e => {
-        if (e.touches.length === 1) { isDragging = true; startX = e.touches[0].clientX - posX; startY = e.touches[0].clientY - posY; container.style.transition = 'none'; }
-        else if (e.touches.length === 2) { isDragging = false; initialDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); initialScale = scale; }
-    }, {passive: false});
-
-    view.addEventListener('touchmove', e => {
-        e.preventDefault();
-        if (e.touches.length === 1 && isDragging) { posX = e.touches[0].clientX - startX; posY = e.touches[0].clientY - startY; updateTransform(); }
-        else if (e.touches.length === 2 && initialDist) {
-            const currentDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-            applyZoom((initialScale * (currentDist / initialDist)) - scale, (e.touches[0].clientX + e.touches[1].clientX)/2, (e.touches[0].clientY + e.touches[1].clientY)/2);
-        }
-    }, {passive: false});
-
-    view.addEventListener('touchend', () => { isDragging = false; initialDist = null; });
-    view.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX - posX; startY = e.clientY - posY; container.style.transition = 'none'; });
-    window.addEventListener('mousemove', e => { if (isDragging) { posX = e.clientX - startX; posY = e.clientY - startY; updateTransform(); } });
-    window.addEventListener('mouseup', () => isDragging = false);
-    view.addEventListener('wheel', e => { e.preventDefault(); applyZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX, e.clientY); }, {passive:false});
-
-    view.addEventListener('click', e => {
-        if (state.members.length > 0 && state.currentUserId !== state.adminId) return;
-        const now = Date.now();
-        if (now - lastTap < 300) {
-            const rect = container.getBoundingClientRect();
-            const mapX = (e.clientX - rect.left) / scale, mapY = (e.clientY - rect.top) / scale;
-            let found = furnitureZones.find(f => Math.hypot(f.x - mapX, f.y - mapY) < f.r);
-            if(found) {
-                const el = document.getElementById('obj-' + found.id);
-                if(el) { el.classList.add('highlight'); setTimeout(() => el.classList.remove('highlight'), 1000); }
-                // Показываем название комнаты
-                showStatus(`📍 ${found.name}`, false);
-            }
-            oldPos = {s: scale, x: posX, y: posY};
-            applyZoom(1.4 - scale, e.clientX, e.clientY);
-            container.style.transition = 'transform 0.4s ease-out';
-            window.tempCoords = { x: mapX, y: mapY };
-            setTimeout(() => {
-                document.getElementById('furniture-hint').innerText = found ? `Объект: ${found.name}` : "Пустая зона комнат";
-                document.getElementById('createQuestModal').style.display='block';
-                document.getElementById('overlay').style.display='block';
-            }, 350);
-        }
-        lastTap = now;
-    });
-
-    function showStatus(msg, isError = false) {
-        const el = document.getElementById('statusMsg');
-        el.innerHTML = msg;
-        el.style.background = isError ? 'rgba(255,0,0,0.8)' : 'rgba(0,0,0,0.7)';
-        setTimeout(() => { el.innerHTML = ''; }, 3000);
-    }
-
-    function loadToken() {
-        const saved = localStorage.getItem('githubToken');
-        if (saved && saved.startsWith('ghp_')) {
-            githubToken = saved;
-            return true;
-        }
-        return false;
-    }
-
-    function saveToken() {
-        const token = document.getElementById('tokenInput').value.trim();
-        if (token && token.startsWith('ghp_')) {
-            githubToken = token;
-            localStorage.setItem('githubToken', token);
-            showStatus('✅ Токен сохранён!');
-            closeModal();
-            loadFromGitHub();
-        } else {
-            showStatus('❌ Неправильный формат токена (должен начинаться с ghp_)', true);
-        }
-    }
-
-    function skipToken() {
-        showStatus('⚠️ Вы в режиме просмотра. Данные не будут сохраняться.', true);
-        closeModal();
-        loadFromGitHub();
-    }
-
-    async function loadFromGitHub() {
-        document.getElementById('loader').style.display = 'flex';
-        try {
-            const url = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${DATA_FILE}?t=${Date.now()}`;
-            const res = await fetch(url);
-            if (res.ok) {
-                const data = await res.json();
-                state.members = data.members || [];
-                state.quests = data.quests || [];
-                state.adminId = data.adminId || (state.members[0]?.id || null);
-                state.currentUserId = data.currentUserId || (state.members[0]?.id || null);
-                // Получаем SHA для последующего обновления
-                const shaRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_FILE}`, {
-                    headers: githubToken ? { 'Authorization': `token ${githubToken}` } : {}
-                });
-                if (shaRes.ok) {
-                    const shaData = await shaRes.json();
-                    currentFileSha = shaData.sha;
-                }
-            } else {
-                state.members = [];
-                state.quests = [];
-                state.adminId = null;
-                state.currentUserId = null;
-                currentFileSha = null;
-            }
-        } catch(e) {
-            state.members = [];
-            state.quests = [];
-            state.adminId = null;
-            state.currentUserId = null;
-        }
-        
-        const savedId = localStorage.getItem('currentUserId');
-        if (savedId && state.members.find(m => m.id === savedId)) {
-            state.currentUserId = savedId;
-        } else if (state.members.length > 0) {
-            state.currentUserId = state.members[0].id;
-            localStorage.setItem('currentUserId', state.currentUserId);
-        }
-        
-        updateUI();
-        renderQuestsOnMap();
-        document.getElementById('loader').style.display = 'none';
-    }
-
-    async function saveToGitHub() {
-        if (!githubToken) {
-            showStatus('⚠️ Токен не введён. Данные не сохранены!', true);
-            return false;
-        }
-        
-        const dataToSave = {
-            members: state.members,
-            quests: state.quests,
-            adminId: state.adminId,
-            currentUserId: state.currentUserId,
-            updated: new Date().toISOString()
-        };
-        
-        try {
-            const content = btoa(unescape(encodeURIComponent(JSON.stringify(dataToSave, null, 2))));
-            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_FILE}`;
-            
-            // Получаем актуальный SHA перед сохранением (чтобы избежать 409)
-            const shaRes = await fetch(url, {
-                headers: { 'Authorization': `token ${githubToken}` }
-            });
-            let sha = null;
-            if (shaRes.ok) {
-                const existing = await shaRes.json();
-                sha = existing.sha;
-            }
-            
-            const res = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${githubToken}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: 'Обновление данных',
-                    content: content,
-                    sha: sha
-                })
-            });
-            
-            if (res.ok) {
-                const result = await res.json();
-                currentFileSha = result.content.sha;
-                showStatus('✅ Сохранено в GitHub');
-                return true;
-            } else {
-                const err = await res.text();
-                showStatus('❌ Ошибка: ' + err.substring(0, 100), true);
-                return false;
-            }
-        } catch(e) {
-            showStatus('❌ Ошибка: ' + e.message, true);
-            return false;
-        }
-    }
-
-    function renderQuestsOnMap() {
-        qBox.innerHTML = '';
-        state.quests.forEach((q, i) => {
-            const img = document.createElement('img');
-            img.src = 'arrow.png';
-            img.className = 'arrow';
-            img.style.left = q.x + 'px';
-            img.style.top = q.y + 'px';
-            img.onclick = e => { e.stopPropagation(); openQuest(i); };
-            qBox.appendChild(img);
-        });
-    }
-
-    function updateUI() {
-        const user = state.members.find(m => m.id === state.currentUserId) || state.members[0];
-        if(!user && state.members.length === 0) {
-            document.getElementById('current-user-name').innerText = 'Нет игроков';
-            document.getElementById('score-val').innerText = '0';
-            document.getElementById('current-avatar').innerText = '👤';
-            document.getElementById('p-card').classList.remove('is-admin');
-            return;
-        }
-        
-        if(!user) return;
-        
-        document.getElementById('current-user-name').innerText = user.name;
-        document.getElementById('score-val').innerText = user.points;
-        document.getElementById('current-avatar').innerText = user.avatar;
-        document.getElementById('p-card').classList.toggle('is-admin', state.currentUserId === state.adminId);
-        
-        const fList = document.getElementById('family-list');
-        if(fList) {
-            fList.innerHTML = '';
-            state.members.forEach((m) => {
-                fList.innerHTML += `<div class="member-item">
-                    <span>${m.avatar} ${m.name} ${m.id === state.adminId ? '👑' : ''}</span>
-                    <div>
-                        <button onclick="setAdmin('${m.id}')" style="border:none;background:none;font-size:24px;">👑</button>
-                        <button onclick="renameAnyMember('${m.id}')" style="border:none;background:none;font-size:24px;">✏️</button>
-                    </div>
-                </div>`;
-            });
-        }
-        
-        const sList = document.getElementById('switch-list');
-        if(sList) {
-            sList.innerHTML = '<h3 style="color:#e65100">🔄 Сменить героя:</h3>';
-            state.members.forEach((m) => {
-                if(m.id !== state.currentUserId) {
-                    sList.innerHTML += `<button class="btn-choice" onclick="switchProfile('${m.id}')">${m.name}</button>`;
-                }
-            });
-        }
-    }
-
-    async function syncData() {
-        await loadFromGitHub();
-    }
-
-    function confirmCreateQuest() {
-        const txt = document.getElementById('new-quest-text').value;
-        if(txt && window.tempCoords) {
-            state.quests.push({ x: window.tempCoords.x, y: window.tempCoords.y, text: txt });
-            document.getElementById('new-quest-text').value = '';
-            saveToGitHub().then(() => renderQuestsOnMap());
-        }
-        cancelQuest();
-    }
-    
-    async function completeTask() {
-        if (window.activeIdx !== undefined && state.quests[window.activeIdx]) {
-            state.quests.splice(window.activeIdx, 1);
-            await saveToGitHub();
-            renderQuestsOnMap();
-        }
-        closeAll();
-    }
-    
-    async function addNewMember() {
-        let n = prompt("Имя игрока:");
-        if(n) {
-            const newId = Date.now().toString();
-            state.members.push({id: newId, name: n, points: 0, avatar: '👤'});
-            if(state.members.length === 1) {
-                state.adminId = newId;
-                state.currentUserId = newId;
-                localStorage.setItem('currentUserId', newId);
-            }
-            await saveToGitHub();
-            updateUI();
-        }
-    }
-    
-    async function giveBonus() {
-        if (state.currentUserId !== state.adminId) {
-            showStatus('⚠️ Только администратор может выдавать бонусы', true);
-            return;
-        }
-        let msg = "Выбери игрока:\n";
-        state.members.forEach((m, i) => {
-            msg += `${i+1}. ${m.name} (⭐️ ${m.points})\n`;
-        });
-        const num = prompt(msg);
-        if (num) {
-            const idx = parseInt(num) - 1;
-            if (state.members[idx]) {
-                const bonus = prompt(`Сколько бонусов дать ${state.members[idx].name}?`, "10");
-                if (bonus && !isNaN(parseInt(bonus))) {
-                    state.members[idx].points += parseInt(bonus);
-                    await saveToGitHub();
-                    updateUI();
-                    showStatus(`✅ ${state.members[idx].name} +${bonus} ⭐️`);
-                }
-            }
-        }
-    }
-    
-    async function renameCurrentPlayer() {
-        const user = state.members.find(m => m.id === state.currentUserId);
-        let n = prompt("Имя:", user?.name);
-        if(n && user) {
-            user.name = n;
-            await saveToGitHub();
-            updateUI();
-        }
-    }
-    
-    async function renameAnyMember(id) {
-        const user = state.members.find(m => m.id === id);
-        let n = prompt("Имя:", user?.name);
-        if(n && user) {
-            user.name = n;
-            await saveToGitHub();
-            updateUI();
-        }
-    }
-    
-    function openAvatarPicker() {
-        document.getElementById('avatarModal').style.display='block';
-        document.getElementById('overlay').style.display='block';
-    }
-    
-    async function setAvatar(emoji) {
-        const user = state.members.find(m => m.id === state.currentUserId);
-        if(user) user.avatar = emoji;
-        await saveToGitHub();
-        updateUI();
-        closeAll();
-    }
-    
-    function cancelQuest() {
-        scale = oldPos.s;
-        posX = oldPos.x;
-        posY = oldPos.y;
-        container.style.transition = 'transform 0.4s';
-        updateTransform();
-        closeAll();
-    }
-    
-    function openQuest(idx) {
-        window.activeIdx = idx;
-        document.getElementById('taskText').innerText = state.quests[idx].text;
-        document.getElementById('taskModal').style.display = 'block';
-        document.getElementById('overlay').style.display = 'block';
-    }
-    
-    function closeModal() {
-        document.getElementById('tokenModal').style.display = 'none';
-        document.getElementById('avatarModal').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
-    }
-    
-    function closeAll() {
-        document.querySelectorAll('.modal').forEach(m=>m.style.display='none');
-        document.getElementById('sidebar').classList.remove('active');
-        document.getElementById('overlay').style.display='none';
-    }
-    
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.add('active');
-        document.getElementById('overlay').style.display = 'block';
-    }
-    
-    async function switchProfile(id) {
-        state.currentUserId = id;
-        localStorage.setItem('currentUserId', id);
-        await saveToGitHub();
-        updateUI();
-        closeAll();
-    }
-    
-    async function setAdmin(id) {
-        state.adminId = id;
-        await saveToGitHub();
-        updateUI();
-    }
-
-    const emojis = ['🐱','🐶','🦊','🐼','🐨','🐯','🦁','🦄','🐷','🐸','🐮','🦒'];
-    document.getElementById('emoji-grid').innerHTML = emojis.map(e => `<span onclick="setAvatar('${e}')" style="font-size:35px; cursor:pointer;">${e}</span>`).join('');
-    
-    // Запуск
-    if (!loadToken()) {
-        document.getElementById('tokenModal').style.display = 'block';
-        document.getElementById('overlay').style.display = 'block';
-    } else {
-        loadFromGitHub();
-    }
-    
-    setTimeout(() => {
-        posX = (view.offsetWidth - 1000*0.4)/2;
-        posY = (view.offsetHeight - 1000*0.4)/2;
-        scale = 0.4;
-        updateTransform();
-    }, 600);
+const REPO_OWNER='NChu-GH',REPO_NAME='home-quest',DATA_FILE='family-data.json';
+let state={members:[],adminId:null,currentUserId:null,quests:[],messages:[]},githubToken=null,currentTaskIndex=null;
+const container=document.getElementById('map-container'),view=document.getElementById('viewport'),qBox=document.getElementById('quest-arrows');
+const furnitureZones=[{id:'Lapomoika',name:'🐾 Лапомойка',x:745,y:405,r:85},{id:'Unitaz1',name:'🚽 Унитаз',x:865,y:405,r:85},{id:'Stiralka',name:'🧼 Стиральная машина',x:865,y:555,r:95},{name:'🧺 Корзина',x:765,y:555,r:85},{id:'Veshalka',name:'🧥 Вешалка',x:690,y:420,r:75},{name:'🗄 Тумбочка',x:640,y:500,r:60},{id:'Shkaf1',name:'👟 Шкаф обуви',x:505,y:620,r:85},{id:'Shkaf2',name:'👗 Шкаф одежды',x:410,y:620,r:85},{id:'Shkaf3',name:'🧹 Хоз. шкаф',x:330,y:630,r:75},{id:'Shkaf4',name:'⛺️ Шкаф спорт',x:330,y:710,r:75},{id:'Shkaf5',name:'📦 Доп. шкаф',x:330,y:790,r:75}];
+let scale=0.5,posX=0,posY=0,isDragging=false,startX,startY,lastTap=0,initialDist=null,initialScale=0,oldPos={s:0.5,x:0,y:0};
+function updateTransform(){container.style.transform=`translate(${posX}px,${posY}px) scale(${scale})`;}
+function applyZoom(d,cx,cy){let r=view.getBoundingClientRect(),ns=Math.min(Math.max(0.1,scale+d),4);posX=(cx-r.left)-(cx-r.left-posX)*(ns/scale);posY=(cy-r.top)-(cy-r.top-posY)*(ns/scale);scale=ns;updateTransform();}
+function btnZoom(d){applyZoom(d,view.offsetWidth/2,view.offsetHeight/2);}
+view.addEventListener('touchstart',e=>{if(e.touches.length===1){isDragging=true;startX=e.touches[0].clientX-posX;startY=e.touches[0].clientY-posY;container.style.transition='none';}else if(e.touches.length===2){isDragging=false;initialDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);initialScale=scale;}},{passive:false});
+view.addEventListener('touchmove',e=>{e.preventDefault();if(e.touches.length===1&&isDragging){posX=e.touches[0].clientX-startX;posY=e.touches[0].clientY-startY;updateTransform();}else if(e.touches.length===2&&initialDist){let cd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);applyZoom((initialScale*(cd/initialDist))-scale,(e.touches[0].clientX+e.touches[1].clientX)/2,(e.touches[0].clientY+e.touches[1].clientY)/2);}},{passive:false});
+view.addEventListener('touchend',()=>{isDragging=false;initialDist=null;});
+view.addEventListener('mousedown',e=>{isDragging=true;startX=e.clientX-posX;startY=e.clientY-posY;container.style.transition='none';});
+window.addEventListener('mousemove',e=>{if(isDragging){posX=e.clientX-startX;posY=e.clientY-startY;updateTransform();}});
+window.addEventListener('mouseup',()=>isDragging=false);
+view.addEventListener('wheel',e=>{e.preventDefault();applyZoom(e.deltaY<0?0.1:-0.1,e.clientX,e.clientY);},{passive:false});
+view.addEventListener('click',e=>{if(state.members.length>0&&state.currentUserId!==state.adminId)return;let now=Date.now();if(now-lastTap<300){let rect=container.getBoundingClientRect(),mapX=(e.clientX-rect.left)/scale,mapY=(e.clientY-rect.top)/scale,found=furnitureZones.find(f=>Math.hypot(f.x-mapX,f.y-mapY)<f.r);if(found){let el=document.getElementById('obj-'+found.id);if(el){el.classList.add('highlight');setTimeout(()=>el.classList.remove('highlight'),1000);}}oldPos={s:scale,x:posX,y:posY};applyZoom(1.4-scale,e.clientX,e.clientY);container.style.transition='transform 0.4s ease-out';window.tempCoords={x:mapX,y:mapY};setTimeout(()=>{document.getElementById('furniture-hint').innerText=found?`Объект: ${found.name}`:"Пустая зона";document.getElementById('createQuestModal').style.display='block';document.getElementById('overlay').style.display='block';},350);}lastTap=now;});
+function showStatus(m,e){let el=document.getElementById('statusMsg');el.innerHTML=m;el.style.background=e?'rgba(255,0,0,0.8)':'rgba(0,0,0,0.7)';setTimeout(()=>el.innerHTML='',3000);}
+function loadToken(){let t=localStorage.getItem('githubToken');if(t&&t.startsWith('ghp_')){githubToken=t;return true;}return false;}
+function saveToken(){let t=document.getElementById('tokenInput').value.trim();if(t&&t.startsWith('ghp_')){githubToken=t;localStorage.setItem('githubToken',t);showStatus('✅ Токен сохранён');closeModal();loadFromGitHub();}else showStatus('❌ Неверный токен',true);}
+function skipToken(){showStatus('⚠️ Режим просмотра',true);closeModal();loadFromGitHub();}
+async function loadFromGitHub(){document.getElementById('loader').style.display='flex';try{let res=await fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${DATA_FILE}?t=${Date.now()}`);if(res.ok){let d=await res.json();state.members=d.members||[];state.quests=d.quests||[];state.messages=d.messages||[];state.adminId=d.adminId||(state.members[0]?.id||null);state.currentUserId=d.currentUserId||(state.members[0]?.id||null);}else{state.members=[];state.quests=[];state.messages=[];state.adminId=null;state.currentUserId=null;}}catch(e){state.members=[];state.quests=[];state.messages=[];state.adminId=null;state.currentUserId=null;}
+let sid=localStorage.getItem('currentUserId');if(sid&&state.members.find(m=>m.id===sid))state.currentUserId=sid;else if(state.members.length>0){state.currentUserId=state.members[0].id;localStorage.setItem('currentUserId',state.currentUserId);}
+updateUI();renderQuestsOnMap();document.getElementById('loader').style.display='none';}
+async function saveToGitHub(){if(!githubToken){showStatus('⚠️ Нет токена',true);return false;}
+let data={members:state.members,quests:state.quests,messages:state.messages,adminId:state.adminId,currentUserId:state.currentUserId,updated:new Date().toISOString()};
+try{let content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2)))),url=`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_FILE}`;
+let shaRes=await fetch(url,{headers:{'Authorization':`token ${githubToken}`}}),sha=null;if(shaRes.ok){let ex=await shaRes.json();sha=ex.sha;}
+let res=await fetch(url,{method:'PUT',headers:{'Authorization':`token ${githubToken}`,'Content-Type':'application/json'},body:JSON.stringify({message:'Обновление',content:content,sha:sha})});
+if(res.ok){showStatus('✅ Сохранено');return true;}else{let err=await res.text();showStatus('❌ '+err.substring(0,100),true);return false;}}catch(e){showStatus('❌ '+e.message,true);return false;}}
+function renderQuestsOnMap(){qBox.innerHTML='';state.quests.forEach((q,i)=>{let img=document.createElement('img');img.src='arrow.png';img.className='arrow';img.style.left=q.x+'px';img.style.top=q.y+'px';img.onclick=e=>{e.stopPropagation();openQuest(i);};qBox.appendChild(img);});}
+function updateUI(){let user=state.members.find(m=>m.id===state.currentUserId)||state.members[0];if(!user&&state.members.length===0){document.getElementById('current-user-name').innerText='Нет игроков';document.getElementById('score-val').innerText='0';document.getElementById('current-avatar').innerText='👤';document.getElementById('p-card').classList.remove('is-admin');return;}
+document.getElementById('current-user-name').innerText=user.name;document.getElementById('score-val').innerText=user.points;document.getElementById('current-avatar').innerText=user.avatar;document.getElementById('p-card').classList.toggle('is-admin',state.currentUserId===state.adminId);
+let fl=document.getElementById('family-list');if(fl){fl.innerHTML='';state.members.forEach(m=>{fl.innerHTML+=`<div class="member-item"><span>${m.avatar} ${m.name} ${m.id===state.adminId?'👑':''} (⭐️ ${m.points})</span><div><button onclick="setAdmin('${m.id}')" style="font-size:24px;">👑</button><button onclick="renameAnyMember('${m.id}')" style="font-size:24px;">✏️</button></div></div>`;});}
+let sl=document.getElementById('switch-list');if(sl){sl.innerHTML='<h3>🔄 Сменить героя:</h3>';state.members.forEach(m=>{if(m.id!==state.currentUserId)sl.innerHTML+=`<button class="btn-choice" onclick="switchProfile('${m.id}')">${m.name} (⭐️ ${m.points})</button>`;});}}
+function confirmCreateQuest(){let txt=document.getElementById('new-quest-text').value,reward=parseInt(document.getElementById('quest-reward').value)||10;if(txt&&window.tempCoords){state.quests.push({x:window.tempCoords.x,y:window.tempCoords.y,text:txt,reward:reward});document.getElementById('new-quest-text').value='';document.getElementById('quest-reward').value='10';saveToGitHub().then(()=>renderQuestsOnMap());}cancelQuest();}
+async function completeTask(){if(currentTaskIndex!==null&&state.quests[currentTaskIndex]){let q=state.quests[currentTaskIndex],p=state.members.find(m=>m.id===state.currentUserId);if(p){p.points+=q.reward;state.quests.splice(currentTaskIndex,1);await saveToGitHub();renderQuestsOnMap();updateUI();showStatus(`✅ +${q.reward} бонусов!`);await addChatMessage(`🎉 ${p.name} выполнил задание и получил +${q.reward} бонусов!`);}}closeAll();}
+async function addChatMessage(t){let s=state.members.find(m=>m.id===state.currentUserId);state.messages.push({id:Date.now().toString(),sender:s?.name||"Система",text:t,time:new Date().toLocaleTimeString()});if(state.messages.length>100)state.messages=state.messages.slice(-100);await saveToGitHub();}
+async function sendChatMessage(){let inp=document.getElementById('chatInput'),t=inp.value.trim();if(t){await addChatMessage(t);inp.value='';await openChat();}}
+async function openChat(){await loadFromGitHub();let cd=document.getElementById('chatMessages');if(cd){cd.innerHTML='';state.messages.slice(-50).forEach(m=>{cd.innerHTML+=`<div class="chat-message"><span class="chat-sender">${m.sender}:</span> ${m.text}</div>`;});cd.scrollTop=cd.scrollHeight;}document.getElementById('chatModal').style.display='flex';document.getElementById('overlay').style.display='block';}
+function closeChat(){document.getElementById('chatModal').style.display='none';closeAll();}
+async function transferBonus(){let cp=state.members.find(m=>m.id===state.currentUserId);if(!cp)return;let op=state.members.filter(m=>m.id!==state.currentUserId);if(op.length===0){showStatus('❌ Нет других игроков',true);return;}
+let msg="Кому передать?\n";op.forEach((p,i)=>msg+=`${i+1}. ${p.name} (⭐️ ${p.points})\n`);let num=prompt(msg);if(num){let idx=parseInt(num)-1;if(op[idx]){let amt=prompt(`Сколько бонусов передать ${op[idx].name}? (У тебя ${cp.points})`,'10');if(amt&&!isNaN(parseInt(amt))){let a=parseInt(amt);if(a>cp.points){showStatus(`❌ У тебя только ${cp.points} бонусов`,true);return;}if(a<=0){showStatus('❌ Сумма >0',true);return;}
+cp.points-=a;op[idx].points+=a;await saveToGitHub();updateUI();await addChatMessage(`💰 ${cp.name} передал ${a} бонусов игроку ${op[idx].name}!`);showStatus(`✅ Передано ${a} бонусов`);}}}}
+async function requestCash(){let cp=state.members.find(m=>m.id===state.currentUserId);if(!cp)return;let amt=prompt(`Сколько бонусов хочешь обменять на реальные деньги? (У тебя ${cp.points})`,'10');if(amt&&!isNaN(parseInt(amt))){let a=parseInt(amt);if(a>cp.points){showStatus(`❌ У тебя только ${cp.points} бонусов`,true);return;}if(a<=0){showStatus('❌ Сумма >0',true);return;}
+await addChatMessage(`💵 ${cp.name} запрашивает обмен ${a} бонусов на реальные деньги! (Админ, обрати внимание)`);showStatus(`✅ Запрос отправлен админу в чат`);}}
+async function addNewMember(){let n=prompt("Имя игрока:");if(n){let newId=Date.now().toString();state.members.push({id:newId,name:n,points:0,avatar:'👤'});if(state.members.length===1){state.adminId=newId;state.currentUserId=newId;localStorage.setItem('currentUserId',newId);}await saveToGitHub();updateUI();}}
+async function renameAnyMember(id){let u=state.members.find(m=>m.id===id),n=prompt("Новое имя:",u?.name);if(n&&u){u.name=n;await saveToGitHub();updateUI();}}
+async function renameCurrentPlayer(){let u=state.members.find(m=>m.id===state.currentUserId),n=prompt("Ваше имя:",u?.name);if(n&&u){u.name=n;await saveToGitHub();updateUI();}}
+function openAvatarPicker(){document.getElementById('avatarModal').style.display='block';document.getElementById('overlay').style.display='block';}
+async function setAvatar(emoji){let u=state.members.find(m=>m.id===state.currentUserId);if(u)u.avatar=emoji;await saveToGitHub();updateUI();closeAll();}
+function cancelQuest(){scale=oldPos.s;posX=oldPos.x;posY=oldPos.y;container.style.transition='transform 0.4s';updateTransform();closeAll();}
+function openQuest(idx){currentTaskIndex=idx;document.getElementById('taskText').innerText=state.quests[idx].text;document.getElementById('taskReward').innerText=`Награда: +${state.quests[idx].reward} бонусов`;document.getElementById('taskModal').style.display='block';document.getElementById('overlay').style.display='block';}
+function closeModal(){document.getElementById('tokenModal').style.display='none';document.getElementById('avatarModal').style.display='none';document.getElementById('overlay').style.display='none';}
+function closeAll(){document.querySelectorAll('.modal').forEach(m=>m.style.display='none');document.getElementById('sidebar').classList.remove('active');document.getElementById('overlay').style.display='none';}
+function toggleSidebar(){document.getElementById('sidebar').classList.add('active');document.getElementById('overlay').style.display='block';}
+async function switchProfile(id){state.currentUserId=id;localStorage.setItem('currentUserId',id);await saveToGitHub();updateUI();closeAll();}
+async function setAdmin(id){state.adminId=id;await saveToGitHub();updateUI();}
+const emojis=['🐱','🐶','🦊','🐼','🐨','🐯','🦁','🦄','🐷','🐸','🐮','🦒'];
+document.getElementById('emoji-grid').innerHTML=emojis.map(e=>`<span onclick="setAvatar('${e}')" style="font-size:35px;cursor:pointer;">${e}</span>`).join('');
+if(!loadToken()){document.getElementById('tokenModal').style.display='block';document.getElementById('overlay').style.display='block';}else loadFromGitHub();
+setTimeout(()=>{posX=(view.offsetWidth-1000*0.4)/2;posY=(view.offsetHeight-1000*0.4)/2;scale=0.4;updateTransform();},600);
 </script>
 </body>
 </html>
