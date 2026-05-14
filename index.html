@@ -263,10 +263,28 @@
             });
             const text = await response.text();
             if (!response.ok || text !== "OK") throw new Error("Сервер вернул: " + text);
+            
             alert(`Игрок ${name} добавлен!`);
-            // Принудительно очищаем кэш и перезагружаем
-            currentPlayerId = null;
-            await loadAllData();
+            
+            // ВРЕМЕННО: создаём игрока локально, чтобы интерфейс сразу переключился
+            const newId = String(players.length + 1);
+            const newPlayer = {
+                id: newId,
+                name: name,
+                avatar: avatar,
+                total_bonus: 0
+            };
+            players = [newPlayer];
+            currentPlayerId = newId;
+            
+            // Перерисовываем основной интерфейс
+            renderApp();
+            
+            // Фоновый опрос таблицы (через 3 секунды, чтобы обновить данные из облака)
+            setTimeout(() => {
+                loadAllData();
+            }, 3000);
+            
         } catch (err) {
             alert("Ошибка при добавлении: " + err.message);
         }
