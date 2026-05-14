@@ -1,6 +1,13 @@
 {
-  "players": [],
-  "adminId": null,
-  "currentPlayerId": null,
-  "updated": "2024-01-01T00:00:00.000Z"
+  "players": [
+    {
+      "id": "1778767580284",
+      "name": "Я",
+      "points": 0,
+      "avatar": "👤"
+    }
+  ],
+  "adminId": "1778767580284",
+  "currentPlayerId": "1778767580284",
+  "updated": "2026-05-14T14:06:20.285Z"
 }
