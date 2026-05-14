@@ -3,20 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Семейный Квест</title>
+    <title>Семейный Квест — финал</title>
     <style>
         *{box-sizing:border-box}
         body{background:#e0f7fa;font-family:'Comic Sans MS',cursive,sans-serif;margin:0;padding:0;height:100vh;overflow:hidden;font-size:18px}
         .main-wrapper{width:100%;max-width:500px;margin:0 auto;display:flex;flex-direction:column;height:100%}
-        
-        /* Верхняя панель: профиль уже, кнопки шире */
         .top-bar{display:flex;align-items:stretch;gap:8px;padding:10px;flex-shrink:0}
         .profile-card{flex:1;background:white;padding:6px 10px;border-radius:30px;border:3px solid #00796b;display:flex;align-items:center;gap:8px;position:relative;cursor:pointer;min-width:0}
         .btn-group{flex:2;display:flex;gap:10px}
         .menu-btn,.chat-btn{flex:1;border-radius:30px;cursor:pointer;font-weight:bold;font-size:22px;border:3px solid;display:flex;align-items:center;justify-content:center}
         .chat-btn{background:#4caf50;color:white;border-color:#2e7d32}
         .menu-btn{background:#ff9800;color:white;border-color:#e65100}
-        
         .crown-icon{position:absolute;top:-16px;left:5px;font-size:28px;display:none}
         .is-admin .crown-icon{display:block}
         .avatar-circle{width:46px;height:46px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;border:2px solid #00796b;flex-shrink:0}
@@ -24,15 +21,13 @@
         .user-name{font-weight:bold;font-size:18px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .bonus-line{display:flex;align-items:center;gap:4px;font-size:16px;color:#00796b}
         .bonus-line button{background:none;border:none;font-size:18px;cursor:pointer;padding:0 4px}
-        
         .map-viewport{flex:1;position:relative;overflow:hidden;background:#cfd8dc;touch-action:none}
         #map-container{position:absolute;width:1000px;height:1000px;transform-origin:0 0}
         .layer{position:absolute;top:0;left:0;width:1000px;height:1000px;pointer-events:none;background-size:contain;background-repeat:no-repeat}
-        .highlight{filter:drop-shadow(0 0 25px #00e5ff)brightness(1.4)!important}
+        .highlight{filter:drop-shadow(0 0 18px #00e5ff)brightness(1.3)!important}
         #quest-arrows{position:absolute;top:0;left:0;width:1000px;height:1000px;pointer-events:none;z-index:60}
-        .arrow{position:absolute;width:55px;height:55px;cursor:pointer;animation:bounce 1.5s infinite;transform:translate(-50%,-50%);pointer-events:auto}
+        .arrow{position:absolute;width:52px;height:52px;cursor:pointer;animation:bounce 1.5s infinite;transform:translate(-50%,-50%);pointer-events:auto}
         @keyframes bounce{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,-80%)}}
-        
         .overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:500}
         .modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border-radius:40px;border:5px solid #00796b;text-align:center;width:85%;max-width:420px;z-index:1000}
         .btn-choice{width:100%;padding:14px;margin:8px 0;border-radius:40px;border:2px solid #00796b;cursor:pointer;font-size:18px;font-weight:bold;background:white}
@@ -90,7 +85,22 @@
 const REPO_OWNER='NChu-GH',REPO_NAME='home-quest',DATA_FILE='family-data.json';
 let state={members:[],adminId:null,currentUserId:null,quests:[],messages:{general:[],tech:[]}},githubToken=null,currentTaskIndex=null,currentChatTab='general';
 const container=document.getElementById('map-container'),view=document.getElementById('viewport'),qBox=document.getElementById('quest-arrows');
-const furnitureZones=[{id:'Lapomoika',name:'🐾 Лапомойка',x:745,y:405,r:85},{id:'Unitaz1',name:'🚽 Унитаз',x:865,y:405,r:85},{id:'Stiralka',name:'🧼 Стиральная машина',x:865,y:555,r:95},{name:'🧺 Корзина',x:765,y:555,r:85},{id:'Veshalka',name:'🧥 Вешалка',x:690,y:420,r:75},{name:'🗄 Тумбочка',x:640,y:500,r:60},{id:'Shkaf1',name:'👟 Шкаф обуви',x:505,y:620,r:85},{id:'Shkaf2',name:'👗 Шкаф одежды',x:410,y:620,r:85},{id:'Shkaf3',name:'🧹 Хоз. шкаф',x:330,y:630,r:75},{id:'Shkaf4',name:'⛺️ Шкаф спорт',x:330,y:710,r:75},{id:'Shkaf5',name:'📦 Доп. шкаф',x:330,y:790,r:75}];
+
+// ТОЧНЫЕ ЗОНЫ МЕБЕЛИ — УМЕНЬШЕННЫЕ РАДИУСЫ И УТОЧНЁННЫЕ КООРДИНАТЫ
+const furnitureZones = [
+    { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 48 },
+    { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 45 },
+    { id: 'Stiralka', name: '🧼 Стиральная машина', x: 865, y: 555, r: 50 },
+    { name: '🧺 Корзина', x: 765, y: 555, r: 42 },
+    { id: 'Veshalka', name: '🧥 Вешалка', x: 690, y: 420, r: 40 },
+    { name: '🗄 Тумбочка', x: 640, y: 500, r: 38 },
+    { id: 'Shkaf1', name: '👟 Шкаф обуви', x: 505, y: 620, r: 48 },
+    { id: 'Shkaf2', name: '👗 Шкаф одежды', x: 410, y: 620, r: 50 },
+    { id: 'Shkaf3', name: '🧹 Хоз. шкаф', x: 330, y: 630, r: 46 },
+    { id: 'Shkaf4', name: '⛺️ Шкаф спорт', x: 330, y: 710, r: 48 },
+    { id: 'Shkaf5', name: '📦 Доп. шкаф', x: 330, y: 790, r: 48 }
+];
+
 let scale=0.5,posX=0,posY=0,isDragging=false,startX,startY,lastTap=0,initialDist=null,initialScale=0,oldPos={s:0.5,x:0,y:0};
 function updateTransform(){container.style.transform=`translate(${posX}px,${posY}px) scale(${scale})`;}
 function applyZoom(d,cx,cy){let r=view.getBoundingClientRect(),ns=Math.min(Math.max(0.1,scale+d),4);posX=(cx-r.left)-(cx-r.left-posX)*(ns/scale);posY=(cy-r.top)-(cy-r.top-posY)*(ns/scale);scale=ns;updateTransform();}
@@ -102,7 +112,41 @@ view.addEventListener('mousedown',e=>{isDragging=true;startX=e.clientX-posX;star
 window.addEventListener('mousemove',e=>{if(isDragging){posX=e.clientX-startX;posY=e.clientY-startY;updateTransform();}});
 window.addEventListener('mouseup',()=>isDragging=false);
 view.addEventListener('wheel',e=>{e.preventDefault();applyZoom(e.deltaY<0?0.1:-0.1,e.clientX,e.clientY);},{passive:false});
-view.addEventListener('click',e=>{if(state.members.length>0&&state.currentUserId!==state.adminId)return;let now=Date.now();if(now-lastTap<300){let rect=container.getBoundingClientRect(),mapX=(e.clientX-rect.left)/scale,mapY=(e.clientY-rect.top)/scale,found=furnitureZones.find(f=>Math.hypot(f.x-mapX,f.y-mapY)<f.r);if(found){let el=document.getElementById('obj-'+found.id);if(el){el.classList.add('highlight');setTimeout(()=>el.classList.remove('highlight'),1000);}}oldPos={s:scale,x:posX,y:posY};applyZoom(1.4-scale,e.clientX,e.clientY);container.style.transition='transform 0.4s ease-out';window.tempCoords={x:mapX,y:mapY};setTimeout(()=>{document.getElementById('furniture-hint').innerText=found?`Объект: ${found.name}`:"Пустая зона";document.getElementById('createQuestModal').style.display='block';document.getElementById('overlay').style.display='block';},350);}lastTap=now;});
+
+// Клик по мебели — точное попадание
+view.addEventListener('click',e=>{
+    if(state.members.length>0 && state.currentUserId !== state.adminId) return;
+    let now=Date.now();
+    if(now-lastTap<300){
+        let rect=container.getBoundingClientRect();
+        let mapX=(e.clientX-rect.left)/scale, mapY=(e.clientY-rect.top)/scale;
+        let found=null;
+        for(let f of furnitureZones){
+            let dx=f.x-mapX, dy=f.y-mapY;
+            let dist=Math.sqrt(dx*dx+dy*dy);
+            if(dist<f.r){
+                found=f;
+                break;
+            }
+        }
+        if(found){
+            let el=document.getElementById('obj-'+found.id);
+            if(el){el.classList.add('highlight');setTimeout(()=>el.classList.remove('highlight'),800);}
+            showStatus(`📍 ${found.name}`, false);
+        }
+        oldPos={s:scale,x:posX,y:posY};
+        applyZoom(1.4-scale,e.clientX,e.clientY);
+        container.style.transition='transform 0.4s ease-out';
+        window.tempCoords={x:mapX,y:mapY};
+        setTimeout(()=>{
+            document.getElementById('furniture-hint').innerText=found?`Объект: ${found.name}`:"Пустая зона";
+            document.getElementById('createQuestModal').style.display='block';
+            document.getElementById('overlay').style.display='block';
+        },350);
+    }
+    lastTap=now;
+});
+
 function showStatus(m,e){let el=document.getElementById('statusMsg');el.innerHTML=m;el.style.background=e?'rgba(255,0,0,0.8)':'rgba(0,0,0,0.7)';setTimeout(()=>el.innerHTML='',3000);}
 function loadToken(){let t=localStorage.getItem('githubToken');if(t&&t.startsWith('ghp_')){githubToken=t;return true;}return false;}
 function saveToken(){let t=document.getElementById('tokenInput').value.trim();if(t&&t.startsWith('ghp_')){githubToken=t;localStorage.setItem('githubToken',t);showStatus('✅ Токен сохранён');closeModal();loadFromGitHub();}else showStatus('❌ Неверный токен',true);}
