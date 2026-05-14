@@ -68,7 +68,29 @@
         </div>
         <div class="btn-group"><button class="chat-btn" onclick="openChat()">💬</button><button class="menu-btn" onclick="toggleSidebar()">⚙️</button></div>
     </div>
-    <div class="map-viewport" id="viewport"><div id="map-container"><div class="layer" style="background-image:url('Sanuzel1.png')"></div><div class="layer" style="background-image:url('Koridor.png')"></div><div class="layer" style="background-image:url('Gostinaya.png')"></div><div class="layer" style="background-image:url('Spalnya1.png')"></div><div class="layer" style="background-image:url('Spalnya2.png')"></div><div class="layer" style="background-image:url('Vannaya.png')"></div><div class="layer" style="background-image:url('Sanuzel2.png')"></div><div class="layer" style="background-image:url('Kuhnya.png')"></div><div class="layer" style="background-image:url('Balcon.png')"></div><div id="obj-Lapomoika" class="layer" style="background-image:url('Lapomoika.png')"></div><div id="obj-Unitaz1" class="layer" style="background-image:url('Unitaz1.png')"></div><div id="obj-Stiralka" class="layer" style="background-image:url('Stiralka.png')"></div><div id="obj-Korzina" class="layer" style="background-image:url('Korzina.png')"></div><div id="obj-Tumbochka" class="layer" style="background-image:url('Tumbochka.png')"></div><div id="obj-Veshalka" class="layer" style="background-image:url('Veshalka.png')"></div><div id="obj-Shkaf1" class="layer" style="background-image:url('Shkaf1.png')"></div><div id="obj-Shkaf2" class="layer" style="background-image:url('Shkaf2.png')"></div><div id="obj-Shkaf3" class="layer" style="background-image:url('Shkaf3.png')"></div><div id="obj-Shkaf4" class="layer" style="background-image:url('Shkaf4.png')"></div><div id="obj-Shkaf5" class="layer" style="background-image:url('Shkaf5.png')"></div><div id="quest-arrows"></div></div><div class="zoom-controls"><button class="z-btn" onclick="btnZoom(0.3)">+</button><button class="z-btn" onclick="btnZoom(-0.3)">−</button></div></div>
+    <div class="map-viewport" id="viewport"><div id="map-container">
+        <div class="layer" style="background-image:url('Sanuzel1.png')" data-room="Ванная/санузел"></div>
+        <div class="layer" style="background-image:url('Koridor.png')" data-room="Коридор"></div>
+        <div class="layer" style="background-image:url('Gostinaya.png')" data-room="Гостиная"></div>
+        <div class="layer" style="background-image:url('Spalnya1.png')" data-room="Спальня 1"></div>
+        <div class="layer" style="background-image:url('Spalnya2.png')" data-room="Спальня 2"></div>
+        <div class="layer" style="background-image:url('Vannaya.png')" data-room="Ванная"></div>
+        <div class="layer" style="background-image:url('Sanuzel2.png')" data-room="Санузел 2"></div>
+        <div class="layer" style="background-image:url('Kuhnya.png')" data-room="Кухня"></div>
+        <div class="layer" style="background-image:url('Balcon.png')" data-room="Балкон"></div>
+        <div id="obj-Lapomoika" class="layer" style="background-image:url('Lapomoika.png')" data-room="Лапомойка"></div>
+        <div id="obj-Unitaz1" class="layer" style="background-image:url('Unitaz1.png')" data-room="Унитаз"></div>
+        <div id="obj-Stiralka" class="layer" style="background-image:url('Stiralka.png')" data-room="Стиральная машина"></div>
+        <div id="obj-Korzina" class="layer" style="background-image:url('Korzina.png')" data-room="Корзина"></div>
+        <div id="obj-Tumbochka" class="layer" style="background-image:url('Tumbochka.png')" data-room="Тумбочка"></div>
+        <div id="obj-Veshalka" class="layer" style="background-image:url('Veshalka.png')" data-room="Вешалка"></div>
+        <div id="obj-Shkaf1" class="layer" style="background-image:url('Shkaf1.png')" data-room="Шкаф обуви"></div>
+        <div id="obj-Shkaf2" class="layer" style="background-image:url('Shkaf2.png')" data-room="Шкаф одежды"></div>
+        <div id="obj-Shkaf3" class="layer" style="background-image:url('Shkaf3.png')" data-room="Хозяйственный шкаф"></div>
+        <div id="obj-Shkaf4" class="layer" style="background-image:url('Shkaf4.png')" data-room="Спортивный шкаф"></div>
+        <div id="obj-Shkaf5" class="layer" style="background-image:url('Shkaf5.png')" data-room="Дополнительный шкаф"></div>
+        <div id="quest-arrows"></div>
+    </div><div class="zoom-controls"><button class="z-btn" onclick="btnZoom(0.3)">+</button><button class="z-btn" onclick="btnZoom(-0.3)">−</button></div></div>
 </div>
 
 <div id="overlay" onclick="closeAll()" class="overlay"></div>
@@ -86,19 +108,19 @@ const REPO_OWNER='NChu-GH',REPO_NAME='home-quest',DATA_FILE='family-data.json';
 let state={members:[],adminId:null,currentUserId:null,quests:[],messages:{general:[],tech:[]}},githubToken=null,currentTaskIndex=null,currentChatTab='general';
 const container=document.getElementById('map-container'),view=document.getElementById('viewport'),qBox=document.getElementById('quest-arrows');
 
-// ТОЧНЫЕ ЗОНЫ МЕБЕЛИ — ВСЕ ШКАФЫ ИСПРАВЛЕНЫ
+// Координаты мебели для точного попадания (уменьшенные радиусы)
 const furnitureZones = [
-    { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 48 },
-    { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 45 },
-    { id: 'Stiralka', name: '🧼 Стиральная машина', x: 865, y: 555, r: 50 },
-    { name: '🧺 Корзина', x: 765, y: 555, r: 42 },
-    { id: 'Veshalka', name: '🧥 Вешалка', x: 690, y: 420, r: 40 },
-    { name: '🗄 Тумбочка', x: 640, y: 500, r: 38 },
-    { id: 'Shkaf1', name: '👟 Шкаф обуви', x: 505, y: 620, r: 48 },
-    { id: 'Shkaf2', name: '👗 Шкаф одежды', x: 410, y: 620, r: 50 },
-    { id: 'Shkaf3', name: '🧹 Хоз. шкаф', x: 305, y: 628, r: 52 },       // координаты скорректированы
-    { id: 'Shkaf4', name: '⛺️ Шкаф спорт', x: 305, y: 710, r: 52 },       // координаты скорректированы
-    { id: 'Shkaf5', name: '📦 Доп. шкаф', x: 305, y: 790, r: 52 }          // координаты скорректированы
+    { id: 'Lapomoika', x: 745, y: 405, r: 48 },
+    { id: 'Unitaz1', x: 865, y: 405, r: 45 },
+    { id: 'Stiralka', x: 865, y: 555, r: 50 },
+    { id: 'Korzina', x: 765, y: 555, r: 42 },
+    { id: 'Veshalka', x: 690, y: 420, r: 40 },
+    { id: 'Tumbochka', x: 640, y: 500, r: 38 },
+    { id: 'Shkaf1', x: 505, y: 620, r: 48 },
+    { id: 'Shkaf2', x: 410, y: 620, r: 50 },
+    { id: 'Shkaf3', x: 305, y: 628, r: 52 },
+    { id: 'Shkaf4', x: 305, y: 710, r: 52 },
+    { id: 'Shkaf5', x: 305, y: 790, r: 52 }
 ];
 
 let scale=0.5,posX=0,posY=0,isDragging=false,startX,startY,lastTap=0,initialDist=null,initialScale=0,oldPos={s:0.5,x:0,y:0};
@@ -113,7 +135,32 @@ window.addEventListener('mousemove',e=>{if(isDragging){posX=e.clientX-startX;pos
 window.addEventListener('mouseup',()=>isDragging=false);
 view.addEventListener('wheel',e=>{e.preventDefault();applyZoom(e.deltaY<0?0.1:-0.1,e.clientX,e.clientY);},{passive:false});
 
-// Клик по мебели — точное попадание + подпись пустой комнаты
+// Функция получения названия комнаты по точке на карте
+function getRoomNameByPoint(mapX, mapY){
+    const layers = document.querySelectorAll('#map-container .layer');
+    let bestMatch = null;
+    let bestArea = Infinity;
+    for(let layer of layers){
+        const room = layer.getAttribute('data-room');
+        if(!room) continue;
+        const rect = layer.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const layerLeft = (rect.left - containerRect.left) / scale;
+        const layerTop = (rect.top - containerRect.top) / scale;
+        const layerWidth = rect.width / scale;
+        const layerHeight = rect.height / scale;
+        if(mapX >= layerLeft && mapX <= layerLeft+layerWidth && mapY >= layerTop && mapY <= layerTop+layerHeight){
+            const area = layerWidth * layerHeight;
+            if(area < bestArea){
+                bestArea = area;
+                bestMatch = room;
+            }
+        }
+    }
+    return bestMatch || "Комната";
+}
+
+// Клик по мебели или пустой комнате
 view.addEventListener('click',e=>{
     if(state.members.length>0 && state.currentUserId !== state.adminId) return;
     let now=Date.now();
@@ -133,18 +180,11 @@ view.addEventListener('click',e=>{
         if(found){
             let el=document.getElementById('obj-'+found.id);
             if(el){el.classList.add('highlight');setTimeout(()=>el.classList.remove('highlight'),800);}
-            zoneName = found.name;
+            const roomAttr = document.getElementById('obj-'+found.id)?.getAttribute('data-room');
+            zoneName = roomAttr || found.id;
             showStatus(`📍 ${zoneName}`, false);
         } else {
-            // Определяем название комнаты по приблизительным зонам
-            if(mapX > 700 && mapX < 950 && mapY > 300 && mapY < 500) zoneName = "Ванная / санузел";
-            else if(mapX > 500 && mapX < 700 && mapY > 300 && mapY < 500) zoneName = "Коридор";
-            else if(mapX > 300 && mapX < 600 && mapY > 500 && mapY < 700) zoneName = "Гостиная";
-            else if(mapX > 100 && mapX < 350 && mapY > 500 && mapY < 700) zoneName = "Спальня 1";
-            else if(mapX > 100 && mapX < 350 && mapY > 700 && mapY < 880) zoneName = "Спальня 2";
-            else if(mapX > 600 && mapX < 950 && mapY > 550 && mapY < 750) zoneName = "Кухня";
-            else if(mapX > 700 && mapX < 920 && mapY > 750 && mapY < 880) zoneName = "Балкон";
-            else zoneName = "Комната";
+            zoneName = getRoomNameByPoint(mapX, mapY);
             showStatus(`📍 ${zoneName}`, false);
         }
         oldPos={s:scale,x:posX,y:posY};
@@ -152,7 +192,7 @@ view.addEventListener('click',e=>{
         container.style.transition='transform 0.4s ease-out';
         window.tempCoords={x:mapX,y:mapY};
         setTimeout(()=>{
-            document.getElementById('furniture-hint').innerText = found ? `Объект: ${found.name}` : `Зона: ${zoneName}`;
+            document.getElementById('furniture-hint').innerHTML = `📍 ${zoneName}`;
             document.getElementById('createQuestModal').style.display='block';
             document.getElementById('overlay').style.display='block';
         },350);
