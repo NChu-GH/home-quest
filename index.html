@@ -116,6 +116,8 @@
     <div id="family-list" style="background:#fff3e0; padding:15px; border-radius:20px; margin-bottom:20px;"></div>
     <button class="btn-choice" style="background:#4caf50; color:white; border:none;" onclick="addNewMember()">➕ ДОБАВИТЬ ИГРОКА</button>
     <div id="switch-list"></div>
+    <hr>
+    <button class="btn-choice" style="background:#2196f3; color:white;" onclick="giveBonus()">🎁 ВЫДАТЬ БОНУС</button>
     <button class="btn-choice" onclick="closeAll()" style="margin-top:40px; background:#eee;">ЗАКРЫТЬ ❌</button>
 </div>
 
@@ -142,17 +144,23 @@
 
     let state = { members: [], adminId: null, currentUserId: null, quests: [] };
     let githubToken = null;
+    let currentFileSha = null; // Храним SHA файла для обновления
     
     const container = document.getElementById('map-container');
     const view = document.getElementById('viewport');
     const qBox = document.getElementById('quest-arrows');
     
     const furnitureZones = [
-        { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 85 }, { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 85 },
-        { id: 'Stiralka', name: '🧼 Стиральная машина', x: 865, y: 555, r: 95 }, { name: '🧺 Корзина', x: 765, y: 555, r: 85 },
-        { id: 'Veshalka', name: '🧥 Вешалка', x: 690, y: 420, r: 75 }, { name: '🗄 Тумбочка', x: 640, y: 500, r: 60 },
-        { id: 'Shkaf1', name: '👟 Шкаф для обуви', x: 505, y: 620, r: 85 }, { id: 'Shkaf2', name: '👗 Шкаф для одежды', x: 410, y: 620, r: 85 },
-        { id: 'Shkaf3', name: '🧹 Хоз. шкаф', x: 330, y: 630, r: 75 }, { id: 'Shkaf4', name: '⛺️ Шкаф спорт', x: 330, y: 710, r: 75 },
+        { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 85 },
+        { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 85 },
+        { id: 'Stiralka', name: '🧼 Стиральная машина', x: 865, y: 555, r: 95 },
+        { name: '🧺 Корзина', x: 765, y: 555, r: 85 },
+        { id: 'Veshalka', name: '🧥 Вешалка', x: 690, y: 420, r: 75 },
+        { name: '🗄 Тумбочка', x: 640, y: 500, r: 60 },
+        { id: 'Shkaf1', name: '👟 Шкаф для обуви', x: 505, y: 620, r: 85 },
+        { id: 'Shkaf2', name: '👗 Шкаф для одежды', x: 410, y: 620, r: 85 },
+        { id: 'Shkaf3', name: '🧹 Хоз. шкаф', x: 330, y: 630, r: 75 },
+        { id: 'Shkaf4', name: '⛺️ Шкаф спорт', x: 330, y: 710, r: 75 },
         { id: 'Shkaf5', name: '📦 Доп. шкаф', x: 330, y: 790, r: 75 }
     ];
 
@@ -198,6 +206,8 @@
             if(found) {
                 const el = document.getElementById('obj-' + found.id);
                 if(el) { el.classList.add('highlight'); setTimeout(() => el.classList.remove('highlight'), 1000); }
+                // Показываем название комнаты
+                showStatus(`📍 ${found.name}`, false);
             }
             oldPos = {s: scale, x: posX, y: posY};
             applyZoom(1.4 - scale, e.clientX, e.clientY);
@@ -258,11 +268,20 @@
                 state.quests = data.quests || [];
                 state.adminId = data.adminId || (state.members[0]?.id || null);
                 state.currentUserId = data.currentUserId || (state.members[0]?.id || null);
+                // Получаем SHA для последующего обновления
+                const shaRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_FILE}`, {
+                    headers: githubToken ? { 'Authorization': `token ${githubToken}` } : {}
+                });
+                if (shaRes.ok) {
+                    const shaData = await shaRes.json();
+                    currentFileSha = shaData.sha;
+                }
             } else {
                 state.members = [];
                 state.quests = [];
                 state.adminId = null;
                 state.currentUserId = null;
+                currentFileSha = null;
             }
         } catch(e) {
             state.members = [];
@@ -302,10 +321,13 @@
             const content = btoa(unescape(encodeURIComponent(JSON.stringify(dataToSave, null, 2))));
             const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_FILE}`;
             
+            // Получаем актуальный SHA перед сохранением (чтобы избежать 409)
+            const shaRes = await fetch(url, {
+                headers: { 'Authorization': `token ${githubToken}` }
+            });
             let sha = null;
-            const getRes = await fetch(url);
-            if (getRes.ok) {
-                const existing = await getRes.json();
+            if (shaRes.ok) {
+                const existing = await shaRes.json();
                 sha = existing.sha;
             }
             
@@ -315,10 +337,16 @@
                     'Authorization': `token ${githubToken}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ message: 'Обновление данных', content: content, sha: sha })
+                body: JSON.stringify({
+                    message: 'Обновление данных',
+                    content: content,
+                    sha: sha
+                })
             });
             
             if (res.ok) {
+                const result = await res.json();
+                currentFileSha = result.content.sha;
                 showStatus('✅ Сохранено в GitHub');
                 return true;
             } else {
@@ -402,12 +430,11 @@
     }
     
     async function completeTask() {
-        const user = state.members.find(m => m.id === state.currentUserId);
-        if(user) user.points += 10;
-        state.quests.splice(window.activeIdx, 1);
-        await saveToGitHub();
-        updateUI();
-        renderQuestsOnMap();
+        if (window.activeIdx !== undefined && state.quests[window.activeIdx]) {
+            state.quests.splice(window.activeIdx, 1);
+            await saveToGitHub();
+            renderQuestsOnMap();
+        }
         closeAll();
     }
     
@@ -423,6 +450,30 @@
             }
             await saveToGitHub();
             updateUI();
+        }
+    }
+    
+    async function giveBonus() {
+        if (state.currentUserId !== state.adminId) {
+            showStatus('⚠️ Только администратор может выдавать бонусы', true);
+            return;
+        }
+        let msg = "Выбери игрока:\n";
+        state.members.forEach((m, i) => {
+            msg += `${i+1}. ${m.name} (⭐️ ${m.points})\n`;
+        });
+        const num = prompt(msg);
+        if (num) {
+            const idx = parseInt(num) - 1;
+            if (state.members[idx]) {
+                const bonus = prompt(`Сколько бонусов дать ${state.members[idx].name}?`, "10");
+                if (bonus && !isNaN(parseInt(bonus))) {
+                    state.members[idx].points += parseInt(bonus);
+                    await saveToGitHub();
+                    updateUI();
+                    showStatus(`✅ ${state.members[idx].name} +${bonus} ⭐️`);
+                }
+            }
         }
     }
     
@@ -473,6 +524,12 @@
         document.getElementById('taskText').innerText = state.quests[idx].text;
         document.getElementById('taskModal').style.display = 'block';
         document.getElementById('overlay').style.display = 'block';
+    }
+    
+    function closeModal() {
+        document.getElementById('tokenModal').style.display = 'none';
+        document.getElementById('avatarModal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
     }
     
     function closeAll() {
