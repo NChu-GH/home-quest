@@ -86,7 +86,7 @@ const REPO_OWNER='NChu-GH',REPO_NAME='home-quest',DATA_FILE='family-data.json';
 let state={members:[],adminId:null,currentUserId:null,quests:[],messages:{general:[],tech:[]}},githubToken=null,currentTaskIndex=null,currentChatTab='general';
 const container=document.getElementById('map-container'),view=document.getElementById('viewport'),qBox=document.getElementById('quest-arrows');
 
-// ТОЧНЫЕ ЗОНЫ МЕБЕЛИ — УМЕНЬШЕННЫЕ РАДИУСЫ И УТОЧНЁННЫЕ КООРДИНАТЫ
+// ТОЧНЫЕ ЗОНЫ МЕБЕЛИ — ВСЕ ШКАФЫ ИСПРАВЛЕНЫ
 const furnitureZones = [
     { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 48 },
     { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 45 },
@@ -96,9 +96,9 @@ const furnitureZones = [
     { name: '🗄 Тумбочка', x: 640, y: 500, r: 38 },
     { id: 'Shkaf1', name: '👟 Шкаф обуви', x: 505, y: 620, r: 48 },
     { id: 'Shkaf2', name: '👗 Шкаф одежды', x: 410, y: 620, r: 50 },
-    { id: 'Shkaf3', name: '🧹 Хоз. шкаф', x: 330, y: 630, r: 46 },
-    { id: 'Shkaf4', name: '⛺️ Шкаф спорт', x: 330, y: 710, r: 48 },
-    { id: 'Shkaf5', name: '📦 Доп. шкаф', x: 330, y: 790, r: 48 }
+    { id: 'Shkaf3', name: '🧹 Хоз. шкаф', x: 305, y: 628, r: 52 },       // координаты скорректированы
+    { id: 'Shkaf4', name: '⛺️ Шкаф спорт', x: 305, y: 710, r: 52 },       // координаты скорректированы
+    { id: 'Shkaf5', name: '📦 Доп. шкаф', x: 305, y: 790, r: 52 }          // координаты скорректированы
 ];
 
 let scale=0.5,posX=0,posY=0,isDragging=false,startX,startY,lastTap=0,initialDist=null,initialScale=0,oldPos={s:0.5,x:0,y:0};
@@ -113,7 +113,7 @@ window.addEventListener('mousemove',e=>{if(isDragging){posX=e.clientX-startX;pos
 window.addEventListener('mouseup',()=>isDragging=false);
 view.addEventListener('wheel',e=>{e.preventDefault();applyZoom(e.deltaY<0?0.1:-0.1,e.clientX,e.clientY);},{passive:false});
 
-// Клик по мебели — точное попадание
+// Клик по мебели — точное попадание + подпись пустой комнаты
 view.addEventListener('click',e=>{
     if(state.members.length>0 && state.currentUserId !== state.adminId) return;
     let now=Date.now();
@@ -129,17 +129,30 @@ view.addEventListener('click',e=>{
                 break;
             }
         }
+        let zoneName = "";
         if(found){
             let el=document.getElementById('obj-'+found.id);
             if(el){el.classList.add('highlight');setTimeout(()=>el.classList.remove('highlight'),800);}
-            showStatus(`📍 ${found.name}`, false);
+            zoneName = found.name;
+            showStatus(`📍 ${zoneName}`, false);
+        } else {
+            // Определяем название комнаты по приблизительным зонам
+            if(mapX > 700 && mapX < 950 && mapY > 300 && mapY < 500) zoneName = "Ванная / санузел";
+            else if(mapX > 500 && mapX < 700 && mapY > 300 && mapY < 500) zoneName = "Коридор";
+            else if(mapX > 300 && mapX < 600 && mapY > 500 && mapY < 700) zoneName = "Гостиная";
+            else if(mapX > 100 && mapX < 350 && mapY > 500 && mapY < 700) zoneName = "Спальня 1";
+            else if(mapX > 100 && mapX < 350 && mapY > 700 && mapY < 880) zoneName = "Спальня 2";
+            else if(mapX > 600 && mapX < 950 && mapY > 550 && mapY < 750) zoneName = "Кухня";
+            else if(mapX > 700 && mapX < 920 && mapY > 750 && mapY < 880) zoneName = "Балкон";
+            else zoneName = "Комната";
+            showStatus(`📍 ${zoneName}`, false);
         }
         oldPos={s:scale,x:posX,y:posY};
         applyZoom(1.4-scale,e.clientX,e.clientY);
         container.style.transition='transform 0.4s ease-out';
         window.tempCoords={x:mapX,y:mapY};
         setTimeout(()=>{
-            document.getElementById('furniture-hint').innerText=found?`Объект: ${found.name}`:"Пустая зона";
+            document.getElementById('furniture-hint').innerText = found ? `Объект: ${found.name}` : `Зона: ${zoneName}`;
             document.getElementById('createQuestModal').style.display='block';
             document.getElementById('overlay').style.display='block';
         },350);
