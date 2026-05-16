@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Семейный Квест — задания на мебель</title>
+    <title>Семейный Квест</title>
     <style>
         *{box-sizing:border-box}
         body{background:#e0f7fa;font-family:'Comic Sans MS',cursive,sans-serif;margin:0;padding:0;height:100vh;overflow:hidden;font-size:18px}
@@ -76,7 +76,6 @@
         </div>
     </div>
     <div class="map-viewport" id="viewport"><div id="map-container">
-        <!-- КОМНАТЫ -->
         <div class="layer" style="background-image:url('Sanuzel1.png')"></div>
         <div class="layer" style="background-image:url('Koridor.png')"></div>
         <div class="layer" style="background-image:url('Gostinaya.png')"></div>
@@ -86,7 +85,6 @@
         <div class="layer" style="background-image:url('Sanuzel2.png')"></div>
         <div class="layer" style="background-image:url('Kuhnya.png')"></div>
         <div class="layer" style="background-image:url('Balcon.png')"></div>
-        <!-- МЕБЕЛЬ -->
         <div id="obj-Lapomoika" class="layer" style="background-image:url('Lapomoika.png')"></div>
         <div id="obj-Unitaz1" class="layer" style="background-image:url('Unitaz1.png')"></div>
         <div id="obj-Unitaz2" class="layer" style="background-image:url('Unitaz2.png')"></div>
@@ -133,7 +131,7 @@
 </div>
 
 <div id="overlay" onclick="closeAll()" class="overlay"></div>
-<div id="createQuestModal" class="modal"><h2>Задание для мебели 📝</h2><p id="furniture-hint"></p><input type="text" id="new-quest-text" placeholder="Что сделать?" style="font-size:16px;padding:12px"><input type="number" id="quest-reward" placeholder="Бонусы" value="10" style="font-size:16px;padding:12px;margin-top:8px"><button class="btn-choice" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button><button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button></div>
+<div id="createQuestModal" class="modal"><h2>Задание 📝</h2><p id="furniture-hint"></p><input type="text" id="new-quest-text" placeholder="Что сделать?" style="font-size:16px;padding:12px"><input type="number" id="quest-reward" placeholder="Бонусы" value="10" style="font-size:16px;padding:12px;margin-top:8px"><button class="btn-choice" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button><button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button></div>
 <div id="taskModal" class="modal"><h2 id="taskText"></h2><p id="taskReward" style="color:#00796b;font-size:18px"></p><button class="btn-choice" onclick="completeTask()">ВЫПОЛНИТЬ ✅</button><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ 🔙</button></div>
 <div id="sidebar" class="sidebar"><h2>🏡 Семья</h2><div id="family-list"></div><button class="btn-choice" onclick="addNewMember()">➕ ДОБАВИТЬ ИГРОКА</button><div id="switch-list"></div><button class="btn-choice" onclick="closeAll()" style="margin-top:30px">ЗАКРЫТЬ ❌</button></div>
 <div id="playerSelectModal" class="modal"><h2>👥 Выбор игрока</h2><div id="player-list-modal"></div><div class="profile-actions"><button class="profile-btn" onclick="openTransferBonus()">💰 Передать бонусы</button><button class="profile-btn" onclick="requestCash()">💵 Обменять на кэш</button></div><button class="btn-choice" onclick="closeModal()">ЗАКРЫТЬ</button></div>
@@ -148,7 +146,7 @@ let state={members:[],adminId:null,currentUserId:null,quests:[],messages:{genera
 let unreadCounts={general:0,tech:0};
 const container=document.getElementById('map-container'),view=document.getElementById('viewport'),qBox=document.getElementById('quest-arrows');
 
-// ========== ВСЯ МЕБЕЛЬ С ТОЧНЫМИ КООРДИНАТАМИ (уменьшенные радиусы) ==========
+// МЕБЕЛЬ
 const furnitureZones = [
     { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 35 },
     { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 32 },
@@ -193,7 +191,6 @@ const furnitureZones = [
     { id: 'stol_det', name: '📚 Детский стол', x: 280, y: 720, r: 28 }
 ];
 
-// ========== ЗОНЫ КОМНАТ (для пустых мест) ==========
 const roomZones = [
     { name: "Санузел1", x1: 700, y1: 300, x2: 950, y2: 500 },
     { name: "Коридор", x1: 500, y1: 300, x2: 700, y2: 500 },
@@ -225,7 +222,6 @@ window.addEventListener('mousemove',e=>{if(isDragging){posX=e.clientX-startX;pos
 window.addEventListener('mouseup',()=>isDragging=false);
 view.addEventListener('wheel',e=>{e.preventDefault();applyZoom(e.deltaY<0?0.1:-0.1,e.clientX,e.clientY);},{passive:false});
 
-// Подсветка мебели при наведении/тапе
 function addHoverEffect(){
     for(let f of furnitureZones){
         const el=document.getElementById('obj-'+f.id);
@@ -237,7 +233,6 @@ function addHoverEffect(){
     }
 }
 
-// ГЛАВНЫЙ КЛИК: СНАЧАЛА МЕБЕЛЬ, ПОТОМ КОМНАТА
 view.addEventListener('click',e=>{
     if(state.members.length>0 && state.currentUserId !== state.adminId) return;
     let now=Date.now();
@@ -316,14 +311,14 @@ async function transferToPlayer(id){let cp=state.members.find(m=>m.id===state.cu
 cp.points-=a;target.points+=a;await saveToGitHub();updateUI();await addTechMessage(`💰 ${cp.name} передал(а) ${a}⭐️ игроку ${target.name}!`);showStatus(`✅ Передано ${a}⭐️`);closeModal();closeModal();}}
 async function confirmCreateQuest(){let txt=document.getElementById('new-quest-text').value,reward=parseInt(document.getElementById('quest-reward').value)||10;if(txt&&window.tempTarget){state.quests.push({id:Date.now().toString(),x:window.tempTarget.x,y:window.tempTarget.y,text:txt,reward:reward,target:window.tempTarget.name});document.getElementById('new-quest-text').value='';document.getElementById('quest-reward').value='10';await saveToGitHub();renderQuestsOnMap();let author=state.members.find(m=>m.id===state.currentUserId);await addTechMessage(`📋 ${author?.name} создал(а) задание: "${txt}" (+${reward}⭐️) для "${window.tempTarget.name}"`);}cancelQuest();}
 async function completeTask(){if(currentTaskIndex!==null&&state.quests[currentTaskIndex]){let q=state.quests[currentTaskIndex],p=state.members.find(m=>m.id===state.currentUserId);if(p){p.points+=q.reward;state.quests.splice(currentTaskIndex,1);await saveToGitHub();renderQuestsOnMap();updateUI();showStatus(`✅ +${q.reward} бонусов!`);await addTechMessage(`🎉 ${p.name} выполнил(а) задание "${q.text}" и получил(а) +${q.reward}⭐️`);}}closeAll();}
-async function addTechMessage(t){let s=state.members.find(m=>m.id===state.currentUserId);let isAdminMsg=t.includes('ЗАПРАШИВАЕТ')||t.includes('админа');state.messages.tech.push({id:Date.now().toString(),sender:"⚙️ Система",text:t,time:new Date().toLocaleTimeString()});if(state.messages.tech.length>200)state.messages.tech=state.messages.tech.slice(-200);await saveToGitHub();
+async function addTechMessage(t){let s=state.members.find(m=>m.id===state.currentUserId);state.messages.tech.push({id:Date.now().toString(),sender:"⚙️ Система",text:t,time:new Date().toLocaleTimeString()});if(state.messages.tech.length>200)state.messages.tech=state.messages.tech.slice(-200);await saveToGitHub();
 if(currentChatTab!=='tech'){unreadCounts.tech++;updateBadges();}
-if(currentChatTab==='tech'&&document.getElementById('chatMessages')){let cd=document.getElementById('chatMessages');let msgDiv=document.createElement('div');msgDiv.className='chat-message';if(isAdminMsg)msgDiv.classList.add('admin-notice');msgDiv.innerHTML=`<span class="chat-sender">⚙️ Система:</span> ${t}`;cd.appendChild(msgDiv);cd.scrollTop=cd.scrollHeight;}}
+if(currentChatTab==='tech'&&document.getElementById('chatMessages')){let cd=document.getElementById('chatMessages');let msgDiv=document.createElement('div');msgDiv.className='chat-message';msgDiv.innerHTML=`<span class="chat-sender">⚙️ Система:</span> ${t}`;cd.appendChild(msgDiv);cd.scrollTop=cd.scrollHeight;}}
 async function addGeneralMessage(t){let s=state.members.find(m=>m.id===state.currentUserId);state.messages.general.push({id:Date.now().toString(),sender:s?.name||"Аноним",text:t,time:new Date().toLocaleTimeString()});if(state.messages.general.length>200)state.messages.general=state.messages.general.slice(-200);await saveToGitHub();
 if(currentChatTab!=='general'){unreadCounts.general++;updateBadges();}
 if(currentChatTab==='general'&&document.getElementById('chatMessages')){let cd=document.getElementById('chatMessages');let msgDiv=document.createElement('div');msgDiv.className='chat-message';msgDiv.innerHTML=`<span class="chat-sender">${s?.name||"Аноним"}:</span> ${t}`;cd.appendChild(msgDiv);cd.scrollTop=cd.scrollHeight;}}
 async function sendChatMessage(){let inp=document.getElementById('chatInput'),t=inp.value.trim();if(t){await addGeneralMessage(t);inp.value='';await openChat();}}
-async function openChat(){await loadFromGitHub();let cd=document.getElementById('chatMessages');if(cd){cd.innerHTML='';let msgs=currentChatTab==='general'?state.messages.general:state.messages.tech;msgs.slice(-50).forEach(m=>{let msgDiv=document.createElement('div');msgDiv.className='chat-message';if(m.class)msgDiv.classList.add(m.class);msgDiv.innerHTML=`<span class="chat-sender">${m.sender}:</span> ${m.text}`;cd.appendChild(msgDiv);});cd.scrollTop=cd.scrollHeight;}
+async function openChat(){await loadFromGitHub();let cd=document.getElementById('chatMessages');if(cd){cd.innerHTML='';let msgs=currentChatTab==='general'?state.messages.general:state.messages.tech;msgs.slice(-50).forEach(m=>{let msgDiv=document.createElement('div');msgDiv.className='chat-message';msgDiv.innerHTML=`<span class="chat-sender">${m.sender}:</span> ${m.text}`;cd.appendChild(msgDiv);});cd.scrollTop=cd.scrollHeight;}
 if(currentChatTab==='general')unreadCounts.general=0;else unreadCounts.tech=0;
 updateBadges();
 document.getElementById('chatModal').style.display='flex';document.getElementById('overlay').style.display='block';}
