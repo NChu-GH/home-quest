@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Семейный Квест</title>
+    <title>Семейный Квест — периодические задания</title>
     <style>
         *{box-sizing:border-box}
         body{background:#e0f7fa;font-family:'Comic Sans MS',cursive,sans-serif;margin:0;padding:0;height:100vh;overflow:hidden;font-size:18px}
@@ -28,8 +28,10 @@
         .furniture-hover{filter:drop-shadow(0 0 12px #ff9800) brightness(1.2)!important}
         .furniture-highlight{filter:drop-shadow(0 0 20px #00e5ff) brightness(1.3)!important}
         #quest-arrows{position:absolute;top:0;left:0;width:1000px;height:1000px;pointer-events:none;z-index:60}
-        .arrow{position:absolute;width:36px;height:36px;cursor:pointer;animation:bounce 1.5s infinite;transform:translate(-50%,-50%);pointer-events:auto}
-        @keyframes bounce{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,-70%)}}
+        .quest-wrapper{position:absolute;transform:translate(-50%,-50%);cursor:pointer}
+        .arrow-img{width:36px;height:36px;animation:bounce 1.5s infinite;pointer-events:none}
+        .recurring-icon{position:absolute;bottom:-6px;right:-6px;background:#ff9800;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center;color:white}
+        @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
         .overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:500}
         .modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border-radius:40px;border:5px solid #00796b;text-align:center;width:85%;max-width:420px;z-index:1000}
         .btn-choice{width:100%;padding:14px;margin:8px 0;border-radius:40px;border:2px solid #00796b;cursor:pointer;font-size:18px;font-weight:bold;background:white}
@@ -39,19 +41,21 @@
         .zoom-controls{position:absolute;bottom:15px;right:15px;display:flex;flex-direction:column;gap:8px;z-index:110}
         .z-btn{width:55px;height:55px;border-radius:20px;border:3px solid #004d40;background:white;font-size:28px;font-weight:bold;cursor:pointer}
         .status-msg{position:fixed;bottom:10px;left:10px;background:rgba(0,0,0,0.7);color:white;padding:8px 12px;border-radius:20px;font-size:14px;z-index:999}
-        .messages{height:200px;overflow-y:auto;background:#f5f5f5;border-radius:20px;padding:12px;margin:10px 0;font-size:16px;text-align:left}
+        .chat-container{display:flex;flex-direction:column;height:100%}
+        .chat-messages{flex:1;overflow-y:auto;background:#f5f5f5;border-radius:20px;padding:12px;margin:10px 0;font-size:14px;text-align:left}
         .chat-message{padding:8px;border-bottom:1px solid #ddd}
-        .chat-sender{font-weight:bold;color:#00796b;font-size:16px}
-        .chat-input-area{display:flex;gap:10px}
+        .chat-sender{font-weight:bold;color:#00796b}
+        .chat-time{font-size:10px;color:#999;margin-left:8px}
+        .event-message{color:#666;font-style:italic}
+        .admin-message{background:#ffe0b3;border-left:4px solid #ff9800;padding:8px;margin:5px 0;border-radius:10px}
+        .chat-input-area{display:flex;gap:10px;padding:10px 0}
         .chat-input-area input{flex:1;padding:14px;border-radius:40px;border:2px solid #00796b;font-size:16px}
-        .chat-tabs{display:flex;gap:12px;margin-bottom:12px}
-        .chat-tab{flex:1;padding:10px;text-align:center;cursor:pointer;border-radius:40px;background:#e0e0e0;font-size:16px;position:relative}
-        .chat-tab.active{background:#00796b;color:white}
-        .tab-badge{position:absolute;top:-5px;right:-5px;background:red;color:white;border-radius:20px;padding:2px 8px;font-size:11px;min-width:18px}
-        .admin-notice{background:#ffe0b3;border-left:4px solid #ff9800;padding:8px;margin:5px 0}
         .profile-actions{margin-top:15px;display:flex;flex-direction:column;gap:10px}
         .profile-btn{background:#f0f0f0;border:2px solid #00796b;border-radius:40px;padding:12px;font-size:18px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
         .player-selector-title{font-size:20px;margin:15px 0 10px;color:#e65100}
+        .select-row{display:flex;gap:10px;margin:10px 0;align-items:center;flex-wrap:wrap}
+        .select-row select{flex:2;padding:12px;border-radius:40px;border:2px solid #00796b;font-size:16px}
+        .select-row label{flex:1;text-align:left}
         input,button{font-family:inherit}
     </style>
 </head>
@@ -131,22 +135,43 @@
 </div>
 
 <div id="overlay" onclick="closeAll()" class="overlay"></div>
-<div id="createQuestModal" class="modal"><h2>Задание 📝</h2><p id="furniture-hint"></p><input type="text" id="new-quest-text" placeholder="Что сделать?" style="font-size:16px;padding:12px"><input type="number" id="quest-reward" placeholder="Бонусы" value="10" style="font-size:16px;padding:12px;margin-top:8px"><button class="btn-choice" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button><button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button></div>
-<div id="taskModal" class="modal"><h2 id="taskText"></h2><p id="taskReward" style="color:#00796b;font-size:18px"></p><button class="btn-choice" onclick="completeTask()">ВЫПОЛНИТЬ ✅</button><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ 🔙</button></div>
+<div id="createQuestModal" class="modal"><h2>Задание 📝</h2><p id="furniture-hint"></p><input type="text" id="new-quest-text" placeholder="Что сделать?" style="font-size:16px;padding:12px"><input type="number" id="quest-reward" placeholder="Бонусы" value="10" style="font-size:16px;padding:12px;margin-top:8px"><div class="select-row"><label>🔄 Повторение:</label><select id="quest-repeat"><option value="none">Нет (обычное)</option><option value="hour">Каждый час</option><option value="day">Каждый день</option><option value="week">Каждую неделю</option><option value="month">Каждый месяц</option></select></div><button class="btn-choice" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button><button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button></div>
+<div id="taskModal" class="modal"><h2 id="taskText"></h2><p id="taskReward" style="color:#00796b;font-size:18px"></p><p id="taskRecurringMsg" style="color:#ff9800;font-size:14px"></p><button class="btn-choice" onclick="completeTask()">ВЫПОЛНИТЬ ✅</button><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ 🔙</button></div>
 <div id="sidebar" class="sidebar"><h2>🏡 Семья</h2><div id="family-list"></div><button class="btn-choice" onclick="addNewMember()">➕ ДОБАВИТЬ ИГРОКА</button><div id="switch-list"></div><button class="btn-choice" onclick="closeAll()" style="margin-top:30px">ЗАКРЫТЬ ❌</button></div>
 <div id="playerSelectModal" class="modal"><h2>👥 Выбор игрока</h2><div id="player-list-modal"></div><div class="profile-actions"><button class="profile-btn" onclick="openTransferBonus()">💰 Передать бонусы</button><button class="profile-btn" onclick="requestCash()">💵 Обменять на кэш</button></div><button class="btn-choice" onclick="closeModal()">ЗАКРЫТЬ</button></div>
 <div id="transferModal" class="modal"><h2>💰 Передача бонусов</h2><div id="transfer-list"></div><button class="btn-choice" onclick="closeModal()">ОТМЕНА</button></div>
 <div id="tokenModal" class="modal"><h2>🔐 GitHub токен</h2><p>Введите токен (нужен для сохранения):</p><input type="password" id="tokenInput" placeholder="ghp_..." style="font-size:16px;padding:12px"><button class="btn-choice" onclick="saveToken()">✅ Сохранить</button><button class="btn-choice" onclick="skipToken()">⏭️ Пропустить</button></div>
 <div id="avatarModal" class="modal"><h2>Аватар</h2><div id="emoji-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0"></div><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ</button></div>
-<div id="chatModal" class="modal" style="flex-direction:column"><h2>💬 Чат</h2><div class="chat-tabs"><div class="chat-tab active" onclick="switchChatTab('general')">💬 Общий<span id="generalBadge" class="tab-badge" style="display:none">0</span></div><div class="chat-tab" onclick="switchChatTab('tech')">🔧 События<span id="techBadge" class="tab-badge" style="display:none">0</span></div></div><div id="chatMessages" class="messages"></div><div class="chat-input-area"><input type="text" id="chatInput" placeholder="Сообщение..."><button onclick="sendChatMessage()" style="padding:12px 20px;font-size:18px">📤</button></div><button class="btn-choice" onclick="closeChat()">ЗАКРЫТЬ</button></div>
+<div id="chatModal" class="modal" style="flex-direction:column;height:80vh"><h2>💬 Общий чат</h2><div id="chatMessages" class="chat-messages"></div><div class="chat-input-area"><input type="text" id="chatInput" placeholder="Сообщение..."><button onclick="sendChatMessage()" style="padding:12px 20px;font-size:18px">📤</button></div><button class="btn-choice" onclick="closeChat()">ЗАКРЫТЬ</button></div>
 
 <script>
 const REPO_OWNER='NChu-GH',REPO_NAME='home-quest',DATA_FILE='family-data.json';
-let state={members:[],adminId:null,currentUserId:null,quests:[],messages:{general:[],tech:[]}},githubToken=null,currentTaskIndex=null,currentChatTab='general';
-let unreadCounts={general:0,tech:0};
+let state={members:[],adminId:null,currentUserId:null,quests:[],messages:[]},githubToken=null,currentTaskIndex=null;
+let unreadCount=0;
 const container=document.getElementById('map-container'),view=document.getElementById('viewport'),qBox=document.getElementById('quest-arrows');
 
-// МЕБЕЛЬ
+function getNextRepeatDate(type){
+    let now=new Date();
+    switch(type){
+        case 'hour': now.setHours(now.getHours()+1); break;
+        case 'day': now.setDate(now.getDate()+1); break;
+        case 'week': now.setDate(now.getDate()+7); break;
+        case 'month': now.setMonth(now.getMonth()+1); break;
+        default: return null;
+    }
+    return now.toISOString();
+}
+
+function formatRepeatType(type){
+    switch(type){
+        case 'hour': return 'каждый час';
+        case 'day': return 'каждый день';
+        case 'week': return 'каждую неделю';
+        case 'month': return 'каждый месяц';
+        default: return '';
+    }
+}
+
 const furnitureZones = [
     { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 35 },
     { id: 'Unitaz1', name: '🚽 Унитаз', x: 865, y: 405, r: 32 },
@@ -273,32 +298,26 @@ view.addEventListener('click',e=>{
     lastTap=now;
 });
 
-function updateBadges(){
-    const total = unreadCounts.general + unreadCounts.tech;
-    const chatBadge = document.getElementById('chatBadge');
-    if(total>0){chatBadge.style.display='flex';chatBadge.innerText=total>99?'99+':total;}
-    else chatBadge.style.display='none';
-    const gb=document.getElementById('generalBadge'), tb=document.getElementById('techBadge');
-    if(unreadCounts.general>0){gb.style.display='flex';gb.innerText=unreadCounts.general>99?'99+':unreadCounts.general;}
-    else gb.style.display='none';
-    if(unreadCounts.tech>0){tb.style.display='flex';tb.innerText=unreadCounts.tech>99?'99+':unreadCounts.tech;}
-    else tb.style.display='none';
+function updateBadge(){
+    const badge=document.getElementById('chatBadge');
+    if(unreadCount>0){badge.style.display='flex';badge.innerText=unreadCount>99?'99+':unreadCount;}
+    else badge.style.display='none';
 }
 
 function showStatus(m,e){let el=document.getElementById('statusMsg');el.innerHTML=m;el.style.background=e?'rgba(255,0,0,0.8)':'rgba(0,0,0,0.7)';setTimeout(()=>el.innerHTML='',3000);}
 function loadToken(){let t=localStorage.getItem('githubToken');if(t&&t.startsWith('ghp_')){githubToken=t;return true;}return false;}
 function saveToken(){let t=document.getElementById('tokenInput').value.trim();if(t&&t.startsWith('ghp_')){githubToken=t;localStorage.setItem('githubToken',t);showStatus('✅ Токен сохранён');closeModal();loadFromGitHub();}else showStatus('❌ Неверный токен',true);}
 function skipToken(){showStatus('⚠️ Режим просмотра',true);closeModal();loadFromGitHub();}
-async function loadFromGitHub(){document.getElementById('loader').style.display='flex';try{let res=await fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${DATA_FILE}?t=${Date.now()}`);if(res.ok){let d=await res.json();state.members=d.members||[];state.quests=d.quests||[];state.messages=d.messages||{general:[],tech:[]};state.adminId=d.adminId||(state.members[0]?.id||null);state.currentUserId=d.currentUserId||(state.members[0]?.id||null);if(!state.messages.general)state.messages.general=[];if(!state.messages.tech)state.messages.tech=[];}else{state.members=[];state.quests=[];state.messages={general:[],tech:[]};state.adminId=null;state.currentUserId=null;}}catch(e){state.members=[];state.quests=[];state.messages={general:[],tech:[]};state.adminId=null;state.currentUserId=null;}
+async function loadFromGitHub(){document.getElementById('loader').style.display='flex';try{let res=await fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${DATA_FILE}?t=${Date.now()}`);if(res.ok){let d=await res.json();state.members=d.members||[];state.quests=d.quests||[];state.messages=d.messages||[];state.adminId=d.adminId||(state.members[0]?.id||null);state.currentUserId=d.currentUserId||(state.members[0]?.id||null);}else{state.members=[];state.quests=[];state.messages=[];state.adminId=null;state.currentUserId=null;}}catch(e){state.members=[];state.quests=[];state.messages=[];state.adminId=null;state.currentUserId=null;}
 let sid=localStorage.getItem('currentUserId');if(sid&&state.members.find(m=>m.id===sid))state.currentUserId=sid;else if(state.members.length>0){state.currentUserId=state.members[0].id;localStorage.setItem('currentUserId',state.currentUserId);}
-updateUI();renderQuestsOnMap();updateBadges();document.getElementById('loader').style.display='none';}
+updateUI();renderQuestsOnMap();updateBadge();document.getElementById('loader').style.display='none';}
 async function saveToGitHub(){if(!githubToken){showStatus('⚠️ Нет токена',true);return false;}
 let data={members:state.members,quests:state.quests,messages:state.messages,adminId:state.adminId,currentUserId:state.currentUserId,updated:new Date().toISOString()};
 try{let content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2)))),url=`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${DATA_FILE}`;
 let shaRes=await fetch(url,{headers:{'Authorization':`token ${githubToken}`}}),sha=null;if(shaRes.ok){let ex=await shaRes.json();sha=ex.sha;}
 let res=await fetch(url,{method:'PUT',headers:{'Authorization':`token ${githubToken}`,'Content-Type':'application/json'},body:JSON.stringify({message:'Обновление',content:content,sha:sha})});
 if(res.ok){showStatus('✅ Сохранено');return true;}else{let err=await res.text();showStatus('❌ '+err.substring(0,100),true);return false;}}catch(e){showStatus('❌ '+e.message,true);return false;}}
-function renderQuestsOnMap(){qBox.innerHTML='';if(!state.quests||state.quests.length===0)return;state.quests.forEach((q,i)=>{let img=document.createElement('img');img.src='arrow.png';img.className='arrow';img.style.left=q.x+'px';img.style.top=q.y+'px';img.onclick=e=>{e.stopPropagation();openQuest(i);};qBox.appendChild(img);});}
+function renderQuestsOnMap(){qBox.innerHTML='';if(!state.quests||state.quests.length===0)return;state.quests.forEach((q,i)=>{let wrapper=document.createElement('div');wrapper.className='quest-wrapper';wrapper.style.left=q.x+'px';wrapper.style.top=q.y+'px';let img=document.createElement('img');img.src='arrow.png';img.className='arrow-img';wrapper.appendChild(img);if(q.repeat && q.repeat!=='none'){let icon=document.createElement('div');icon.className='recurring-icon';icon.innerText='🔄';wrapper.appendChild(icon);}wrapper.onclick=(e)=>{e.stopPropagation();openQuest(i);};qBox.appendChild(wrapper);});}
 function updateUI(){let user=state.members.find(m=>m.id===state.currentUserId)||state.members[0];if(!user&&state.members.length===0){document.getElementById('current-user-name').innerText='Нет игроков';document.getElementById('score-val').innerText='0';document.getElementById('current-avatar').innerText='👤';document.getElementById('p-card').classList.remove('is-admin');return;}
 document.getElementById('current-user-name').innerText=user.name;document.getElementById('score-val').innerText=user.points;document.getElementById('current-avatar').innerText=user.avatar;document.getElementById('p-card').classList.toggle('is-admin',state.currentUserId===state.adminId);
 let fl=document.getElementById('family-list');if(fl){fl.innerHTML='';state.members.forEach(m=>{fl.innerHTML+=`<div class="member-item"><span>${m.avatar} ${m.name} ${m.id===state.adminId?'👑':''} (⭐️ ${m.points})</span><div><button onclick="setAdmin('${m.id}')" style="font-size:22px;">👑</button><button onclick="renameAnyMember('${m.id}')" style="font-size:22px;">✏️</button></div></div>`;});}
@@ -308,36 +327,27 @@ function selectPlayerFromModal(id){if(id===state.currentUserId){closeModal();ret
 function openTransferBonus(){let cp=state.members.find(m=>m.id===state.currentUserId);let op=state.members.filter(m=>m.id!==state.currentUserId);if(op.length===0){showStatus('❌ Нет других игроков',true);closeModal();return;}
 let html='';op.forEach(p=>{html+=`<div class="member-item" style="cursor:pointer" onclick="transferToPlayer('${p.id}')"><span>${p.avatar} ${p.name}</span><span>⭐️ ${p.points}</span></div>`;});document.getElementById('transfer-list').innerHTML=html;document.getElementById('transferModal').style.display='block';document.getElementById('overlay').style.display='block';}
 async function transferToPlayer(id){let cp=state.members.find(m=>m.id===state.currentUserId);let target=state.members.find(m=>m.id===id);let amt=prompt(`Сколько бонусов передать ${target.name}? (У тебя ${cp.points})`,'10');if(amt&&!isNaN(parseInt(amt))){let a=parseInt(amt);if(a>cp.points){showStatus(`❌ У тебя только ${cp.points} бонусов`,true);return;}if(a<=0){showStatus('❌ Сумма >0',true);return;}
-cp.points-=a;target.points+=a;await saveToGitHub();updateUI();await addTechMessage(`💰 ${cp.name} передал(а) ${a}⭐️ игроку ${target.name}!`);showStatus(`✅ Передано ${a}⭐️`);closeModal();closeModal();}}
-async function confirmCreateQuest(){let txt=document.getElementById('new-quest-text').value,reward=parseInt(document.getElementById('quest-reward').value)||10;if(txt&&window.tempTarget){state.quests.push({id:Date.now().toString(),x:window.tempTarget.x,y:window.tempTarget.y,text:txt,reward:reward,target:window.tempTarget.name});document.getElementById('new-quest-text').value='';document.getElementById('quest-reward').value='10';await saveToGitHub();renderQuestsOnMap();let author=state.members.find(m=>m.id===state.currentUserId);await addTechMessage(`📋 ${author?.name} создал(а) задание: "${txt}" (+${reward}⭐️) для "${window.tempTarget.name}"`);}cancelQuest();}
-async function completeTask(){if(currentTaskIndex!==null&&state.quests[currentTaskIndex]){let q=state.quests[currentTaskIndex],p=state.members.find(m=>m.id===state.currentUserId);if(p){p.points+=q.reward;state.quests.splice(currentTaskIndex,1);await saveToGitHub();renderQuestsOnMap();updateUI();showStatus(`✅ +${q.reward} бонусов!`);await addTechMessage(`🎉 ${p.name} выполнил(а) задание "${q.text}" и получил(а) +${q.reward}⭐️`);}}closeAll();}
-async function addTechMessage(t){let s=state.members.find(m=>m.id===state.currentUserId);state.messages.tech.push({id:Date.now().toString(),sender:"⚙️ Система",text:t,time:new Date().toLocaleTimeString()});if(state.messages.tech.length>200)state.messages.tech=state.messages.tech.slice(-200);await saveToGitHub();
-if(currentChatTab!=='tech'){unreadCounts.tech++;updateBadges();}
-if(currentChatTab==='tech'&&document.getElementById('chatMessages')){let cd=document.getElementById('chatMessages');let msgDiv=document.createElement('div');msgDiv.className='chat-message';msgDiv.innerHTML=`<span class="chat-sender">⚙️ Система:</span> ${t}`;cd.appendChild(msgDiv);cd.scrollTop=cd.scrollHeight;}}
-async function addGeneralMessage(t){let s=state.members.find(m=>m.id===state.currentUserId);state.messages.general.push({id:Date.now().toString(),sender:s?.name||"Аноним",text:t,time:new Date().toLocaleTimeString()});if(state.messages.general.length>200)state.messages.general=state.messages.general.slice(-200);await saveToGitHub();
-if(currentChatTab!=='general'){unreadCounts.general++;updateBadges();}
-if(currentChatTab==='general'&&document.getElementById('chatMessages')){let cd=document.getElementById('chatMessages');let msgDiv=document.createElement('div');msgDiv.className='chat-message';msgDiv.innerHTML=`<span class="chat-sender">${s?.name||"Аноним"}:</span> ${t}`;cd.appendChild(msgDiv);cd.scrollTop=cd.scrollHeight;}}
-async function sendChatMessage(){let inp=document.getElementById('chatInput'),t=inp.value.trim();if(t){await addGeneralMessage(t);inp.value='';await openChat();}}
-async function openChat(){await loadFromGitHub();let cd=document.getElementById('chatMessages');if(cd){cd.innerHTML='';let msgs=currentChatTab==='general'?state.messages.general:state.messages.tech;msgs.slice(-50).forEach(m=>{let msgDiv=document.createElement('div');msgDiv.className='chat-message';msgDiv.innerHTML=`<span class="chat-sender">${m.sender}:</span> ${m.text}`;cd.appendChild(msgDiv);});cd.scrollTop=cd.scrollHeight;}
-if(currentChatTab==='general')unreadCounts.general=0;else unreadCounts.tech=0;
-updateBadges();
-document.getElementById('chatModal').style.display='flex';document.getElementById('overlay').style.display='block';}
-function switchChatTab(tab){currentChatTab=tab;document.querySelectorAll('.chat-tab').forEach((t,i)=>{if((tab==='general'&&i===0)||(tab==='tech'&&i===1))t.classList.add('active');else t.classList.remove('active');});openChat();}
+cp.points-=a;target.points+=a;await saveToGitHub();updateUI();await addChatMessage(`💰 ${cp.name} передал(а) ${a}⭐️ игроку ${target.name}!`,true);showStatus(`✅ Передано ${a}⭐️`);closeModal();closeModal();}}
+async function confirmCreateQuest(){let txt=document.getElementById('new-quest-text').value,reward=parseInt(document.getElementById('quest-reward').value)||10,repeat=document.getElementById('quest-repeat').value;if(txt&&window.tempTarget){let quest={id:Date.now().toString(),x:window.tempTarget.x,y:window.tempTarget.y,text:txt,reward:reward,target:window.tempTarget.name,repeat:repeat};if(repeat!=='none'){quest.nextRepeat=getNextRepeatDate(repeat);}state.quests.push(quest);document.getElementById('new-quest-text').value='';document.getElementById('quest-reward').value='10';document.getElementById('quest-repeat').value='none';await saveToGitHub();renderQuestsOnMap();let author=state.members.find(m=>m.id===state.currentUserId);let repeatText=repeat!=='none'?` (повторяется ${formatRepeatType(repeat)})`:'';await addChatMessage(`📋 ${author?.name} создал(а) задание: "${txt}" (+${reward}⭐️) для "${window.tempTarget.name}"${repeatText}`,true);}cancelQuest();}
+async function completeTask(){if(currentTaskIndex!==null&&state.quests[currentTaskIndex]){let q=state.quests[currentTaskIndex],p=state.members.find(m=>m.id===state.currentUserId);if(p){p.points+=q.reward;if(q.repeat && q.repeat!=='none'){let nextDate=getNextRepeatDate(q.repeat);let repeatText=formatRepeatType(q.repeat);state.quests[currentTaskIndex].nextRepeat=nextDate;await addChatMessage(`🔄 Задание "${q.text}" восстановится ${repeatText} (следующее выполнение доступно)`,true);}else{state.quests.splice(currentTaskIndex,1);}await saveToGitHub();renderQuestsOnMap();updateUI();showStatus(`✅ +${q.reward} бонусов!`);await addChatMessage(`🎉 ${p.name} выполнил(а) задание "${q.text}" и получил(а) +${q.reward}⭐️`,true);}}closeAll();}
+async function addChatMessage(text,isEvent=false,isAdminRequest=false){let sender=state.members.find(m=>m.id===state.currentUserId);let time=new Date().toLocaleTimeString();state.messages.push({id:Date.now().toString(),sender:sender?.name||"Система",text:text,time:time,isEvent:isEvent,isAdminRequest:isAdminRequest});if(state.messages.length>200)state.messages=state.messages.slice(-200);await saveToGitHub();unreadCount++;updateBadge();if(document.getElementById('chatModal').style.display==='flex'){let cd=document.getElementById('chatMessages');let msgDiv=document.createElement('div');msgDiv.className='chat-message';if(isAdminRequest)msgDiv.classList.add('admin-message');else if(isEvent)msgDiv.classList.add('event-message');msgDiv.innerHTML=`<span class="chat-sender">${sender?.name||"Система"}:</span> ${text}<span class="chat-time">${time}</span>`;cd.appendChild(msgDiv);cd.scrollTop=cd.scrollHeight;}}
+async function sendChatMessage(){let inp=document.getElementById('chatInput'),t=inp.value.trim();if(t){await addChatMessage(t,false,false);inp.value='';await openChat();}}
+async function openChat(){await loadFromGitHub();let cd=document.getElementById('chatMessages');if(cd){cd.innerHTML='';state.messages.slice(-50).forEach(m=>{let msgDiv=document.createElement('div');msgDiv.className='chat-message';if(m.isAdminRequest)msgDiv.classList.add('admin-message');else if(m.isEvent)msgDiv.classList.add('event-message');msgDiv.innerHTML=`<span class="chat-sender">${m.sender}:</span> ${m.text}<span class="chat-time">${m.time}</span>`;cd.appendChild(msgDiv);});cd.scrollTop=cd.scrollHeight;}unreadCount=0;updateBadge();document.getElementById('chatModal').style.display='flex';document.getElementById('overlay').style.display='block';}
 function closeChat(){document.getElementById('chatModal').style.display='none';closeAll();}
 async function requestCash(){let cp=state.members.find(m=>m.id===state.currentUserId);if(!cp)return;let amt=prompt(`Сколько бонусов обменять на деньги? (У тебя ${cp.points})`,'10');if(amt&&!isNaN(parseInt(amt))){let a=parseInt(amt);if(a>cp.points){showStatus(`❌ У тебя только ${cp.points}⭐️`,true);return;}if(a<=0){showStatus('❌ Сумма >0',true);return;}
-await addTechMessage(`💵 ${cp.name} ЗАПРАШИВАЕТ ОБМЕН ${a}⭐️ на реальные деньги! Ждём ответа админа.`);showStatus(`✅ Запрос отправлен в чат!`);alert(`✅ Запрос на обмен ${a}⭐️ отправлен админу в чат!`);closeModal();}}
-async function addNewMember(){let n=prompt("Имя игрока:");if(n){let newId=Date.now().toString();state.members.push({id:newId,name:n,points:0,avatar:'👤'});if(state.members.length===1){state.adminId=newId;state.currentUserId=newId;localStorage.setItem('currentUserId',newId);}await saveToGitHub();updateUI();await addTechMessage(`👋 Новый игрок ${n} присоединился к семье!`);}}
-async function renameAnyMember(id){let u=state.members.find(m=>m.id===id),n=prompt("Новое имя:",u?.name);if(n&&u){let oldName=u.name;u.name=n;await saveToGitHub();updateUI();await addTechMessage(`✏️ Игрок ${oldName} теперь ${n}`);}}
-async function renameCurrentPlayer(){let u=state.members.find(m=>m.id===state.currentUserId),n=prompt("Ваше имя:",u?.name);if(n&&u){let oldName=u.name;u.name=n;await saveToGitHub();updateUI();await addTechMessage(`✏️ Игрок ${oldName} теперь ${n}`);}}
+await addChatMessage(`💵 ${cp.name} ЗАПРАШИВАЕТ ОБМЕН ${a}⭐️ на реальные деньги! Ждём ответа админа.`,true,true);showStatus(`✅ Запрос отправлен в чат!`);alert(`✅ Запрос на обмен ${a}⭐️ отправлен админу в чат!`);closeModal();}}
+async function addNewMember(){let n=prompt("Имя игрока:");if(n){let newId=Date.now().toString();state.members.push({id:newId,name:n,points:0,avatar:'👤'});if(state.members.length===1){state.adminId=newId;state.currentUserId=newId;localStorage.setItem('currentUserId',newId);}await saveToGitHub();updateUI();await addChatMessage(`👋 Новый игрок ${n} присоединился к семье!`,true);}}
+async function renameAnyMember(id){let u=state.members.find(m=>m.id===id),n=prompt("Новое имя:",u?.name);if(n&&u){let oldName=u.name;u.name=n;await saveToGitHub();updateUI();await addChatMessage(`✏️ Игрок ${oldName} теперь ${n}`,true);}}
+async function renameCurrentPlayer(){let u=state.members.find(m=>m.id===state.currentUserId),n=prompt("Ваше имя:",u?.name);if(n&&u){let oldName=u.name;u.name=n;await saveToGitHub();updateUI();await addChatMessage(`✏️ Игрок ${oldName} теперь ${n}`,true);}}
 function openAvatarPicker(){document.getElementById('avatarModal').style.display='block';document.getElementById('overlay').style.display='block';}
-async function setAvatar(emoji){let u=state.members.find(m=>m.id===state.currentUserId);if(u){u.avatar=emoji;await saveToGitHub();updateUI();await addTechMessage(`🎭 ${u.name} сменил(а) аватар на ${emoji}`);}closeAll();}
+async function setAvatar(emoji){let u=state.members.find(m=>m.id===state.currentUserId);if(u){u.avatar=emoji;await saveToGitHub();updateUI();await addChatMessage(`🎭 ${u.name} сменил(а) аватар на ${emoji}`,true);}closeAll();}
 function cancelQuest(){scale=oldPos.s;posX=oldPos.x;posY=oldPos.y;container.style.transition='transform 0.4s';updateTransform();closeAll();}
-function openQuest(idx){currentTaskIndex=idx;document.getElementById('taskText').innerText=state.quests[idx].text;document.getElementById('taskReward').innerHTML=`⭐️ Награда: +${state.quests[idx].reward} бонусов`;document.getElementById('taskModal').style.display='block';document.getElementById('overlay').style.display='block';}
+function openQuest(idx){currentTaskIndex=idx;let q=state.quests[idx];document.getElementById('taskText').innerText=q.text;document.getElementById('taskReward').innerHTML=`⭐️ Награда: +${q.reward} бонусов`;if(q.repeat && q.repeat!=='none')document.getElementById('taskRecurringMsg').innerHTML=`🔄 Повторяется: ${formatRepeatType(q.repeat)}`;else document.getElementById('taskRecurringMsg').innerHTML='';document.getElementById('taskModal').style.display='block';document.getElementById('overlay').style.display='block';}
 function closeModal(){document.getElementById('tokenModal').style.display='none';document.getElementById('avatarModal').style.display='none';document.getElementById('playerSelectModal').style.display='none';document.getElementById('transferModal').style.display='none';document.getElementById('overlay').style.display='none';}
 function closeAll(){document.querySelectorAll('.modal').forEach(m=>m.style.display='none');document.getElementById('sidebar').classList.remove('active');document.getElementById('overlay').style.display='none';}
 function toggleSidebar(){document.getElementById('sidebar').classList.add('active');document.getElementById('overlay').style.display='block';}
-async function switchProfile(id){state.currentUserId=id;localStorage.setItem('currentUserId',id);await saveToGitHub();updateUI();closeAll();await addTechMessage(`🔄 Теперь играет ${state.members.find(m=>m.id===id)?.name}`);}
-async function setAdmin(id){state.adminId=id;await saveToGitHub();updateUI();await addTechMessage(`👑 Права администратора переданы ${state.members.find(m=>m.id===id)?.name}`);}
+async function switchProfile(id){state.currentUserId=id;localStorage.setItem('currentUserId',id);await saveToGitHub();updateUI();closeAll();await addChatMessage(`🔄 Теперь играет ${state.members.find(m=>m.id===id)?.name}`,true);}
+async function setAdmin(id){state.adminId=id;await saveToGitHub();updateUI();await addChatMessage(`👑 Права администратора переданы ${state.members.find(m=>m.id===id)?.name}`,true);}
 const emojis=['🐱','🐶','🦊','🐼','🐨','🐯','🦁','🦄','🐷','🐸','🐮','🦒'];
 document.getElementById('emoji-grid').innerHTML=emojis.map(e=>`<span onclick="setAvatar('${e}')" style="font-size:38px;cursor:pointer;">${e}</span>`).join('');
 addHoverEffect();
