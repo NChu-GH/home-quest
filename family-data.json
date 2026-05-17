@@ -19,7 +19,7 @@
       "name": "Бабуся",
       "points": 0,
       "avatar": "🐼",
-      "role": "adult"
+      "role": "child"
     }
   ],
   "quests": [
@@ -595,9 +595,17 @@
       "time": "13:16:30",
       "isEvent": true,
       "isAdmin": false
+    },
+    {
+      "id": "1779005794080",
+      "sender": "Газан67",
+      "text": "🔄 Газан67 теперь ребёнок",
+      "time": "13:16:34",
+      "isEvent": true,
+      "isAdmin": false
     }
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768502299",
-  "updated": "2026-05-17T08:16:34.076Z"
+  "updated": "2026-05-17T08:16:38.457Z"
 }
