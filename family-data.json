@@ -579,9 +579,25 @@
       "time": "13:16:29",
       "isEvent": true,
       "isAdmin": false
+    },
+    {
+      "id": "1779005789874",
+      "sender": "Газан67",
+      "text": "🔄 Газан67 теперь ребёнок",
+      "time": "13:16:29",
+      "isEvent": true,
+      "isAdmin": false
+    },
+    {
+      "id": "1779005790610",
+      "sender": "Газан67",
+      "text": "🔄 Газан67 теперь взрослый",
+      "time": "13:16:30",
+      "isEvent": true,
+      "isAdmin": false
     }
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768502299",
-  "updated": "2026-05-17T08:16:29.870Z"
+  "updated": "2026-05-17T08:16:34.076Z"
 }
