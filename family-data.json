@@ -12,7 +12,7 @@
       "name": "Газан67",
       "points": 130,
       "avatar": "🐸",
-      "role": "adult"
+      "role": "child"
     },
     {
       "id": "1778768507836",
@@ -723,9 +723,25 @@
       "time": "18:13:46",
       "isEvent": true,
       "isAdmin": false
+    },
+    {
+      "id": "1779023627633",
+      "sender": "Маман",
+      "text": "🔄 Газан67 теперь взрослый",
+      "time": "18:13:47",
+      "isEvent": true,
+      "isAdmin": false
+    },
+    {
+      "id": "1779023628107",
+      "sender": "Маман",
+      "text": "🔄 Газан67 теперь взрослый",
+      "time": "18:13:48",
+      "isEvent": true,
+      "isAdmin": false
     }
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-17T13:13:46.988Z"
+  "updated": "2026-05-17T13:13:50.287Z"
 }
