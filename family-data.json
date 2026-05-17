@@ -5,7 +5,7 @@
       "name": "Маман",
       "points": 200,
       "avatar": "🐯",
-      "role": "adult"
+      "role": "child"
     },
     {
       "id": "1778768502299",
@@ -635,9 +635,17 @@
       "time": "13:16:40",
       "isEvent": true,
       "isAdmin": false
+    },
+    {
+      "id": "1779005802211",
+      "sender": "Газан67",
+      "text": "🔄 Бабуся теперь ребёнок",
+      "time": "13:16:42",
+      "isEvent": true,
+      "isAdmin": false
     }
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768502299",
-  "updated": "2026-05-17T08:16:42.208Z"
+  "updated": "2026-05-17T08:16:45.983Z"
 }
