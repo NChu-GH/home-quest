@@ -4,7 +4,8 @@
       "id": "1778768074759",
       "name": "Маман",
       "points": 200,
-      "avatar": "🐯"
+      "avatar": "🐯",
+      "role": "adult"
     },
     {
       "id": "1778768502299",
@@ -434,9 +435,17 @@
       "time": "13:15:37",
       "isEvent": true,
       "isAdmin": false
+    },
+    {
+      "id": "1779005742581",
+      "sender": "Маман",
+      "text": "🔄 Маруся теперь ребёнок",
+      "time": "13:15:42",
+      "isEvent": true,
+      "isAdmin": false
     }
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-17T08:15:42.580Z"
+  "updated": "2026-05-17T08:15:44.962Z"
 }
