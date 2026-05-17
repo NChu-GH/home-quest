@@ -391,9 +391,17 @@
       "time": "12:45:38",
       "isEvent": true,
       "isAdmin": false
+    },
+    {
+      "id": "1779004318867",
+      "sender": "Бабуся",
+      "text": "🔄 Теперь играет Бабуся",
+      "time": "12:51:58",
+      "isEvent": true,
+      "isAdmin": false
     }
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768507836",
-  "updated": "2026-05-17T07:51:57.310Z"
+  "updated": "2026-05-17T07:51:58.867Z"
 }
