@@ -531,9 +531,17 @@
       "time": "13:16:04",
       "isEvent": true,
       "isAdmin": false
+    },
+    {
+      "id": "1779005766939",
+      "sender": "Маман",
+      "text": "🔄 Маруся теперь ребёнок",
+      "time": "13:16:06",
+      "isEvent": true,
+      "isAdmin": false
     }
   ],
   "adminId": "1778768074759",
-  "currentUserId": "1778768074759",
-  "updated": "2026-05-17T08:16:06.935Z"
+  "currentUserId": "1778768502299",
+  "updated": "2026-05-17T08:16:10.513Z"
 }
