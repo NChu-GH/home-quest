@@ -11,14 +11,14 @@
       "name": "Маруся",
       "points": 130,
       "avatar": "🐸",
-      "role": "adult"
+      "role": "child"
     },
     {
       "id": "1778768507836",
       "name": "Бабуся",
       "points": 0,
       "avatar": "🐼",
-      "role": "adult"
+      "role": "child"
     }
   ],
   "quests": [
@@ -418,9 +418,25 @@
       "time": "13:15:34",
       "isEvent": true,
       "isAdmin": false
+    },
+    {
+      "id": "1779005736581",
+      "sender": "Маман",
+      "text": "🔄 Бабуся теперь взрослый",
+      "time": "13:15:36",
+      "isEvent": true,
+      "isAdmin": false
+    },
+    {
+      "id": "1779005737507",
+      "sender": "Маман",
+      "text": "🔄 Бабуся теперь ребёнок",
+      "time": "13:15:37",
+      "isEvent": true,
+      "isAdmin": false
     }
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-17T08:15:36.578Z"
+  "updated": "2026-05-17T08:15:42.580Z"
 }
