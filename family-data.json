@@ -12,7 +12,7 @@
       "name": "Маруся",
       "points": 130,
       "avatar": "🐸",
-      "role": "adult"
+      "role": "child"
     },
     {
       "id": "1778768507836",
@@ -507,9 +507,17 @@
       "time": "13:15:59",
       "isEvent": true,
       "isAdmin": false
+    },
+    {
+      "id": "1779005763009",
+      "sender": "Маман",
+      "text": "🔄 Маруся теперь взрослый",
+      "time": "13:16:03",
+      "isEvent": true,
+      "isAdmin": false
     }
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-17T08:16:03.006Z"
+  "updated": "2026-05-17T08:16:04.331Z"
 }
