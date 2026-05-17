@@ -399,9 +399,17 @@
       "time": "12:51:58",
       "isEvent": true,
       "isAdmin": false
+    },
+    {
+      "id": "1779004692999",
+      "sender": "Маруся",
+      "text": "🔄 Теперь играет Маруся",
+      "time": "12:58:12",
+      "isEvent": true,
+      "isAdmin": false
     }
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768502299",
-  "updated": "2026-05-17T07:58:11.479Z"
+  "updated": "2026-05-17T07:58:12.999Z"
 }
