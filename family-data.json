@@ -547,9 +547,17 @@
       "time": "13:16:11",
       "isEvent": true,
       "isAdmin": false
+    },
+    {
+      "id": "1779005784673",
+      "sender": "Газан67",
+      "text": "✏️ Игрок Маруся теперь Газан67",
+      "time": "13:16:24",
+      "isEvent": true,
+      "isAdmin": false
     }
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768502299",
-  "updated": "2026-05-17T08:16:23.363Z"
+  "updated": "2026-05-17T08:16:24.673Z"
 }
