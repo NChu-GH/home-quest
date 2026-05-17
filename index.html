@@ -17,6 +17,7 @@
         .user-name{font-weight:bold;font-size:20px;display:block}
         .bonus-line{display:flex;align-items:center;gap:6px;font-size:16px}
         .bonus-line button{background:none;border:none;font-size:18px;cursor:pointer}
+        .date-display{font-size:12px;color:#00796b;margin-top:4px}
         .btn-group{display:flex;gap:10px;flex:1}
         .menu-btn,.chat-btn{flex:1;border-radius:30px;cursor:pointer;font-weight:bold;font-size:20px;border:3px solid;display:flex;align-items:center;justify-content:center}
         .chat-btn{background:#4caf50;color:white;border-color:#2e7d32}
@@ -29,7 +30,6 @@
         #quest-arrows{position:absolute;top:0;left:0;width:1000px;height:1000px;pointer-events:none;z-index:60}
         .arrow{position:absolute;width:40px;height:40px;cursor:pointer;animation:bounce 1.5s infinite;transform:translate(-50%,-50%);pointer-events:auto}
         @keyframes bounce{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,-75%)}}
-        .recurring-mark{position:absolute;bottom:-4px;right:-4px;background:#ff9800;border-radius:50%;width:16px;height:16px;font-size:10px;color:white;display:flex;align-items:center;justify-content:center}
         .overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:500}
         .modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border-radius:40px;border:5px solid #00796b;text-align:center;width:85%;max-width:420px;z-index:1000}
         .btn-choice{width:100%;padding:14px;margin:8px 0;border-radius:40px;border:2px solid #00796b;cursor:pointer;font-size:18px;font-weight:bold;background:white}
@@ -47,7 +47,7 @@
         .admin-message{background:#ffe0b3;border-left:4px solid #ff9800;padding:8px;margin:5px 0;border-radius:10px}
         .chat-input-area{display:flex;gap:10px;margin-top:10px}
         .chat-input-area input{flex:1;padding:12px;border-radius:40px;border:2px solid #00796b;font-size:16px}
-        .select-row{display:flex;gap:10px;margin:10px 0;align-items:center}
+        .select-row{display:flex;gap:10px;margin:10px 0;align-items:center;flex-wrap:wrap}
         .select-row select{flex:2;padding:10px;border-radius:40px;border:2px solid #00796b}
         input,button{font-family:inherit}
     </style>
@@ -65,6 +65,7 @@
             <div class="user-info">
                 <span id="current-user-name" class="user-name">...</span>
                 <div class="bonus-line">⭐️ <span id="score-val">0</span> <button onclick="event.stopPropagation();renameCurrentPlayer()">✏️</button></div>
+                <div class="date-display" id="currentDate"></div>
             </div>
         </div>
         <div class="btn-group">
@@ -95,18 +96,40 @@
         <div id="obj-Shkaf4" class="layer" style="background-image:url('Shkaf4.png')"></div>
         <div id="obj-Shkaf5" class="layer" style="background-image:url('Shkaf5.png')"></div>
         <div id="obj-Divan_gost" class="layer" style="background-image:url('Divan_gost.png')"></div>
+        <div id="obj-Dukh_Mikrovoln" class="layer" style="background-image:url('Dukh_Mikrovoln.png')"></div>
+        <div id="obj-Garderob" class="layer" style="background-image:url('Garderob.png')"></div>
+        <div id="obj-Glad_doska" class="layer" style="background-image:url('Glad_doska.png')"></div>
         <div id="obj-Holodilnik" class="layer" style="background-image:url('Holodilnik.png')"></div>
+        <div id="obj-KaminTV" class="layer" style="background-image:url('KaminTV.png')"></div>
+        <div id="obj-Kosh_lot" class="layer" style="background-image:url('Kosh_lot.png')"></div>
+        <div id="obj-Kover_gost" class="layer" style="background-image:url('Kover_gost.png')"></div>
         <div id="obj-Krovat" class="layer" style="background-image:url('Krovat.png')"></div>
+        <div id="obj-Let_mebel" class="layer" style="background-image:url('Let_mebel.png')"></div>
         <div id="obj-Moika" class="layer" style="background-image:url('Moika.png')"></div>
-        <div id="obj-Vanna" class="layer" style="background-image:url('Vanna.png')"></div>
+        <div id="obj-Ostrov" class="layer" style="background-image:url('Ostrov.png')"></div>
+        <div id="obj-Posudomoika" class="layer" style="background-image:url('Posudomoika.png')"></div>
+        <div id="obj-Rakovina1" class="layer" style="background-image:url('Rakovina1.png')"></div>
+        <div id="obj-Rakovina2" class="layer" style="background-image:url('Rakovina2.png')"></div>
+        <div id="obj-Shkaf_balk" class="layer" style="background-image:url('Shkaf_balk.png')"></div>
+        <div id="obj-Shkaf_gost1" class="layer" style="background-image:url('Shkaf_gost1.png')"></div>
+        <div id="obj-Shkaf_gost2" class="layer" style="background-image:url('Shkaf_gost2.png')"></div>
+        <div id="obj-Shkaf_kuh1" class="layer" style="background-image:url('Shkaf_kuh1.png')"></div>
         <div id="obj-Sofa_gost" class="layer" style="background-image:url('Sofa_gost.png')"></div>
         <div id="obj-Stol" class="layer" style="background-image:url('Stol.png')"></div>
+        <div id="obj-Stol_stol" class="layer" style="background-image:url('Stol_stol.png')"></div>
+        <div id="obj-Sushilka" class="layer" style="background-image:url('Sushilka.png')"></div>
+        <div id="obj-Tscveti_gost" class="layer" style="background-image:url('Tscveti_gost.png')"></div>
+        <div id="obj-Vanna" class="layer" style="background-image:url('Vanna.png')"></div>
+        <div id="obj-divan_det" class="layer" style="background-image:url('divan_det.png')"></div>
+        <div id="obj-krovat_det" class="layer" style="background-image:url('krovat_det.png')"></div>
+        <div id="obj-shkaf_det" class="layer" style="background-image:url('shkaf_det.png')"></div>
+        <div id="obj-stol_det" class="layer" style="background-image:url('stol_det.png')"></div>
         <div id="quest-arrows"></div>
     </div><div class="zoom-controls"><button class="z-btn" onclick="btnZoom(0.3)">+</button><button class="z-btn" onclick="btnZoom(-0.3)">−</button></div></div>
 </div>
 
 <div id="overlay" onclick="closeAll()" class="overlay"></div>
-<div id="createQuestModal" class="modal"><h2>Задание 📝</h2><p id="furniture-hint"></p><input type="text" id="new-quest-text" placeholder="Что сделать?"><input type="number" id="quest-reward" placeholder="Бонусы" value="10" style="margin-top:10px"><div class="select-row"><span>🔄 Повтор:</span><select id="quest-repeat"><option value="none">Нет</option><option value="hour">Каждый час</option><option value="day">Каждый день</option><option value="week">Каждую неделю</option><option value="month">Каждый месяц</option></select></div><button class="btn-choice" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button><button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button></div>
+<div id="createQuestModal" class="modal"><h2>Задание 📝</h2><p id="furniture-hint"></p><input type="text" id="new-quest-text" placeholder="Что сделать?"><input type="number" id="quest-reward" placeholder="Бонусы" value="10" style="margin-top:10px"><div class="select-row"><span>🔄 Повтор:</span><select id="quest-repeat"><option value="none">Нет</option><option value="day1">Каждый день</option><option value="day2">Каждые 2 дня</option><option value="day3">Каждые 3 дня</option><option value="week1">Каждую неделю</option><option value="week2">Каждые 2 недели</option><option value="month1">Каждый месяц</option></select></div><button class="btn-choice" onclick="confirmCreateQuest()">ПОСТАВИТЬ ✅</button><button class="btn-choice" onclick="cancelQuest()">ОТМЕНА ❌</button></div>
 <div id="taskModal" class="modal"><h2 id="taskText"></h2><p id="taskReward"></p><p id="taskRecurringMsg" style="color:#ff9800"></p><button class="btn-choice" onclick="completeTask()">ВЫПОЛНИТЬ ✅</button><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ 🔙</button></div>
 <div id="sidebar" class="sidebar"><h2>🏡 Семья</h2><div id="family-list"></div><button class="btn-choice" onclick="addNewMember()">➕ ДОБАВИТЬ ИГРОКА</button><div id="switch-list"></div><hr><button class="btn-choice" onclick="openTransferBonus()">💰 ПЕРЕДАТЬ БОНУСЫ</button><button class="btn-choice" onclick="requestCash()">💵 ОБМЕНЯТЬ НА КЭШ</button><button class="btn-choice" onclick="closeAll()">ЗАКРЫТЬ ❌</button></div>
 <div id="playerSelectModal" class="modal"><h2>👥 Выбор игрока</h2><div id="player-list-modal"></div><button class="btn-choice" onclick="closeModal()">ЗАКРЫТЬ</button></div>
@@ -121,16 +144,38 @@ let state={members:[],adminId:null,currentUserId:null,quests:[],messages:[]},git
 let unreadCount=0;
 const container=document.getElementById('map-container'),view=document.getElementById('viewport'),qBox=document.getElementById('quest-arrows');
 
+function updateDateDisplay(){
+    let now=new Date();
+    let str=now.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})+' '+now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+    document.getElementById('currentDate').innerText='📅 '+str;
+}
+setInterval(updateDateDisplay,60000);
+updateDateDisplay();
+
 function getNextRepeatDate(type){
     let now=new Date();
-    if(type=='hour')now.setHours(now.getHours()+1);
-    else if(type=='day')now.setDate(now.getDate()+1);
-    else if(type=='week')now.setDate(now.getDate()+7);
-    else if(type=='month')now.setMonth(now.getMonth()+1);
-    else return null;
+    switch(type){
+        case 'day1': now.setDate(now.getDate()+1); break;
+        case 'day2': now.setDate(now.getDate()+2); break;
+        case 'day3': now.setDate(now.getDate()+3); break;
+        case 'week1': now.setDate(now.getDate()+7); break;
+        case 'week2': now.setDate(now.getDate()+14); break;
+        case 'month1': now.setMonth(now.getMonth()+1); break;
+        default: return null;
+    }
     return now.toISOString();
 }
-function formatRepeat(t){return t=='hour'?'каждый час':t=='day'?'каждый день':t=='week'?'каждую неделю':t=='month'?'каждый месяц':'';}
+function formatRepeat(t){
+    switch(t){
+        case 'day1': return 'каждый день';
+        case 'day2': return 'каждые 2 дня';
+        case 'day3': return 'каждые 3 дня';
+        case 'week1': return 'каждую неделю';
+        case 'week2': return 'каждые 2 недели';
+        case 'month1': return 'каждый месяц';
+        default: return '';
+    }
+}
 
 const furnitureZones = [
     { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 35 },
@@ -175,7 +220,7 @@ const furnitureZones = [
     { id: 'shkaf_det', name: '📦 Детский шкаф', x: 250, y: 680, r: 32 },
     { id: 'stol_det', name: '📚 Детский стол', x: 280, y: 720, r: 28 }
 ];
- 
+
 let scale=0.5,posX=0,posY=0,isDragging=false,startX,startY,lastTap=0,initialDist=null,initialScale=0,oldPos={s:0.5,x:0,y:0};
 function updateTransform(){container.style.transform=`translate(${posX}px,${posY}px) scale(${scale})`;}
 function applyZoom(d,cx,cy){let r=view.getBoundingClientRect(),ns=Math.min(Math.max(0.1,scale+d),4);posX=(cx-r.left)-(cx-r.left-posX)*(ns/scale);posY=(cy-r.top)-(cy-r.top-posY)*(ns/scale);scale=ns;updateTransform();}
