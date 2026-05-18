@@ -359,6 +359,17 @@
       "type": "normal",
       "repeat": "none",
       "hidden": false
+    },
+    {
+      "id": "1779121147050",
+      "x": 606.7324121835619,
+      "y": 204.43827218920734,
+      "text": "Прибрать вещи с балкона",
+      "reward": 100,
+      "target": "Комната",
+      "type": "adult",
+      "repeat": "none",
+      "hidden": false
     }
   ],
   "messages": [
@@ -1097,5 +1108,5 @@
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-18T16:18:41.289Z"
+  "updated": "2026-05-18T16:19:07.050Z"
 }
