@@ -3,7 +3,7 @@
     {
       "id": "1778768074759",
       "name": "Маман",
-      "points": 600,
+      "points": 610,
       "avatar": "🐯",
       "role": "child"
     },
@@ -1159,9 +1159,17 @@
       "time": "23:20:20",
       "isEvent": true,
       "isAdmin": false
+    },
+    {
+      "id": "1779128488040",
+      "sender": "Маман",
+      "text": "🔄 Задание \"Помыть\" восстановится ",
+      "time": "23:21:28",
+      "isEvent": true,
+      "isAdmin": false
     }
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-18T18:20:20.924Z"
+  "updated": "2026-05-18T18:21:28.040Z"
 }
