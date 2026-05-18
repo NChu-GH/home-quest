@@ -293,9 +293,10 @@
       "text": "Сложить зимние вещи в коробки ",
       "reward": 100,
       "target": "Комната",
-      "type": "normal",
+      "type": "adult",
       "repeat": "none",
-      "hidden": false
+      "hidden": false,
+      "nextRepeat": null
     },
     {
       "id": "1779120936972",
@@ -966,5 +967,5 @@
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-18T16:15:47.309Z"
+  "updated": "2026-05-18T16:15:54.365Z"
 }
