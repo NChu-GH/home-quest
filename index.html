@@ -158,18 +158,16 @@ function updateDateDisplay(){
 setInterval(updateDateDisplay,60000);
 updateDateDisplay();
 
-function getNextRepeatDate(type){
-    let now=new Date();
+function getRepeatDays(type){
     switch(type){
-        case 'day1': now.setDate(now.getDate()+1); break;
-        case 'day2': now.setDate(now.getDate()+2); break;
-        case 'day3': now.setDate(now.getDate()+3); break;
-        case 'week1': now.setDate(now.getDate()+7); break;
-        case 'week2': now.setDate(now.getDate()+14); break;
-        case 'month1': now.setMonth(now.getMonth()+1); break;
-        default: return null;
+        case 'day1': return 1;
+        case 'day2': return 2;
+        case 'day3': return 3;
+        case 'week1': return 7;
+        case 'week2': return 14;
+        case 'month1': return 30;
+        default: return 0;
     }
-    return now.toISOString();
 }
 function formatRepeat(t){
     switch(t){
@@ -182,28 +180,57 @@ function formatRepeat(t){
         default: return '';
     }
 }
-function shouldQuestBeVisible(q){
-    if(q.hidden) return false;
-    if(!q.repeat || q.repeat==='none') return true;
-    if(!q.nextRepeat) return true;
+function getNextAppearanceDate(quest){
+    if(!quest.repeat || quest.repeat==='none') return null;
+    let days=getRepeatDays(quest.repeat);
+    if(days===0) return null;
+    let baseDate=quest.createdAt ? new Date(quest.createdAt) : new Date(quest.id);
     let now=new Date();
-    let next=new Date(q.nextRepeat);
-    return now >= next;
+    let diffDays=Math.floor((now-baseDate)/(1000*60*60*24));
+    let cyclesCompleted=Math.floor(diffDays/days);
+    let nextDate=new Date(baseDate);
+    nextDate.setDate(baseDate.getDate() + (cyclesCompleted+1)*days);
+    if(quest.lastCompletedAt){
+        let lastComp=new Date(quest.lastCompletedAt);
+        let nextFromLast=new Date(lastComp);
+        nextFromLast.setDate(lastComp.getDate()+days);
+        if(nextFromLast>nextDate) nextDate=nextFromLast;
+    }
+    return nextDate;
 }
-
-function restoreRecurringQuests(){
+function shouldQuestBeVisible(quest){
+    if(!quest.repeat || quest.repeat==='none') return true;
+    let nextDate=getNextAppearanceDate(quest);
+    if(!nextDate) return true;
+    let now=new Date();
+    if(quest.lastCompletedAt){
+        let lastComp=new Date(quest.lastCompletedAt);
+        let days=getRepeatDays(quest.repeat);
+        let nextFromLast=new Date(lastComp);
+        nextFromLast.setDate(lastComp.getDate()+days);
+        return now >= nextFromLast;
+    }
+    if(!quest.createdAt){
+        return true;
+    }
+    let createdAt=new Date(quest.createdAt);
+    let days=getRepeatDays(quest.repeat);
+    let nextFromCreate=new Date(createdAt);
+    nextFromCreate.setDate(createdAt.getDate()+days);
+    return now >= nextFromCreate;
+}
+function updateQuestVisibility(){
     let changed=false;
     for(let q of state.quests){
-        if(q.repeat && q.repeat!=='none' && q.nextRepeat){
-            let now=new Date();
-            let next=new Date(q.nextRepeat);
-            if(now >= next){
-                if(q.hidden){
-                    q.hidden=false;
-                    changed=true;
+        if(q.repeat && q.repeat!=='none'){
+            let wasVisible=q.hidden===false;
+            let isVisible=shouldQuestBeVisible(q);
+            if(wasVisible!==isVisible){
+                q.hidden=!isVisible;
+                changed=true;
+                if(isVisible){
+                    addChatMessage(`🔄 Задание "${q.text}" снова доступно!`,true);
                 }
-                let newNext=getNextRepeatDate(q.repeat);
-                if(newNext) q.nextRepeat=newNext;
             }
         }
     }
@@ -212,7 +239,7 @@ function restoreRecurringQuests(){
         renderQuests();
     }
 }
-setInterval(restoreRecurringQuests, 60000);
+setInterval(updateQuestVisibility, 60000);
 
 const furnitureZones = [
     { id: 'Lapomoika', name: '🐾 Лапомойка', x: 745, y: 405, r: 35 },
@@ -311,7 +338,6 @@ function saveToken(){let t=document.getElementById('tokenInput').value.trim();if
 function skipToken(){showStatus('⚠️ Режим просмотра',true);closeModal();loadFromGitHub();}
 async function loadFromGitHub(){document.getElementById('loader').style.display='flex';try{let res=await fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${DATA_FILE}?t=${Date.now()}`);if(res.ok){let d=await res.json();state.members=d.members||[];state.quests=d.quests||[];state.messages=d.messages||[];state.adminId=d.adminId||(state.members[0]?.id||null);state.currentUserId=d.currentUserId||(state.members[0]?.id||null);}else{state.members=[];state.quests=[];state.messages=[];state.adminId=null;state.currentUserId=null;}}catch(e){state.members=[];state.quests=[];state.messages=[];state.adminId=null;state.currentUserId=null;}
 let sid=localStorage.getItem('currentUserId');if(sid&&state.members.find(m=>m.id===sid))state.currentUserId=sid;else if(state.members.length>0){state.currentUserId=state.members[0].id;localStorage.setItem('currentUserId',state.currentUserId);}
-restoreRecurringQuests();
 updateUI();renderQuests();updateBadge();document.getElementById('loader').style.display='none';}
 async function saveToGitHub(){if(!githubToken){showStatus('⚠️ Нет токена',true);return false;}
 let data={members:state.members,quests:state.quests,messages:state.messages,adminId:state.adminId,currentUserId:state.currentUserId,updated:new Date().toISOString()};
@@ -331,14 +357,14 @@ function openTransferBonus(){let cp=state.members.find(m=>m.id===state.currentUs
 let html='';op.forEach(p=>{html+=`<div class="member-item" style="cursor:pointer" onclick="transferTo('${p.id}')"><span>${p.avatar} ${p.name}</span><span>⭐️ ${p.points}</span></div>`;});document.getElementById('transfer-list').innerHTML=html;document.getElementById('transferModal').style.display='block';document.getElementById('overlay').style.display='block';}
 async function transferTo(id){let cp=state.members.find(m=>m.id===state.currentUserId);let target=state.members.find(m=>m.id===id);let amt=prompt(`Сколько передать ${target.name}? (У вас ${cp.points})`,'10');if(amt){let a=parseInt(amt);if(a>cp.points){showStatus(`❌ Недостаточно бонусов`,true);return;}if(a<=0){showStatus('❌ Сумма >0',true);return;}
 cp.points-=a;target.points+=a;await saveToGitHub();updateUI();addChatMessage(`💰 ${cp.name} передал(а) ${a}⭐️ игроку ${target.name}!`,true);showStatus(`✅ Передано ${a}⭐️`);closeModal();closeModal();}}
-async function confirmCreateQuest(){let txt=document.getElementById('new-quest-text').value,reward=parseInt(document.getElementById('quest-reward').value)||10,qtype=document.getElementById('quest-type').value,repeat=document.getElementById('quest-repeat').value;if(txt&&window.tempTarget){let q={id:Date.now().toString(),x:window.tempTarget.x,y:window.tempTarget.y,text:txt,reward:reward,target:window.tempTarget.name,type:qtype,repeat:repeat,hidden:false};if(repeat!=='none')q.nextRepeat=getNextRepeatDate(repeat);state.quests.push(q);document.getElementById('new-quest-text').value='';document.getElementById('quest-reward').value='10';document.getElementById('quest-type').value='normal';document.getElementById('quest-repeat').value='none';await saveToGitHub();renderQuests();let author=state.members.find(m=>m.id===state.currentUserId);let rt=repeat!=='none'?` (повторяется ${formatRepeat(repeat)})`:'';let typeText=qtype==='adult'?'🔞 Взрослое ':'🟢 Обычное ';addChatMessage(`📋 ${author?.name} создал(а) ${typeText}задание: "${txt}" (+${reward}⭐️) для "${window.tempTarget.name}"${rt}`,true);}cancelQuest();}
+async function confirmCreateQuest(){let txt=document.getElementById('new-quest-text').value,reward=parseInt(document.getElementById('quest-reward').value)||10,qtype=document.getElementById('quest-type').value,repeat=document.getElementById('quest-repeat').value;if(txt&&window.tempTarget){let q={id:Date.now().toString(),createdAt:new Date().toISOString(),x:window.tempTarget.x,y:window.tempTarget.y,text:txt,reward:reward,target:window.tempTarget.name,type:qtype,repeat:repeat,lastCompletedAt:null};state.quests.push(q);document.getElementById('new-quest-text').value='';document.getElementById('quest-reward').value='10';document.getElementById('quest-type').value='normal';document.getElementById('quest-repeat').value='none';await saveToGitHub();renderQuests();let author=state.members.find(m=>m.id===state.currentUserId);let rt=repeat!=='none'?` (повторяется ${formatRepeat(repeat)})`:'';let typeText=qtype==='adult'?'🔞 Взрослое ':'🟢 Обычное ';addChatMessage(`📋 ${author?.name} создал(а) ${typeText}задание: "${txt}" (+${reward}⭐️) для "${window.tempTarget.name}"${rt}`,true);}cancelQuest();}
 function openEditQuest(idx){currentEditIndex=idx;let q=state.quests[idx];document.getElementById('edit-quest-text').value=q.text;document.getElementById('edit-quest-reward').value=q.reward;document.getElementById('edit-quest-type').value=q.type||'normal';document.getElementById('edit-quest-repeat').value=q.repeat||'none';document.getElementById('editQuestModal').style.display='block';document.getElementById('overlay').style.display='block';}
-async function saveEditQuest(){if(currentEditIndex!==null&&state.quests[currentEditIndex]){let q=state.quests[currentEditIndex];q.text=document.getElementById('edit-quest-text').value;q.reward=parseInt(document.getElementById('edit-quest-reward').value)||10;q.type=document.getElementById('edit-quest-type').value;q.repeat=document.getElementById('edit-quest-repeat').value;if(q.repeat && q.repeat!=='none'){q.nextRepeat=getNextRepeatDate(q.repeat);q.hidden=false;}else{q.nextRepeat=null;}await saveToGitHub();renderQuests();updateUI();addChatMessage(`✏️ Админ изменил задание: "${q.text}"`,true);closeModal();}}
+async function saveEditQuest(){if(currentEditIndex!==null&&state.quests[currentEditIndex]){let q=state.quests[currentEditIndex];q.text=document.getElementById('edit-quest-text').value;q.reward=parseInt(document.getElementById('edit-quest-reward').value)||10;q.type=document.getElementById('edit-quest-type').value;q.repeat=document.getElementById('edit-quest-repeat').value;await saveToGitHub();renderQuests();updateUI();addChatMessage(`✏️ Админ изменил задание: "${q.text}"`,true);closeModal();}}
 async function deleteQuest(){if(currentEditIndex!==null&&confirm('Удалить задание?')){state.quests.splice(currentEditIndex,1);await saveToGitHub();renderQuests();updateUI();addChatMessage(`🗑 Админ удалил задание`,true);closeModal();}}
 function openAdminTask(idx){currentTaskIndex=idx;let q=state.quests[idx];document.getElementById('adminTaskText').innerHTML=q.text;document.getElementById('adminTaskReward').innerHTML=`⭐️ Награда: +${q.reward} бонусов`;document.getElementById('adminTaskTypeMsg').innerHTML=q.type==='adult'?'🔞 Только для взрослых':'';document.getElementById('adminTaskRecurringMsg').innerHTML=q.repeat && q.repeat!=='none'?`🔄 ${formatRepeat(q.repeat)}`:'';document.getElementById('adminTaskModal').style.display='block';document.getElementById('overlay').style.display='block';}
 function openEditFromAdmin(){if(currentTaskIndex!==null){closeAll();openEditQuest(currentTaskIndex);}}
 function openQuest(idx){currentTaskIndex=idx;let q=state.quests[idx];document.getElementById('taskText').innerHTML=q.text;document.getElementById('taskReward').innerHTML=`⭐️ Награда: +${q.reward} бонусов`;document.getElementById('taskTypeMsg').innerHTML=q.type==='adult'?'🔞 Только для взрослых':'';document.getElementById('taskRecurringMsg').innerHTML=q.repeat && q.repeat!=='none'?`🔄 ${formatRepeat(q.repeat)}`:'';document.getElementById('taskModal').style.display='block';document.getElementById('overlay').style.display='block';}
-async function completeTask(){if(currentTaskIndex!==null&&state.quests[currentTaskIndex]){let q=state.quests[currentTaskIndex],p=state.members.find(m=>m.id===state.currentUserId);if(p){if(q.type==='adult' && p.role!=='adult'){showStatus(`❌ Это задание только для взрослых!`,true);closeAll();return;}p.points+=q.reward;if(q.repeat && q.repeat!=='none'){let newNext=getNextRepeatDate(q.repeat);if(newNext){q.nextRepeat=newNext;q.hidden=true;}addChatMessage(`🔄 Задание "${q.text}" восстановится ${formatRepeat(q.repeat)}`,true);}else{state.quests.splice(currentTaskIndex,1);}await saveToGitHub();renderQuests();updateUI();showStatus(`✅ +${q.reward} бонусов!`);addChatMessage(`🎉 ${p.name} выполнил(а) "${q.text}" и получил(а) +${q.reward}⭐️`,true);}}closeAll();}
+async function completeTask(){if(currentTaskIndex!==null&&state.quests[currentTaskIndex]){let q=state.quests[currentTaskIndex],p=state.members.find(m=>m.id===state.currentUserId);if(p){if(q.type==='adult' && p.role!=='adult'){showStatus(`❌ Это задание только для взрослых!`,true);closeAll();return;}p.points+=q.reward;if(q.repeat && q.repeat!=='none'){q.lastCompletedAt=new Date().toISOString();addChatMessage(`🔄 Задание "${q.text}" выполнено! Следующее появление через ${formatRepeat(q.repeat)}`,true);}else{state.quests.splice(currentTaskIndex,1);}await saveToGitHub();renderQuests();updateUI();showStatus(`✅ +${q.reward} бонусов!`);addChatMessage(`🎉 ${p.name} выполнил(а) "${q.text}" и получил(а) +${q.reward}⭐️`,true);}}closeAll();}
 async function addChatMessage(text,isEvent=false,isAdmin=false){let sender=state.members.find(m=>m.id===state.currentUserId);let time=new Date().toLocaleTimeString();state.messages.push({id:Date.now().toString(),sender:sender?.name||"Система",text:text,time:time,isEvent:isEvent,isAdmin:isAdmin});if(state.messages.length>200)state.messages=state.messages.slice(-200);await saveToGitHub();unreadCount++;updateBadge();if(document.getElementById('chatModal').style.display==='flex'){let cd=document.getElementById('chatMessages');let div=document.createElement('div');div.className='chat-message';if(isAdmin)div.classList.add('admin-message');else if(isEvent)div.classList.add('event-message');div.innerHTML=`<span class="chat-sender">${sender?.name||"Система"}:</span> ${text}<span class="chat-time">${time}</span>`;cd.appendChild(div);cd.scrollTop=cd.scrollHeight;}}
 async function sendChatMessage(){let inp=document.getElementById('chatInput'),t=inp.value.trim();if(t){await addChatMessage(t,false,false);inp.value='';let cd=document.getElementById('chatMessages');if(cd){let div=document.createElement('div');div.className='chat-message';let sender=state.members.find(m=>m.id===state.currentUserId);div.innerHTML=`<span class="chat-sender">${sender?.name||"Аноним"}:</span> ${t}<span class="chat-time">${new Date().toLocaleTimeString()}</span>`;cd.appendChild(div);cd.scrollTop=cd.scrollHeight;}}}
 async function openChat(){await loadFromGitHub();let cd=document.getElementById('chatMessages');if(cd){cd.innerHTML='';state.messages.slice(-50).forEach(m=>{let div=document.createElement('div');div.className='chat-message';if(m.isAdmin)div.classList.add('admin-message');else if(m.isEvent)div.classList.add('event-message');div.innerHTML=`<span class="chat-sender">${m.sender}:</span> ${m.text}<span class="chat-time">${m.time}</span>`;cd.appendChild(div);});cd.scrollTop=cd.scrollHeight;}unreadCount=0;updateBadge();document.getElementById('chatModal').style.display='flex';document.getElementById('overlay').style.display='block';}
