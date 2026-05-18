@@ -335,8 +335,9 @@
       "reward": 100,
       "target": "📚 Шкаф гостиная 2",
       "type": "normal",
-      "repeat": "none",
-      "hidden": false
+      "repeat": "day3",
+      "hidden": false,
+      "nextRepeat": "2026-05-21T18:19:53.094Z"
     },
     {
       "id": "1779121105312",
@@ -1154,5 +1155,5 @@
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-18T16:19:48.573Z"
+  "updated": "2026-05-18T18:19:53.099Z"
 }
