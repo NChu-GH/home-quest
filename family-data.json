@@ -381,7 +381,7 @@
       "reward": 100,
       "target": "Комната",
       "type": "normal",
-      "repeat": "none",
+      "repeat": "day3",
       "hidden": false
     }
   ],
@@ -1193,5 +1193,5 @@
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-18T18:55:21.954Z"
+  "updated": "2026-05-18T18:55:37.704Z"
 }
