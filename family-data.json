@@ -370,6 +370,17 @@
       "type": "adult",
       "repeat": "none",
       "hidden": false
+    },
+    {
+      "id": "1779121173177",
+      "x": 777.5779796270756,
+      "y": 532.3378622393927,
+      "text": "Стирка белого",
+      "reward": 100,
+      "target": "🧺 Корзина",
+      "type": "normal",
+      "repeat": "none",
+      "hidden": false
     }
   ],
   "messages": [
@@ -1116,5 +1127,5 @@
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-18T16:19:08.632Z"
+  "updated": "2026-05-18T16:19:33.177Z"
 }
