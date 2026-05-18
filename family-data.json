@@ -848,9 +848,17 @@
       "time": "08:28:46",
       "isEvent": true,
       "isAdmin": false
+    },
+    {
+      "id": "1779117112107",
+      "sender": "Газан67",
+      "text": "🔄 Теперь играет Газан67",
+      "time": "20:11:52",
+      "isEvent": true,
+      "isAdmin": false
     }
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768502299",
-  "updated": "2026-05-18T15:11:49.812Z"
+  "updated": "2026-05-18T15:11:52.108Z"
 }
