@@ -348,6 +348,17 @@
       "type": "normal",
       "repeat": "none",
       "hidden": false
+    },
+    {
+      "id": "1779121119629",
+      "x": 689.8874021797087,
+      "y": 239.46744099047558,
+      "text": "Помыть полы",
+      "reward": 100,
+      "target": "Комната",
+      "type": "normal",
+      "repeat": "none",
+      "hidden": false
     }
   ],
   "messages": [
@@ -1078,5 +1089,5 @@
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-18T16:18:26.834Z"
+  "updated": "2026-05-18T16:18:39.630Z"
 }
