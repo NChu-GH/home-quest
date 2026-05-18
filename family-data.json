@@ -326,6 +326,17 @@
       "type": "normal",
       "repeat": "none",
       "hidden": false
+    },
+    {
+      "id": "1779121091413",
+      "x": 321.8594558380062,
+      "y": 580.3622706916699,
+      "text": "Помыть полы",
+      "reward": 100,
+      "target": "📚 Шкаф гостиная 2",
+      "type": "normal",
+      "repeat": "none",
+      "hidden": false
     }
   ],
   "messages": [
@@ -1040,5 +1051,5 @@
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-18T16:17:43.686Z"
+  "updated": "2026-05-18T16:18:11.413Z"
 }
