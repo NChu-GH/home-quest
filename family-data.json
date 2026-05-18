@@ -218,7 +218,8 @@
       "reward": 10,
       "target": "Комната",
       "repeat": "day",
-      "nextRepeat": "2026-05-17T07:36:19.881Z"
+      "nextRepeat": "2026-05-17T07:36:19.881Z",
+      "hidden": false
     },
     {
       "id": "1778922239661",
@@ -1211,9 +1212,17 @@
       "time": "23:56:52",
       "isEvent": true,
       "isAdmin": false
+    },
+    {
+      "id": "1779130619758",
+      "sender": "Маман",
+      "text": "🔄 Задание \"Помыть\" снова доступно!",
+      "time": "23:56:59",
+      "isEvent": true,
+      "isAdmin": false
     }
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-18T18:56:52.419Z"
+  "updated": "2026-05-18T18:56:59.758Z"
 }
