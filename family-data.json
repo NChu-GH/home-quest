@@ -296,6 +296,17 @@
       "type": "normal",
       "repeat": "none",
       "hidden": false
+    },
+    {
+      "id": "1779120936972",
+      "x": 310.22324562072754,
+      "y": 325.3042984008789,
+      "text": "Разобрать летние вещи из коробок",
+      "reward": 100,
+      "target": "Комната",
+      "type": "normal",
+      "repeat": "none",
+      "hidden": false
     }
   ],
   "messages": [
@@ -938,5 +949,5 @@
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-18T16:15:12.389Z"
+  "updated": "2026-05-18T16:15:36.972Z"
 }
