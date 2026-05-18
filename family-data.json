@@ -293,9 +293,10 @@
       "text": "Помыть унитаз2",
       "reward": 100,
       "target": "Комната",
-      "type": "normal",
-      "repeat": "none",
-      "hidden": false
+      "type": "adult",
+      "repeat": "day2",
+      "hidden": false,
+      "nextRepeat": "2026-05-20T16:11:35.116Z"
     }
   ],
   "messages": [
@@ -938,5 +939,5 @@
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-18T16:11:25.076Z"
+  "updated": "2026-05-18T16:11:35.117Z"
 }
