@@ -315,6 +315,17 @@
       "repeat": "none",
       "hidden": false,
       "nextRepeat": null
+    },
+    {
+      "id": "1779121062020",
+      "x": 147.6299986116336,
+      "y": 584.0136823786929,
+      "text": "Помыть унитаз",
+      "reward": 100,
+      "target": "Комната",
+      "type": "normal",
+      "repeat": "none",
+      "hidden": false
     }
   ],
   "messages": [
@@ -1021,5 +1032,5 @@
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-18T16:17:24.997Z"
+  "updated": "2026-05-18T16:17:42.022Z"
 }
