@@ -3,7 +3,7 @@
     {
       "id": "1778768074759",
       "name": "Маман",
-      "points": 1110,
+      "points": 1210,
       "avatar": "🐯",
       "role": "child"
     },
@@ -323,17 +323,6 @@
       "target": "🧺 Корзина",
       "type": "normal",
       "repeat": "none",
-      "hidden": false
-    },
-    {
-      "id": "1779121186752",
-      "x": 309.14457256001276,
-      "y": 835.8606039325344,
-      "text": "Помыть полы",
-      "reward": 100,
-      "target": "Комната",
-      "type": "normal",
-      "repeat": "day3",
       "hidden": false
     }
   ],
@@ -1377,5 +1366,5 @@
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-19T08:29:41.693Z"
+  "updated": "2026-05-19T08:29:53.140Z"
 }
