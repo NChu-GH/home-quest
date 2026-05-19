@@ -17,7 +17,7 @@
     {
       "id": "1778768507836",
       "name": "Бабуся",
-      "points": 370,
+      "points": 470,
       "avatar": "🐼",
       "role": "child"
     }
@@ -321,7 +321,8 @@
       "type": "normal",
       "repeat": "day2",
       "hidden": false,
-      "nextRepeat": "2026-05-20T18:20:19.104Z"
+      "nextRepeat": "2026-05-20T18:20:19.104Z",
+      "lastCompletedAt": "2026-05-19T05:07:46.614Z"
     },
     {
       "id": "1779121105312",
@@ -1300,9 +1301,17 @@
       "time": "10:07:19",
       "isEvent": true,
       "isAdmin": false
+    },
+    {
+      "id": "1779167266615",
+      "sender": "Бабуся",
+      "text": "🔄 Задание \"Помыть полы\" выполнено! Следующее появление через каждые 2 дня",
+      "time": "10:07:46",
+      "isEvent": true,
+      "isAdmin": false
     }
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768507836",
-  "updated": "2026-05-19T05:07:19.496Z"
+  "updated": "2026-05-19T05:07:46.615Z"
 }
