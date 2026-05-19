@@ -17,7 +17,7 @@
     {
       "id": "1778768507836",
       "name": "Бабуся",
-      "points": 100,
+      "points": 150,
       "avatar": "🐼",
       "role": "child"
     }
@@ -233,7 +233,8 @@
       "target": "🚽 Унитаз",
       "repeat": "day",
       "nextRepeat": "2026-05-17T09:04:30.699Z",
-      "hidden": false
+      "hidden": false,
+      "lastCompletedAt": "2026-05-19T03:09:22.978Z"
     },
     {
       "id": "1779003936439",
@@ -1264,9 +1265,17 @@
       "time": "08:04:23",
       "isEvent": true,
       "isAdmin": false
+    },
+    {
+      "id": "1779160162981",
+      "sender": "Бабуся",
+      "text": "🔄 Задание \"Помыть унитаз\" выполнено! Следующее появление через ",
+      "time": "08:09:22",
+      "isEvent": true,
+      "isAdmin": false
     }
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768507836",
-  "updated": "2026-05-19T03:04:23.447Z"
+  "updated": "2026-05-19T03:09:22.981Z"
 }
