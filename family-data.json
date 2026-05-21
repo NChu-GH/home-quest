@@ -17,7 +17,7 @@
     {
       "id": "1778768507836",
       "name": "Бабуся",
-      "points": 250,
+      "points": 350,
       "avatar": "🐼",
       "role": "child"
     }
@@ -228,17 +228,6 @@
       "reward": 100,
       "target": "Комната",
       "type": "adult",
-      "repeat": "none",
-      "hidden": false
-    },
-    {
-      "id": "1779121173177",
-      "x": 777.5779796270756,
-      "y": 532.3378622393927,
-      "text": "Стирка белого",
-      "reward": 100,
-      "target": "🧺 Корзина",
-      "type": "normal",
       "repeat": "none",
       "hidden": false
     },
@@ -1578,5 +1567,5 @@
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768507836",
-  "updated": "2026-05-21T08:11:17.830Z"
+  "updated": "2026-05-21T08:11:49.038Z"
 }
