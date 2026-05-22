@@ -1571,9 +1571,17 @@
       "time": "13:11:50",
       "isEvent": true,
       "isAdmin": false
+    },
+    {
+      "id": "1779415232443",
+      "sender": "Маман",
+      "text": "🔄 Теперь играет Маман",
+      "time": "07:00:32",
+      "isEvent": true,
+      "isAdmin": false
     }
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-22T02:00:30.111Z"
+  "updated": "2026-05-22T02:00:32.443Z"
 }
