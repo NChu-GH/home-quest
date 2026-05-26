@@ -1620,9 +1620,17 @@
       "time": "08:29:29",
       "isEvent": true,
       "isAdmin": false
+    },
+    {
+      "id": "1779810114657",
+      "sender": "Маман",
+      "text": "🔄 Маман теперь взрослый",
+      "time": "20:41:54",
+      "isEvent": true,
+      "isAdmin": false
     }
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-26T15:41:52.120Z"
+  "updated": "2026-05-26T15:41:54.657Z"
 }
