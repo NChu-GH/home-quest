@@ -19,7 +19,7 @@
       "name": "Бабуся",
       "points": 550,
       "avatar": "🐼",
-      "role": "child"
+      "role": "adult"
     }
   ],
   "quests": [
@@ -1646,5 +1646,5 @@
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-05-26T15:42:20.774Z"
+  "updated": "2026-05-26T15:42:27.791Z"
 }
