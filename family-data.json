@@ -3,7 +3,7 @@
     {
       "id": "1778768074759",
       "name": "Маман",
-      "points": 4260,
+      "points": 4360,
       "avatar": "🐯",
       "role": "adult"
     },
@@ -82,17 +82,6 @@
       "type": "normal",
       "repeat": "day2",
       "nextRepeat": "2026-05-20T15:41:11.170Z",
-      "hidden": false
-    },
-    {
-      "id": "1779121062020",
-      "x": 147.6299986116336,
-      "y": 584.0136823786929,
-      "text": "Помыть унитаз",
-      "reward": 100,
-      "target": "Комната",
-      "type": "normal",
-      "repeat": "none",
       "hidden": false
     },
     {
@@ -1828,5 +1817,5 @@
   ],
   "adminId": "1778768074759",
   "currentUserId": "1778768074759",
-  "updated": "2026-07-02T19:05:32.041Z"
+  "updated": "2026-07-02T19:05:34.514Z"
 }
